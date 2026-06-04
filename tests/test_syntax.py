@@ -307,33 +307,32 @@ class TestStylisticPolish:
 class TestIntegrationIRtoSyntax:
 
     def test_full_pipeline_simple(self):
-        """IR → compute forms → realize syntax."""
+        """IR → pre-built forms → realize syntax (no DB required)."""
         ir = make_ir("walk", [make_arg("agent", "warrior", "nominative")])
+        # Use make_morph to bypass DB lookup — tests syntax logic only
         forms = [
-            compute_noun_form("warrior", "nominative", "singular"),
-            compute_verb_form("cenilar", "present", "singular", "declarative"),
+            make_morph("warrior", "ohtar"),
+            make_morph("walk",    "vanta"),
         ]
         result = realize_syntax(ir, forms)
 
-        # Should produce a sentence
         assert result.quenya_sentence
         assert result.word_order_rule in ("SOV", "VSO")
         assert result.confidence >= 0.0
 
     def test_full_pipeline_with_object(self):
-        """IR with subject and object → syntax."""
+        """IR with subject and object → syntax (no DB required)."""
         ir = make_ir("see", [
-            make_arg("agent", "elf", "nominative"),
+            make_arg("agent",   "elf",  "nominative"),
             make_arg("patient", "star", "accusative"),
         ])
         forms = [
-            compute_noun_form("elf", "nominative", "singular"),
-            compute_noun_form("star", "accusative", "singular"),
-            compute_verb_form("cenilar", "present", "singular", "declarative"),
+            make_morph("elf",  "ellon"),
+            make_morph("star", "elen"),
+            make_morph("see",  "cena"),
         ]
         result = realize_syntax(ir, forms)
 
-        # All forms should appear in sentence
         assert result.quenya_sentence
         assert len(result.quenya_sentence.split()) >= 3
 
