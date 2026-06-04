@@ -125,8 +125,8 @@ with tab_qa:
 with tab_translate:
     st.markdown(
         "**Phase 2 — Sentence translation**  \n"
-        "Layer 2.5 computes Quenya word forms deterministically before the LLM "
-        "arranges them. The LLM does NOT compute morphology here — it only styles "
+        "Layer 2 computes Quenya word forms deterministically before Layer 3 "
+        "assembles them. The LLM (Layer 4) does NOT compute morphology here — it only styles "
         "the pre-computed forms."
     )
 
@@ -185,16 +185,24 @@ with tab_translate:
                 if result.warning:
                     st.warning(f"⚠️ {result.warning}")
 
+                # Map confidence level to emoji badge
+                from src.morphology import ConfidenceLevel
+                conf_badge = {
+                    ConfidenceLevel.HIGH: "🟢 HIGH",
+                    ConfidenceLevel.MEDIUM: "🟡 MEDIUM",
+                    ConfidenceLevel.LOW: "🔴 LOW",
+                }.get(result.confidence_floor, "⚪ UNKNOWN")
+
                 st.caption(
-                    f"Confidence floor: **{result.confidence_floor:.0%}** · "
+                    f"Confidence floor: **{conf_badge}** · "
                     f"LLM used: {'yes' if result.llm_used else 'no (fallback assembly)'}"
                 )
 
                 if result.explanation:
                     st.markdown(f"*{result.explanation}*")
 
-                # --- Layer 2.5 detail (expandable) ---
-                with st.expander("🔬 Layer 2.5 — computed word forms"):
+                # --- Layer 2 detail (expandable) ---
+                with st.expander("🔬 Layer 2 — computed word forms"):
                     st.markdown(
                         "These forms were computed **deterministically** by the "
                         "morphological engine — no LLM involved."
@@ -202,6 +210,14 @@ with tab_translate:
                     for f in result.morphed_forms:
                         reliable = f.is_reliable()
                         icon = "✅" if reliable else "⚠️"
+
+                        # Confidence level badge
+                        from src.morphology import ConfidenceLevel
+                        conf_emoji = {
+                            ConfidenceLevel.HIGH: "🟢",
+                            ConfidenceLevel.MEDIUM: "🟡",
+                            ConfidenceLevel.LOW: "🔴",
+                        }.get(f.confidence_level, "⚪")
 
                         # Attestation badge
                         attestation_badge = {
@@ -213,16 +229,18 @@ with tab_translate:
                         st.markdown(
                             f"{icon} **{f.english_lemma}** → `{f.quenya_form}`  \n"
                             f"&nbsp;&nbsp;&nbsp;&nbsp;"
-                            f"*{f.feature}* · {attestation_badge} · conf {f.confidence:.0%} · {f.source_note}"
+                            f"*{f.feature}* · {attestation_badge} · {conf_emoji} {f.confidence_level.value} · {f.source_note}"
                         )
+                        if f.rule_id:
+                            st.caption(f"    rule: {f.rule_id}")
                         if f.warning:
-                            st.caption(f"    {f.warning}")
+                            st.caption(f"    ⚠️ {f.warning}")
 
-                # --- Layer 2.8 detail (expandable) ---
-                with st.expander("🧩 Layer 2.8 — Syntax assembly"):
+                # --- Layer 3 detail (expandable) ---
+                with st.expander("🧩 Layer 3 — Syntax assembly"):
                     st.markdown("Word order, particles, and oblique argument placement.")
                     st.caption(
-                        f"Word order: **{result.morphed_forms[-1] if result.morphed_forms else 'N/A'}**"
+                        "Deterministic rules: SOV word order (subject-object-verb) with optional particles."
                     )
 
                 # --- Semantic IR (expandable) ---
