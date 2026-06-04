@@ -22,9 +22,9 @@ build/
 .vscode/
 .idea/
 
-# Vector DB and data (large binary files — generated locally, not committed)
-vector_db/*.sqlite
-vector_db/*.index
+# Vector DB raw format (large, rarely needed)
+# Note: faiss.index, metadata.json, dictionary.sqlite ARE committed
+# so Streamlit Cloud can load them without rebuilding.
 vector_db/*.faiss
 
 # Jupyter
