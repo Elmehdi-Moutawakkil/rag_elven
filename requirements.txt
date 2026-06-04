@@ -1,0 +1,35 @@
+# Dépendances pour RAGElven — Streamlit Cloud
+# Seuls les packages réellement utilisés par l'app sont listés ici.
+# Streamlit Cloud les installe automatiquement au déploiement.
+
+# Interface web
+streamlit>=1.32.0
+
+# Embeddings et recherche vectorielle
+sentence-transformers>=2.6.0
+faiss-cpu>=1.7.4
+
+# LLM (API Groq)
+groq>=0.9.0
+
+# LLM alternatif — LM Studio local (API compatible OpenAI)
+openai>=1.0.0
+
+# Lecture de fichiers PDF
+pypdf>=4.0.0
+
+# Découpage des textes en chunks
+langchain-text-splitters>=0.2.0
+
+# Variables d'environnement (.env local)
+# Sur Streamlit Cloud les secrets sont injectés via les Settings → Secrets
+python-dotenv>=1.0.0
+
+# Calcul numérique (requis par faiss et sentence-transformers)
+numpy>=1.24.0
+
+# Layer 1 — NLP parsing (English sentence → Semantic IR)
+# The model is declared as a direct wheel URL so Streamlit Cloud installs it
+# during the build phase — no runtime download needed (avoids permission errors).
+spacy>=3.7.0
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
