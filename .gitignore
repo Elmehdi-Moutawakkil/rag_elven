@@ -1,0 +1,35 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Local environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# Vector DB and data (large binary files — generated locally, not committed)
+vector_db/*.sqlite
+vector_db/*.index
+vector_db/*.faiss
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
