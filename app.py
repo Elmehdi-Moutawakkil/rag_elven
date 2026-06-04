@@ -29,10 +29,19 @@ from src.llm        import answer
 
 @st.cache_resource
 def load_resources():
-    """Charge le modèle, l'index FAISS et les metadata une seule fois."""
-    model           = load_model()
-    index, metadata = load_faiss()
-    return model, index, metadata
+    """Charge le modèle, l'index FAISS et les metadata une seule fois.
+
+    Returns (None, None, None) if the vector index hasn't been built yet —
+    the app degrades gracefully: Translate tab still works, Q&A tab shows
+    a clear message instead of crashing the whole app.
+    """
+    try:
+        model           = load_model()
+        index, metadata = load_faiss()
+        return model, index, metadata
+    except Exception as e:
+        # Index not built yet — not a fatal error for the app as a whole
+        return None, None, str(e)
 
 
 # ---------------------------------------------------------------------------
@@ -48,8 +57,11 @@ st.set_page_config(
 st.title("🧝 RAG Elfique")
 st.caption("Quenya & Sindarin — questions et traductions")
 
-with st.spinner("Chargement du modèle et de l'index..."):
+with st.spinner("Chargement des ressources…"):
     model, index, metadata = load_resources()
+
+# Detect whether Q&A resources are available
+_qa_available = model is not None and index is not None
 
 # ---------------------------------------------------------------------------
 # Tabs : Q&A (Phase 1)  |  Translate (Phase 2)
@@ -60,45 +72,52 @@ tab_qa, tab_translate = st.tabs(["💬 Q&A", "🧝 Translate (Phase 2)"])
 # ============================= TAB 1 — Q&A ==================================
 
 with tab_qa:
-    st.markdown("Posez une question sur les langues elfiques de Tolkien.")
+    if not _qa_available:
+        st.warning(
+            "⚠️ **Index de recherche non disponible**  \n"
+            "La base vectorielle (FAISS) n'a pas encore été construite sur ce déploiement.  \n"
+            "Le tab **🧝 Translate** fonctionne normalement — utilisez-le pour les traductions."
+        )
+    else:
+        st.markdown("Posez une question sur les langues elfiques de Tolkien.")
 
-    question = st.text_input(
-        label="Votre question",
-        placeholder="Ex: What does elda mean? / How does the plural work in Quenya?",
-        key="qa_input",
-    )
+        question = st.text_input(
+            label="Votre question",
+            placeholder="Ex: What does elda mean? / How does the plural work in Quenya?",
+            key="qa_input",
+        )
 
-    if question:
-        with st.spinner("Analyse de la question..."):
-            results = retrieve(question, model, index, metadata, k=3)
+        if question:
+            with st.spinner("Analyse de la question..."):
+                results = retrieve(question, model, index, metadata, k=3)
 
-        with st.spinner("Génération de la réponse..."):
-            response = answer(question, results["faiss"], results["dictionary"])
+            with st.spinner("Génération de la réponse..."):
+                response = answer(question, results["faiss"], results["dictionary"])
 
-        st.markdown("### Réponse")
-        st.write(response)
+            st.markdown("### Réponse")
+            st.write(response)
 
-        rewriter = results.get("rewriter", {})
-        if rewriter:
-            query_type = rewriter.get("type", "?")
-            keyword    = rewriter.get("keyword", "?")
-            badge = "🟢 vocabulaire" if query_type == "vocabulary" else "🔵 lore / grammaire"
-            st.caption(f"Agent → {badge} · mot-clé recherché : **{keyword}**")
+            rewriter = results.get("rewriter", {})
+            if rewriter:
+                query_type = rewriter.get("type", "?")
+                keyword    = rewriter.get("keyword", "?")
+                badge = "🟢 vocabulaire" if query_type == "vocabulary" else "🔵 lore / grammaire"
+                st.caption(f"Agent → {badge} · mot-clé recherché : **{keyword}**")
 
-        with st.expander("Voir les sources utilisées"):
-            if results["dictionary"]:
-                st.markdown("**Dictionnaire (SQLite)**")
-                for entry in results["dictionary"][:5]:
-                    st.markdown(
-                        f"- **{entry.get('word')}** ({entry.get('language')}) "
-                        f"→ {entry.get('translation')}"
-                    )
-            if results["faiss"]:
-                st.markdown("**Passages (FAISS)**")
-                for r in results["faiss"]:
-                    source = r.get("source", "").split("/")[-1]
-                    st.markdown(f"*{source}* — score {r['score']:.3f}")
-                    st.caption(r["text"][:300])
+            with st.expander("Voir les sources utilisées"):
+                if results["dictionary"]:
+                    st.markdown("**Dictionnaire (SQLite)**")
+                    for entry in results["dictionary"][:5]:
+                        st.markdown(
+                            f"- **{entry.get('word')}** ({entry.get('language')}) "
+                            f"→ {entry.get('translation')}"
+                        )
+                if results["faiss"]:
+                    st.markdown("**Passages (FAISS)**")
+                    for r in results["faiss"]:
+                        source = r.get("source", "").split("/")[-1]
+                        st.markdown(f"*{source}* — score {r['score']:.3f}")
+                        st.caption(r["text"][:300])
 
 
 # ========================= TAB 2 — TRANSLATE ================================
