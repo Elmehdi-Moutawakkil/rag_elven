@@ -12,7 +12,7 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.ir import SemanticIR, PredicateIR, Argument
-from src.morphology import MorphResult, compute_noun_form, compute_verb_form
+from src.morphology import MorphResult, ConfidenceLevel, compute_noun_form, compute_verb_form
 from src.syntax import (
     realize_syntax, add_stylistic_polish, should_add_definite_article,
     is_copula_verb, should_omit_copula, SyntaxResult
@@ -44,7 +44,7 @@ def make_morph(english_lemma, quenya_form):
         quenya_lemma=quenya_form,
         quenya_form=quenya_form,
         feature="test",
-        confidence=0.8,
+        confidence_level=ConfidenceLevel.HIGH,
         source_note="test",
     )
 

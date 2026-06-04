@@ -1,17 +1,18 @@
 """
-Layer 2.5 + 3 orchestrator — English → Quenya sentence translation
+Full translation pipeline — English → Quenya sentence translation
 
 Pipeline:
-  1. Layer 1  (ir.py)         : parse English → SemanticIR
-  2. Layer 2.5 (morphology.py): compute Quenya word forms deterministically
-  3. Layer 3  (this file)     : LLM receives pre-computed forms → styles + arranges
+  1. Layer 1 (ir.py)         : parse English → SemanticIR
+  2. Layer 2 (morphology.py) : compute Quenya word forms deterministically
+  3. Layer 3 (syntax.py)     : assemble forms into Quenya sentence
+  4. Layer 4 (LLM optional)  : stylistic polish only (no morphology recomputation)
 
-The LLM's job here is ONLY:
-  - choosing word order (Quenya tends toward SOV or verb-initial)
-  - adding grammatical particles (i, ar, etc.) if needed
-  - adjusting register to authentic Elven style
+The LLM's job (Layer 4) is ONLY:
+  - stylistic register adjustment
+  - optional poetic word order for dramatic effect
+  - does NOT compute morphology or change case endings
 
-The LLM does NOT compute morphology. That was done in Layer 2.5.
+All morphology is computed deterministically in Layer 2.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ from typing import Optional
 from dotenv import load_dotenv
 
 from src.ir import SemanticIR, parse_english
-from src.morphology import MorphResult, compute_noun_form, compute_verb_form
+from src.morphology import MorphResult, ConfidenceLevel, compute_noun_form, compute_verb_form
 from src.syntax import realize_syntax, add_stylistic_polish, SyntaxResult
 
 load_dotenv()
@@ -37,15 +38,15 @@ class TranslationResult:
     """The output of a full English → Quenya translation."""
     english_sentence: str
     quenya_sentence: str         # the final Quenya output
-    morphed_forms: list[MorphResult]  # all pre-computed word forms (Layer 2.5)
-    explanation: str             # LLM's explanation of arrangement choices
-    confidence_floor: float      # minimum confidence across all computed forms
+    morphed_forms: list[MorphResult]  # all pre-computed word forms (Layer 2)
+    explanation: str             # explanation of choices made
+    confidence_floor: ConfidenceLevel  # worst confidence level across all forms
     llm_used: bool               # True if LLM was called, False if fallback assembly
-    warning: str = ""            # set if any forms had confidence=0.0
+    warning: str = ""            # set if any forms had confidence=LOW
 
 
 # ---------------------------------------------------------------------------
-# Morphological computation from IR  (Layer 2.5 applied to full sentence)
+# Morphological computation from IR  (Layer 2 applied to full sentence)
 # ---------------------------------------------------------------------------
 
 def compute_all_forms(ir: SemanticIR) -> list[MorphResult]:
@@ -73,7 +74,7 @@ def compute_all_forms(ir: SemanticIR) -> list[MorphResult]:
                 quenya_lemma=arg.lemma,
                 quenya_form=arg.lemma.capitalize(),  # keep as-is, capitalized
                 feature=f"{arg.case} {arg.number} (proper noun — transliterated)",
-                confidence=0.70,
+                confidence_level=ConfidenceLevel.MEDIUM,
                 source_note="proper nouns kept in original form",
                 warning="proper noun: Quenya form may differ in attested texts",
             )
@@ -94,69 +95,81 @@ def compute_all_forms(ir: SemanticIR) -> list[MorphResult]:
 
 
 # ---------------------------------------------------------------------------
-# LLM prompt construction  (Layer 3)
+# LLM prompt construction  (Layer 4)
 # ---------------------------------------------------------------------------
 
 def build_translation_prompt(ir: SemanticIR, forms: list[MorphResult], syntax_result: SyntaxResult) -> str:
-    """Build the prompt for Layer 3: stylistic polish only.
+    """Build the prompt for Layer 4: stylistic polish only.
 
-    The syntax layer (Layer 2.8) has already assembled the sentence deterministically.
+    The syntax layer (Layer 3) has already assembled the sentence deterministically.
     The LLM's ONLY job is stylistic register adjustment, NOT arrangement or morphology.
 
     Args:
         ir            : semantic representation of the source sentence
-        forms         : pre-computed Quenya word forms from Layer 2.5
-        syntax_result : pre-assembled Quenya sentence from Layer 2.8
+        forms         : pre-computed Quenya word forms from Layer 2
+        syntax_result : pre-assembled Quenya sentence from Layer 3
     """
-    # Format each computed form as reference
+    # Format each computed form with confidence level
     form_lines = []
     for f in forms:
-        line = f"  • {f.quenya_form:15s} ← {f.english_lemma} ({f.feature}, {f.confidence:.0%})"
+        confidence_badge = {
+            ConfidenceLevel.HIGH: "🟢",
+            ConfidenceLevel.MEDIUM: "🟡",
+            ConfidenceLevel.LOW: "🔴",
+        }.get(f.confidence_level, "⚪")
+        line = f"  {confidence_badge} {f.quenya_form:15s} ← {f.english_lemma} ({f.feature})"
+        if f.rule_id:
+            line += f" [{f.rule_id}]"
         if f.warning:
             line += f"\n    ⚠️  {f.warning}"
         form_lines.append(line)
     forms_text = "\n".join(form_lines)
 
-    # Minimum confidence across all forms
-    valid_confs = [f.confidence for f in forms if f.confidence > 0]
-    conf_floor = min(valid_confs) if valid_confs else 0.0
+    # Worst confidence across all forms
+    conf_levels = [f.confidence_level for f in forms]
+    if ConfidenceLevel.LOW in conf_levels:
+        conf_floor_text = "🔴 LOW"
+    elif ConfidenceLevel.MEDIUM in conf_levels:
+        conf_floor_text = "🟡 MEDIUM"
+    else:
+        conf_floor_text = "🟢 HIGH"
 
     return f"""You are an expert in Quenya stylistics, the High Elven language created by J.R.R. Tolkien.
 
-The deterministic syntax engine (Layer 2.8) has ALREADY ASSEMBLED a Quenya sentence below.
-The morphological engine (Layer 2.5) has already computed all word forms.
+The deterministic syntax engine (Layer 3) has ALREADY ASSEMBLED a Quenya sentence below.
+The morphological engine (Layer 2) has already computed all word forms.
 
-YOUR JOB IS ONLY:
-  1. Review the pre-assembled sentence for Tolkienian register and style.
-  2. Make ONLY stylistic improvements (word order for drama, poetic inversion, etc.)
+YOUR JOB IS ONLY TO REVIEW FOR STYLE:
+  1. Check if the pre-assembled sentence reads well in Tolkienian register.
+  2. Make ONLY stylistic improvements (word order for drama, poetic tone, etc.)
      — DO NOT change case endings or inflections.
-  3. If the assembly looks wrong, suggest minor register adjustments, not rewrites.
-  4. Briefly explain any stylistic choices you made (or confirm it's already good).
+  3. If something seems off, describe the issue (don't rewrite it).
+  4. Briefly explain what you kept or adjusted, or "kept as-is" if it's already good.
 
 DO NOT:
-  - Recompute inflections or change case endings.
-  - Rearrange word order unless it serves stylistic effect (rare).
-  - Invent words not in the pre-computed forms.
+  - Recompute inflections or change case endings — those were computed in Layer 2.
+  - Rearrange word order unless it serves poetic effect (rare).
+  - Invent words not in the pre-computed forms below.
 
 ═══════════════════════════════════════════════════
 ORIGINAL ENGLISH: {ir.raw_sentence}
 
-PRE-ASSEMBLED QUENYA (from deterministic Layer 2.8):
+PRE-ASSEMBLED QUENYA (from deterministic Layer 3):
   {syntax_result.quenya_sentence}
 
-PRE-COMPUTED FORMS (reference only):
+PRE-COMPUTED FORMS (reference only, from Layer 2):
 {forms_text}
 
-ASSEMBLY NOTES:
-  Word order rule: {syntax_result.word_order_rule}
+ASSEMBLY METADATA:
+  Word order pattern: {syntax_result.word_order_rule}
   Particles added: {', '.join(syntax_result.particles_added) if syntax_result.particles_added else '(none)'}
-  Assembly confidence: {syntax_result.confidence:.0%}
+  Lowest confidence level: {conf_floor_text}
 ═══════════════════════════════════════════════════
 
 Respond in this exact format:
-QUENYA: [final Quenya sentence — keep the assembly above unless stylistic improvement needed]
-POLISH: [brief note on any stylistic adjustments made, or "kept as-is" if assembly is good]
-CONFIDENCE: [overall confidence, given computed floor of {conf_floor:.0%}]"""
+QUENYA: [final Quenya sentence]
+POLISH: [your stylistic notes, or "kept as-is" if assembly is good]
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -308,10 +321,10 @@ def _guess_grammar_fix(sentence: str) -> str:
 def translate(english_sentence: str) -> TranslationResult:
     """Translate an English sentence to Quenya using the full 4-layer pipeline.
 
-    Layer 1   — parse English into SemanticIR
-    Layer 2.5 — compute Quenya word forms deterministically
-    Layer 2.8 — deterministic syntax: word order, particles, arrangement
-    Layer 3   — LLM applies stylistic polish ONLY (optional)
+    Layer 1 — parse English into SemanticIR
+    Layer 2 — compute Quenya word forms deterministically
+    Layer 3 — deterministic syntax: word order, particles, arrangement
+    Layer 4 — LLM applies stylistic polish ONLY (optional)
 
     Args:
         english_sentence: any English sentence
@@ -336,23 +349,30 @@ def translate(english_sentence: str) -> TranslationResult:
             warning=parse_error,
         )
 
-    # --- Layer 2.5: compute morphological forms ---
+    # --- Layer 2: compute morphological forms ---
     forms = compute_all_forms(ir)
 
     # --- Confidence summary ---
-    valid_confs   = [f.confidence for f in forms if f.confidence > 0]
-    conf_floor    = round(min(valid_confs), 3) if valid_confs else 0.0
-    missing_forms = [f for f in forms if f.confidence == 0.0]
-    warning       = (
+    conf_levels    = [f.confidence_level for f in forms]
+    missing_forms  = [f for f in forms if f.confidence_level == ConfidenceLevel.LOW and f.quenya_form.startswith("[")]
+
+    if ConfidenceLevel.LOW in conf_levels:
+        conf_floor = ConfidenceLevel.LOW
+    elif ConfidenceLevel.MEDIUM in conf_levels:
+        conf_floor = ConfidenceLevel.MEDIUM
+    else:
+        conf_floor = ConfidenceLevel.HIGH
+
+    warning = (
         f"{len(missing_forms)} word(s) not in dictionary: "
         + ", ".join(f.english_lemma for f in missing_forms)
         if missing_forms else ""
     )
 
-    # --- Layer 2.8: deterministic syntax assembly ---
+    # --- Layer 3: deterministic syntax assembly ---
     syntax_result = realize_syntax(ir, forms)
 
-    # --- Layer 3: LLM stylistic polish (optional) ---
+    # --- Layer 4: LLM stylistic polish (optional) ---
     prompt   = build_translation_prompt(ir, forms, syntax_result)
     llm_resp = _call_llm(prompt)
 
@@ -367,7 +387,7 @@ def translate(english_sentence: str) -> TranslationResult:
         # No LLM available: use deterministic assembly as-is
         quenya_sentence = syntax_result.quenya_sentence
         explanation     = (
-            f"Deterministic assembly (Layer 2.8): {syntax_result.word_order_rule} order. "
+            f"Deterministic assembly (Layer 3): {syntax_result.word_order_rule} order. "
             f"No LLM available for stylistic polish."
         )
         llm_used = False
@@ -409,12 +429,17 @@ if __name__ == "__main__":
         try:
             result = translate(sent)
             print(f"Quenya: {result.quenya_sentence}")
-            print(f"Confidence floor: {result.confidence_floor:.0%}")
+            conf_badge = "🟢 HIGH" if result.confidence_floor == ConfidenceLevel.HIGH else \
+                        "🟡 MEDIUM" if result.confidence_floor == ConfidenceLevel.MEDIUM else "🔴 LOW"
+            print(f"Confidence floor: {conf_badge}")
             if result.warning:
                 print(f"⚠️  {result.warning}")
             print("Forms:")
             for f in result.morphed_forms:
-                mark = "⚠️" if not f.is_reliable() else "✓"
-                print(f"  {mark} {f.english_lemma:10s} → {f.quenya_form} ({f.feature})")
+                conf_badge = "🟢" if f.confidence_level == ConfidenceLevel.HIGH else \
+                            "🟡" if f.confidence_level == ConfidenceLevel.MEDIUM else "🔴"
+                mark = "⚠️" if not f.is_reliable() else conf_badge
+                rule_note = f" [{f.rule_id}]" if f.rule_id else ""
+                print(f"  {mark} {f.english_lemma:10s} → {f.quenya_form} ({f.feature}){rule_note}")
         except Exception as e:
             print(f"  Error: {e}")

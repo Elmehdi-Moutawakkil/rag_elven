@@ -1,7 +1,7 @@
 """
-Layer 2.8: Deterministic Quenya syntax realizer
+Layer 3: Deterministic Quenya syntax realizer
 
-Takes pre-computed word forms (from Layer 2.5 morphology) and arranges them
+Takes pre-computed word forms (from Layer 2 morphology) and arranges them
 into a Quenya sentence using deterministic rules:
 
   1. Word order: SOV (Subject-Object-Verb) is primary, VSO alternative
@@ -10,7 +10,7 @@ into a Quenya sentence using deterministic rules:
   4. Oblique arguments: typically after verb
   5. Copula handling: often omitted in Quenya
 
-The LLM receives the pre-assembled sentence and only adjusts register/style.
+The LLM (Layer 4) receives the pre-assembled sentence and only adjusts register/style.
 """
 
 from __future__ import annotations
@@ -149,15 +149,21 @@ def realize_syntax(ir: SemanticIR, morphed_forms: list[MorphResult]) -> SyntaxRe
     # --- Join and clean ---
     sentence = " ".join(p for p in parts if p)
 
-    # --- Confidence: based on form confidence ---
-    valid_confs = [f.confidence for f in morphed_forms if f.confidence > 0]
-    confidence = min(valid_confs) if valid_confs else 0.5
+    # --- Confidence: based on worst form confidence ---
+    from src.morphology import ConfidenceLevel
+    conf_levels = [f.confidence_level for f in morphed_forms]
+    if ConfidenceLevel.LOW in conf_levels:
+        worst_conf = 0.3
+    elif ConfidenceLevel.MEDIUM in conf_levels:
+        worst_conf = 0.75
+    else:
+        worst_conf = 0.9
 
     return SyntaxResult(
         quenya_sentence=sentence,
         word_order_rule=word_order,
         particles_added=particles,
-        confidence=confidence,
+        confidence=worst_conf,
         notes=f"Applied {word_order} word order with {len(particles)} particle(s)",
     )
 

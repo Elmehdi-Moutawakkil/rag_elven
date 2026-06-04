@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from unittest.mock import patch
 from src.morphology import (
     MorphResult,
+    ConfidenceLevel,
     classify_stem,
     classify_verb,
     decline_noun,
@@ -32,14 +33,16 @@ from src.morphology import (
 # Helper
 # ---------------------------------------------------------------------------
 
-def check(result: MorphResult, expected_form: str, min_conf: float = 0.70):
+def check(result: MorphResult, expected_form: str, min_conf_level: ConfidenceLevel = ConfidenceLevel.MEDIUM):
     """Assert that the result has the expected form and meets the confidence floor."""
     assert result.quenya_form == expected_form, (
         f"Expected '{expected_form}', got '{result.quenya_form}' "
         f"(feature: {result.feature}, source: {result.source_note})"
     )
-    assert result.confidence >= min_conf, (
-        f"Confidence {result.confidence:.2f} below minimum {min_conf} "
+    # Confidence levels: HIGH >= MEDIUM >= LOW
+    level_order = {ConfidenceLevel.HIGH: 3, ConfidenceLevel.MEDIUM: 2, ConfidenceLevel.LOW: 1}
+    assert level_order.get(result.confidence_level, 0) >= level_order.get(min_conf_level, 0), (
+        f"Confidence {result.confidence_level} below minimum {min_conf_level} "
         f"for form '{result.quenya_form}'"
     )
 
@@ -247,7 +250,7 @@ class TestDeclineNounFallback:
     def test_unknown_case_returns_base(self):
         r = decline_noun("cirya", "elative", "singular")  # elative not in Quenya
         assert r.quenya_form == "cirya"
-        assert r.confidence < 0.50
+        assert r.confidence_level == ConfidenceLevel.LOW
         assert r.warning != ""
 
     def test_result_always_has_all_fields(self):
@@ -318,15 +321,15 @@ class TestConjugateVerbConfidence:
 
     def test_pres_sg_high_confidence(self):
         r = conjugate_verb("vanta", "present", "singular")
-        assert r.confidence >= 0.85
+        assert r.confidence_level == ConfidenceLevel.HIGH
 
     def test_future_pl_lower_confidence(self):
         r = conjugate_verb("vanta", "future", "plural")
-        assert r.confidence < 0.90
+        assert r.confidence_level in (ConfidenceLevel.MEDIUM, ConfidenceLevel.HIGH)
 
     def test_unknown_tense_low_confidence(self):
         r = conjugate_verb("vanta", "conditional", "singular")
-        assert r.confidence < 0.50
+        assert r.confidence_level == ConfidenceLevel.LOW
         assert r.warning != ""
 
     def test_result_always_has_all_fields(self):
@@ -347,7 +350,7 @@ class TestMorphResultReliable:
         r = MorphResult(
             english_lemma="warrior", quenya_lemma="ohtar",
             quenya_form="ohtari", feature="nominative plural",
-            confidence=0.90, source_note="PE XVII", attestation="reconstructed",
+            confidence_level=ConfidenceLevel.HIGH, source_note="PE XVII", attestation="reconstructed",
         )
         assert r.is_reliable() is True
 
@@ -355,7 +358,7 @@ class TestMorphResultReliable:
         r = MorphResult(
             english_lemma="x", quenya_lemma="x",
             quenya_form="x", feature="?",
-            confidence=0.40, source_note="fallback",
+            confidence_level=ConfidenceLevel.LOW, source_note="fallback",
         )
         assert r.is_reliable() is False
 
@@ -363,7 +366,7 @@ class TestMorphResultReliable:
         r = MorphResult(
             english_lemma="x", quenya_lemma="x",
             quenya_form="x", feature="?",
-            confidence=0.90, source_note="PE XVII",
+            confidence_level=ConfidenceLevel.HIGH, source_note="PE XVII",
             warning="something is uncertain",
         )
         assert r.is_reliable() is False
@@ -372,7 +375,7 @@ class TestMorphResultReliable:
         r = MorphResult(
             english_lemma="x", quenya_lemma="x",
             quenya_form="x", feature="?",
-            confidence=0.70, source_note="PE XVII", attestation="reconstructed",
+            confidence_level=ConfidenceLevel.MEDIUM, source_note="PE XVII", attestation="reconstructed",
         )
         assert r.is_reliable() is True
 
@@ -391,7 +394,7 @@ class TestAttestation:
     def test_default_attestation_is_reconstructed(self):
         r = MorphResult(
             english_lemma="x", quenya_lemma="x", quenya_form="x",
-            feature="x", confidence=0.8, source_note="x",
+            feature="x", confidence_level=ConfidenceLevel.HIGH, source_note="x",
         )
         assert r.attestation == "reconstructed"
 
@@ -425,7 +428,7 @@ class TestComputeNounForm:
     def test_not_found_returns_placeholder(self):
         with patch("src.morphology.lookup_quenya_lemma", return_value=("xyzzy", "unknown", 0.0)):
             r = compute_noun_form("xyzzy", "nominative", "singular")
-        assert r.confidence == 0.0
+        assert r.confidence_level == ConfidenceLevel.LOW
         assert r.warning != ""
         assert "[" in r.quenya_form
 
@@ -450,6 +453,6 @@ class TestComputeVerbForm:
     def test_not_found_returns_placeholder(self):
         with patch("src.morphology.lookup_quenya_lemma", return_value=("xyz", "unknown", 0.0)):
             r = compute_verb_form("xyz", "present", "singular")
-        assert r.confidence == 0.0
+        assert r.confidence_level == ConfidenceLevel.LOW
         assert r.warning != ""
         assert "[" in r.quenya_form
