@@ -8,6 +8,15 @@ Lance avec :
     streamlit run app.py
 """
 
+import os
+import sys
+
+# Guarantee the repo root is in sys.path so "from src.xxx import ..." always
+# resolves correctly, regardless of how Streamlit Cloud sets up the environment.
+_ROOT = os.path.dirname(os.path.abspath(__file__))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
+
 import streamlit as st
 
 from src.embeddings import load_model
