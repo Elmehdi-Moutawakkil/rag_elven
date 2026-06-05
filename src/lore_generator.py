@@ -196,7 +196,7 @@ Be creative but respect established Tolkien canon."""
     # Call Claude
     client = Anthropic(api_key=api_key)
     message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
+        model="claude-sonnet-4-5",
         max_tokens=1024,
         messages=[
             {"role": "user", "content": prompt}
@@ -236,7 +236,7 @@ def validate_coherence(
 
     client = Anthropic(api_key=api_key)
     message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
+        model="claude-sonnet-4-5",
         max_tokens=512,
         messages=[
             {"role": "user", "content": validation_prompt}
