@@ -1,8 +1,9 @@
 """Interface Streamlit pour le RAG Elfique.
 
-Deux onglets :
-  💬 Q&A      — pipeline existante (Phase 1) : questions sur Quenya/Sindarin
-  🧝 Translate — pipeline Phase 2 : traduction anglais → Quenya (Layer 2.5)
+Trois onglets :
+  💬 Q&A           — Phase 1 : questions sur Quenya/Sindarin
+  🧝 Translate      — Phase 2 : traduction anglais → Quenya (pipeline déterministe)
+  📖 Generate Lore  — Phase 3 : génération de lore compatible Tolkien
 
 Lance avec :
     streamlit run app.py
@@ -22,6 +23,7 @@ import streamlit as st
 from src.embeddings import load_model
 from src.retrieval  import load_faiss, retrieve
 from src.llm        import answer
+from src.lore_generator import generate_lore
 
 # ---------------------------------------------------------------------------
 # Chargement des ressources avec cache
@@ -64,14 +66,20 @@ with st.spinner("Chargement des ressources…"):
 _qa_available = model is not None and index is not None
 
 # ---------------------------------------------------------------------------
-# Tabs : Q&A (Phase 1)  |  Translate (Phase 2)
+# Tabs : Q&A (Phase 1) | Translate (Phase 2) | Generate Lore (Phase 3)
 # ---------------------------------------------------------------------------
 
-tab_qa, tab_translate = st.tabs(["💬 Q&A", "🧝 Translate (Phase 2)"])
+tab_qa, tab_translate, tab_lore = st.tabs([
+    "💬 Q&A (Phase 1)",
+    "🧝 Translate (Phase 2)",
+    "📖 Generate Lore (Phase 3)",
+])
 
 # ============================= TAB 1 — Q&A ==================================
 
 with tab_qa:
+    st.markdown("**Phase 1 — Q&A** · Posez une question sur les langues elfiques de Tolkien.")
+
     if not _qa_available:
         st.warning(
             "⚠️ **Index de recherche non disponible**  \n"
@@ -79,8 +87,6 @@ with tab_qa:
             "Le tab **🧝 Translate** fonctionne normalement — utilisez-le pour les traductions."
         )
     else:
-        st.markdown("Posez une question sur les langues elfiques de Tolkien.")
-
         question = st.text_input(
             label="Votre question",
             placeholder="Ex: What does elda mean? / How does the plural work in Quenya?",
@@ -174,7 +180,6 @@ with tab_translate:
                         "- Keep one clear subject + verb + optional objects\n"
                         "- Example: *The warrior walks into the forest.*"
                     )
-                    # Stop here — don't show empty/broken sections below
                     result = None
 
             if result:
@@ -211,7 +216,6 @@ with tab_translate:
                         reliable = f.is_reliable()
                         icon = "✅" if reliable else "⚠️"
 
-                        # Confidence level badge
                         from src.morphology import ConfidenceLevel
                         conf_emoji = {
                             ConfidenceLevel.HIGH: "🟢",
@@ -219,7 +223,6 @@ with tab_translate:
                             ConfidenceLevel.LOW: "🔴",
                         }.get(f.confidence_level, "⚪")
 
-                        # Attestation badge
                         attestation_badge = {
                             "attested": "📜 attested",
                             "reconstructed": "🔄 reconstructed",
@@ -253,3 +256,67 @@ with tab_translate:
                         st.markdown(
                             f"- {arg.role.upper()}: {arg.lemma} [{arg.case} {arg.number}]"
                         )
+
+
+# ========================= TAB 3 — GENERATE LORE ============================
+
+with tab_lore:
+    st.markdown("""**Phase 3 — Lore Generation**
+Generate creative stories and lore compatible with Tolkien canon.
+The model retrieves context from the knowledge base, then invents plausible new lore within the universe.
+
+**Examples:**
+- "Invent an elf tribe in Beleriand"
+- "Create a Sindarin culture in Mirkwood during the Second Age"
+- "What if there was a dwarf kingdom in the Grey Mountains?"
+""")
+
+    lore_request = st.text_area(
+        label="Lore Generation Request",
+        placeholder="Invent a tribe of elves in Beleriand...",
+        height=100,
+    )
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        generate_button = st.button("🚀 Generate Lore", type="primary")
+    with col2:
+        show_validation = st.checkbox("Show validation details", value=False)
+
+    if generate_button and lore_request:
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            st.error("❌ ANTHROPIC_API_KEY not found. Add it to your Streamlit Cloud secrets.")
+        elif not _qa_available:
+            st.error("❌ FAISS index not available. Cannot retrieve context for generation.")
+        else:
+            with st.spinner("🔍 Retrieving context from FAISS…"):
+                result = generate_lore(
+                    user_request=lore_request,
+                    api_key=api_key,
+                    model=model,
+                    index=index,
+                    metadata=metadata,
+                )
+
+            if result["success"]:
+                st.markdown("### 📖 Generated Lore")
+                st.write(result["story"])
+
+                st.markdown("---")
+                col_a, col_b, col_c = st.columns(3)
+                with col_a:
+                    st.metric("Location", result["context"]["location"])
+                with col_b:
+                    st.metric("Species", result["context"]["species"])
+                with col_c:
+                    st.metric("Coherence Score", f"{result['validation']['score']}/100")
+
+                if show_validation:
+                    st.markdown("### ✅ Validation Details")
+                    with st.expander("Coherence Check"):
+                        st.write(result["validation"]["validation_text"])
+                    with st.expander("Context Chunks Used"):
+                        st.caption(f"Used {result['chunks_used']} FAISS chunks for context")
+            else:
+                st.error(f"❌ {result['error']}")
