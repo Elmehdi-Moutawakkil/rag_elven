@@ -1,9 +1,11 @@
 """Interface Streamlit pour le RAG Elfique.
 
-Trois onglets :
-  💬 Q&A           — Phase 1 : questions sur Quenya/Sindarin
-  🧝 Translate      — Phase 2 : traduction anglais → Quenya (pipeline déterministe)
-  📖 Generate Lore  — Phase 3 : génération de lore (Claude) + validation déterministe (KG)
+Interface unifiée : un seul champ de saisie.
+L'agent routeur analyse la requête et dirige vers le bon pipeline :
+
+  Phase 1 — Q&A        : questions sur Quenya/Sindarin/lore
+  Phase 2 — Traduction  : anglais → Quenya (pipeline déterministe)
+  Phase 3 — Lore        : génération de lore (Claude + KG validation)
 
 Lance avec :
     streamlit run app.py
@@ -12,8 +14,6 @@ Lance avec :
 import os
 import sys
 
-# Guarantee the repo root is in sys.path so "from src.xxx import ..." always
-# resolves correctly, regardless of how Streamlit Cloud sets up the environment.
 _ROOT = os.path.dirname(os.path.abspath(__file__))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
@@ -21,34 +21,30 @@ if _ROOT not in sys.path:
 import streamlit as st
 
 from src.embeddings import load_model
-from src.retrieval  import load_faiss, retrieve
-from src.llm        import answer
+from src.retrieval   import load_faiss, retrieve
+from src.llm         import answer
 from src.lore_generator_p4 import generate_lore_p4
+from src.router      import classify_request
+from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
 
-# ---------------------------------------------------------------------------
-# Chargement des ressources avec cache
-# ---------------------------------------------------------------------------
+
+# ==============================================================================
+# CACHE
+# ==============================================================================
 
 @st.cache_resource
 def load_resources():
-    """Charge le modèle, l'index FAISS et les metadata une seule fois.
-
-    Returns (None, None, None) if the vector index hasn't been built yet —
-    the app degrades gracefully: Translate tab still works, Q&A tab shows
-    a clear message instead of crashing the whole app.
-    """
     try:
         model           = load_model()
         index, metadata = load_faiss()
         return model, index, metadata
     except Exception as e:
-        # Index not built yet — not a fatal error for the app as a whole
         return None, None, str(e)
 
 
-# ---------------------------------------------------------------------------
-# Configuration de la page
-# ---------------------------------------------------------------------------
+# ==============================================================================
+# PAGE CONFIG
+# ==============================================================================
 
 st.set_page_config(
     page_title="RAG Elfique",
@@ -57,319 +53,349 @@ st.set_page_config(
 )
 
 st.title("🧝 RAG Elfique")
-st.caption("Quenya & Sindarin — questions et traductions")
+st.caption("Quenya & Sindarin — posez une question, demandez une traduction, ou générez du lore.")
 
 with st.spinner("Chargement des ressources…"):
     model, index, metadata = load_resources()
 
-# Detect whether Q&A resources are available
-_qa_available = model is not None and index is not None
+_qa_available  = model is not None and index is not None
+_kg_ready      = KG_DB_PATH.exists()
+_anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+_groq_key      = os.getenv("GROQ_API_KEY")
 
-# ---------------------------------------------------------------------------
-# Tabs : Q&A (Phase 1) | Translate (Phase 2) | Generate Lore (Phase 3)
-# ---------------------------------------------------------------------------
 
-tab_qa, tab_translate, tab_lore = st.tabs([
-    "💬 Q&A (Phase 1)",
-    "🧝 Translate (Phase 2)",
-    "📖 Generate Lore (Phase 3)",
-])
+# ==============================================================================
+# UNIFIED INPUT
+# ==============================================================================
 
-# ============================= TAB 1 — Q&A ==================================
+user_input = st.text_area(
+    label="Votre requête",
+    placeholder=(
+        "Ex : What does 'elda' mean?\n"
+        "Ex : Translate: the warrior walks into the forest\n"
+        "Ex : Invent an elf tribe in Beleriand during the First Age"
+    ),
+    height=100,
+    key="main_input",
+)
 
-with tab_qa:
-    st.markdown("**Phase 1 — Q&A** · Posez une question sur les langues elfiques de Tolkien.")
+submit = st.button("✨ Envoyer", type="primary")
 
-    if not _qa_available:
-        st.warning(
-            "⚠️ **Index de recherche non disponible**  \n"
-            "La base vectorielle (FAISS) n'a pas encore été construite sur ce déploiement.  \n"
-            "Le tab **🧝 Translate** fonctionne normalement — utilisez-le pour les traductions."
-        )
-    else:
-        question = st.text_input(
-            label="Votre question",
-            placeholder="Ex: What does elda mean? / How does the plural work in Quenya?",
-            key="qa_input",
-        )
+# ==============================================================================
+# ROUTING + EXECUTION
+# ==============================================================================
 
-        if question:
-            with st.spinner("Analyse de la question..."):
-                results = retrieve(question, model, index, metadata, k=3)
+if submit and user_input.strip():
 
-            with st.spinner("Génération de la réponse..."):
-                response = answer(question, results["faiss"], results["dictionary"])
+    # ── 1. Classify ─────────────────────────────────────────────────────────
+    with st.spinner("Analyse de la requête…"):
+        route = classify_request(user_input, api_key=_groq_key)
+
+    # ── 2. Display routing decision ──────────────────────────────────────────
+    method_badge = "🔵 règles" if route["method"] == "rules" else "🟣 LLM"
+    st.markdown(
+        f"**→ {route['label']}** &nbsp; "
+        f"<span style='color:grey;font-size:0.85em;'>({method_badge} · {route['reason']})</span>",
+        unsafe_allow_html=True,
+    )
+
+    # Layer trace
+    layers_str = " → ".join(route["layers"])
+    st.caption(f"Layers : {layers_str}")
+    st.divider()
+
+    # ── 3. Execute ──────────────────────────────────────────────────────────
+
+    # ──────────────── Q&A ───────────────────────────────────────────────────
+    if route["route"] == "qa":
+
+        if not _qa_available:
+            st.warning("⚠️ Index FAISS non disponible — Q&A indisponible sur ce déploiement.")
+        elif not _groq_key:
+            st.error("❌ GROQ_API_KEY manquante.")
+        else:
+            with st.spinner("Recherche + génération de réponse…"):
+                results  = retrieve(user_input, model, index, metadata, k=3)
+                response = answer(user_input, results["faiss"], results["dictionary"])
 
             st.markdown("### Réponse")
             st.write(response)
 
+            # Agent trace
             rewriter = results.get("rewriter", {})
             if rewriter:
-                query_type = rewriter.get("type", "?")
-                keyword    = rewriter.get("keyword", "?")
-                badge = "🟢 vocabulaire" if query_type == "vocabulary" else "🔵 lore / grammaire"
-                st.caption(f"Agent → {badge} · mot-clé recherché : **{keyword}**")
+                badge = "🟢 vocabulaire" if rewriter.get("type") == "vocabulary" else "🔵 lore / grammaire"
+                st.caption(f"Query Rewriter → {badge} · mot-clé : **{rewriter.get('keyword', '?')}**")
 
-            with st.expander("Voir les sources utilisées"):
+            with st.expander("Sources utilisées"):
                 if results["dictionary"]:
                     st.markdown("**Dictionnaire (SQLite)**")
-                    for entry in results["dictionary"][:5]:
-                        st.markdown(
-                            f"- **{entry.get('word')}** ({entry.get('language')}) "
-                            f"→ {entry.get('translation')}"
-                        )
+                    for e in results["dictionary"][:5]:
+                        st.markdown(f"- **{e.get('word')}** ({e.get('language')}) → {e.get('translation')}")
                 if results["faiss"]:
                     st.markdown("**Passages (FAISS)**")
                     for r in results["faiss"]:
-                        source = r.get("source", "").split("/")[-1]
-                        st.markdown(f"*{source}* — score {r['score']:.3f}")
+                        src = r.get("source", "").split("/")[-1]
+                        st.markdown(f"*{src}* — score {r['score']:.3f}")
                         st.caption(r["text"][:300])
 
+    # ──────────────── TRANSLATE ─────────────────────────────────────────────
+    elif route["route"] == "translate":
 
-# ========================= TAB 2 — TRANSLATE ================================
+        # Strip common translation prefixes so the engine gets the raw sentence
+        import re as _re
+        clean = _re.sub(
+            r"^(translate[:\s]+|traduis[:\s]+|traduction[:\s]+|how do you say[:\s]+|comment dit-on[:\s]+)",
+            "",
+            user_input.strip(),
+            flags=_re.IGNORECASE,
+        ).strip().strip('"').strip("'")
 
-with tab_translate:
-    st.markdown(
-        "**Phase 2 — Sentence translation**  \n"
-        "Layer 2 computes Quenya word forms deterministically before Layer 3 "
-        "assembles them. The LLM (Layer 4) does NOT compute morphology here — it only styles "
-        "the pre-computed forms."
-    )
+        if not clean:
+            st.warning("Impossible d'extraire la phrase à traduire. Essayez : *Translate: the warrior walks.*")
+        else:
+            try:
+                import spacy as _spacy_check
+                _spacy_ok = True
+            except ImportError:
+                _spacy_ok = False
 
-    # Check if spaCy is installed (the model downloads automatically on first use)
-    try:
-        import spacy as _spacy_check
-        _spacy_ok = True
-    except ImportError:
-        _spacy_ok = False
+            if not _spacy_ok:
+                st.error("spaCy non installé. Exécutez `pip install spacy` puis relancez.")
+            else:
+                from src.translator import translate
 
-    if not _spacy_ok:
-        st.error(
-            "spaCy is not installed. Run:  \n"
-            "`pip install spacy`  \n"
-            "Then restart the app."
-        )
-    else:
-        sentence = st.text_input(
-            label="English sentence",
-            placeholder="Ex: The warrior walks into the forest.",
-            key="translate_input",
-        )
-        st.caption("Use grammatically correct English — subject + conjugated verb + optional objects.")
+                st.caption(f"Phrase détectée : *\"{clean}\"*")
 
-        if sentence:
-            from src.translator import translate
+                with st.spinner("Parsing + formes morphologiques…"):
+                    try:
+                        result = translate(clean)
+                    except Exception as e:
+                        st.error(f"Erreur de traduction : {e}")
+                        result = None
 
-            with st.spinner("Parsing + computing morphological forms…"):
-                try:
-                    result = translate(sentence)
-                except Exception as e:
-                    st.error(f"Translation error: {e}")
-                    result = None
-
-            if result:
-                # --- Parse failure: show error + suggestion, no hallucinated output ---
-                if not result.quenya_sentence:
-                    st.error("❌ Translation failed — the sentence could not be parsed.")
+                if result and not result.quenya_sentence:
+                    st.error("❌ Traduction impossible — phrase non parsable.")
                     if result.warning:
                         for line in result.warning.split("\n"):
                             st.markdown(line)
                     st.info(
-                        "**Tips for best results:**\n"
-                        "- Use correct English grammar (subjects and verbs must agree)\n"
-                        "- Keep one clear subject + verb + optional objects\n"
-                        "- Example: *The warrior walks into the forest.*"
+                        "**Conseils :**\n"
+                        "- Utilisez une grammaire anglaise correcte\n"
+                        "- Un sujet + un verbe conjugué + compléments\n"
+                        "- Exemple : *The warrior walks into the forest.*"
                     )
                     result = None
 
-            if result:
-                # --- Main output ---
-                st.markdown("### Quenya")
-                st.markdown(f"**{result.quenya_sentence}**")
+                if result:
+                    st.markdown("### Quenya")
+                    st.markdown(f"**{result.quenya_sentence}**")
 
-                if result.warning:
-                    st.warning(f"⚠️ {result.warning}")
+                    if result.warning:
+                        st.warning(f"⚠️ {result.warning}")
 
-                # Map confidence level to emoji badge
-                from src.morphology import ConfidenceLevel
-                conf_badge = {
-                    ConfidenceLevel.HIGH: "🟢 HIGH",
-                    ConfidenceLevel.MEDIUM: "🟡 MEDIUM",
-                    ConfidenceLevel.LOW: "🔴 LOW",
-                }.get(result.confidence_floor, "⚪ UNKNOWN")
-
-                st.caption(
-                    f"Confidence floor: **{conf_badge}** · "
-                    f"LLM used: {'yes' if result.llm_used else 'no (fallback assembly)'}"
-                )
-
-                if result.explanation:
-                    st.markdown(f"*{result.explanation}*")
-
-                # --- Layer 2 detail (expandable) ---
-                with st.expander("🔬 Layer 2 — computed word forms"):
-                    st.markdown(
-                        "These forms were computed **deterministically** by the "
-                        "morphological engine — no LLM involved."
-                    )
-                    for f in result.morphed_forms:
-                        reliable = f.is_reliable()
-                        icon = "✅" if reliable else "⚠️"
-
-                        from src.morphology import ConfidenceLevel
-                        conf_emoji = {
-                            ConfidenceLevel.HIGH: "🟢",
-                            ConfidenceLevel.MEDIUM: "🟡",
-                            ConfidenceLevel.LOW: "🔴",
-                        }.get(f.confidence_level, "⚪")
-
-                        attestation_badge = {
-                            "attested": "📜 attested",
-                            "reconstructed": "🔄 reconstructed",
-                            "neo-quenya": "✨ neo-quenya",
-                        }.get(f.attestation, "❓ unknown")
-
-                        st.markdown(
-                            f"{icon} **{f.english_lemma}** → `{f.quenya_form}`  \n"
-                            f"&nbsp;&nbsp;&nbsp;&nbsp;"
-                            f"*{f.feature}* · {attestation_badge} · {conf_emoji} {f.confidence_level.value} · {f.source_note}"
-                        )
-                        if f.rule_id:
-                            st.caption(f"    rule: {f.rule_id}")
-                        if f.warning:
-                            st.caption(f"    ⚠️ {f.warning}")
-
-                # --- Layer 3 detail (expandable) ---
-                with st.expander("🧩 Layer 3 — Syntax assembly"):
-                    st.markdown("Word order, particles, and oblique argument placement.")
+                    from src.morphology import ConfidenceLevel
+                    conf_badge = {
+                        ConfidenceLevel.HIGH:   "🟢 HIGH",
+                        ConfidenceLevel.MEDIUM: "🟡 MEDIUM",
+                        ConfidenceLevel.LOW:    "🔴 LOW",
+                    }.get(result.confidence_floor, "⚪ UNKNOWN")
                     st.caption(
-                        "Deterministic rules: SOV word order (subject-object-verb) with optional particles."
+                        f"Confiance : **{conf_badge}** · "
+                        f"LLM : {'oui' if result.llm_used else 'non (assemblage déterministe)'}"
                     )
+                    if result.explanation:
+                        st.markdown(f"*{result.explanation}*")
 
-                # --- Semantic IR (expandable) ---
-                with st.expander("🔤 Layer 1 — Semantic IR (parsed structure)"):
-                    from src.ir import parse_english
-                    ir = parse_english(sentence)
-                    st.markdown(f"**Predicate:** {ir.predicate.lemma} [{ir.predicate.tense} {ir.predicate.mood}]")
-                    st.markdown("**Arguments:**")
-                    for arg in ir.arguments:
-                        st.markdown(
-                            f"- {arg.role.upper()}: {arg.lemma} [{arg.case} {arg.number}]"
-                        )
+                    with st.expander("🔬 Layer 2 — formes morphologiques"):
+                        st.markdown("Formes calculées **déterministement** — pas de LLM.")
+                        for f in result.morphed_forms:
+                            icon = "✅" if f.is_reliable() else "⚠️"
+                            conf_emoji = {
+                                ConfidenceLevel.HIGH:   "🟢",
+                                ConfidenceLevel.MEDIUM: "🟡",
+                                ConfidenceLevel.LOW:    "🔴",
+                            }.get(f.confidence_level, "⚪")
+                            att_badge = {
+                                "attested":      "📜 attested",
+                                "reconstructed": "🔄 reconstructed",
+                                "neo-quenya":    "✨ neo-quenya",
+                            }.get(f.attestation, "❓ unknown")
+                            st.markdown(
+                                f"{icon} **{f.english_lemma}** → `{f.quenya_form}`  \n"
+                                f"&nbsp;&nbsp;&nbsp;&nbsp;"
+                                f"*{f.feature}* · {att_badge} · {conf_emoji} {f.confidence_level.value} · {f.source_note}"
+                            )
+                            if f.rule_id:
+                                st.caption(f"    rule: {f.rule_id}")
+                            if f.warning:
+                                st.caption(f"    ⚠️ {f.warning}")
 
+                    with st.expander("🧩 Layer 3 — Assemblage syntaxique"):
+                        st.markdown("Ordre SOV, particules, arguments obliques.")
+                        st.caption("Règles déterministes : subject-object-verb + particules.")
 
-# ========================= TAB 3 — GENERATE LORE (Phase 3 — KG) ==============
+                    with st.expander("🔤 Layer 1 — IR sémantique (structure parsée)"):
+                        from src.ir import parse_english
+                        ir = parse_english(clean)
+                        st.markdown(f"**Prédicat :** {ir.predicate.lemma} [{ir.predicate.tense} {ir.predicate.mood}]")
+                        st.markdown("**Arguments :**")
+                        for arg in ir.arguments:
+                            st.markdown(f"- {arg.role.upper()} : {arg.lemma} [{arg.case} {arg.number}]")
 
-with tab_lore:
-    st.markdown("""**Phase 3 — Lore Generation**
-Generate creative stories and lore compatible with Tolkien canon.
-The model retrieves FAISS context, generates with Claude, then validates
-**deterministically** against the Knowledge Graph — no second LLM call.
+    # ──────────────── LORE ──────────────────────────────────────────────────
+    elif route["route"] == "lore":
 
-**What the KG checks:**
-- Role assertions — *"X is king of Doriath"* → is X actually Thingol?
-- Creation claims — *"X forged the Silmarils"* → were they created by Feanor?
-- Canon fact patterns — Beleriand in 2nd Age, Morgoth post-War of Wrath, etc.
-
-**Examples:**
-- *"Invent an elf tribe in Beleriand during the First Age"*
-- *"Create a Sindarin culture in Mirkwood during the Second Age"*
-- *"What if there was a dwarf kingdom in the Grey Mountains?"*
-""")
-
-    # KG status banner
-    from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
-    _kg_ready = KG_DB_PATH.exists()
-    if not _kg_ready:
-        st.warning(
-            "⚠️ **Knowledge Graph not built yet.**  \n"
-            "Run `python scripts/build_kg.py` from the project root to populate it."
-        )
-    else:
-        with KnowledgeGraph() as _kg:
-            _kg_stats = _kg.get_stats()
-        st.caption(
-            f"🗂️ KG: **{_kg_stats['entities']} entities** · "
-            f"**{_kg_stats['relations']} relations** · "
-            f"**{_kg_stats['canon_facts']} canon rules** · "
-            f"validation: deterministic (no extra API call)"
-        )
-
-    lore_request = st.text_area(
-        label="Lore Generation Request",
-        placeholder="Invent a tribe of elves in Beleriand...",
-        height=100,
-    )
-
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        generate_button = st.button("📖 Generate Lore", type="primary")
-    with col2:
-        show_kg_details = st.checkbox("Show KG validation details", value=True)
-
-    if generate_button and lore_request:
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            st.error("❌ ANTHROPIC_API_KEY not found. Add it to your Streamlit Cloud secrets.")
+        if not _anthropic_key:
+            st.error("❌ ANTHROPIC_API_KEY manquante.")
         elif not _qa_available:
-            st.error("❌ FAISS index not available. Cannot retrieve context for generation.")
+            st.error("❌ Index FAISS non disponible.")
         elif not _kg_ready:
-            st.error("❌ Knowledge Graph not built. Run `python scripts/build_kg.py` first.")
+            st.error("❌ Knowledge Graph non construit. Exécutez `python scripts/build_kg.py`.")
         else:
-            with st.spinner("🔍 Retrieving FAISS context + generating story…"):
+            with st.spinner("Récupération contexte FAISS + génération d'histoire…"):
                 result = generate_lore_p4(
-                    user_request=lore_request,
-                    api_key=api_key,
+                    user_request=user_input,
+                    api_key=_anthropic_key,
                     model=model,
                     index=index,
                     metadata=metadata,
                 )
 
             if result["success"]:
-                st.markdown("### 📖 Generated Lore")
+                st.markdown("### 📖 Lore généré")
                 st.write(result["story"])
 
-                st.markdown("---")
+                st.divider()
                 validation = result["validation"]
 
                 col_a, col_b, col_c, col_d = st.columns(4)
                 with col_a:
-                    st.metric("Location", result["context"]["location"])
+                    st.metric("Lieu", result["context"]["location"])
                 with col_b:
-                    st.metric("Species", result["context"]["species"])
+                    st.metric("Espèce", result["context"]["species"])
                 with col_c:
-                    st.metric("KG Score", f"{validation.get('score', 0)}/100")
+                    st.metric("Score KG", f"{validation.get('score', 0)}/100")
                 with col_d:
                     is_valid = validation.get("is_valid", False)
-                    st.metric("Canon", "✅ Valid" if is_valid else "❌ Violations")
+                    st.metric("Canon", "✅ Valide" if is_valid else "❌ Violations")
 
                 entities_found = validation.get("entities_found", [])
                 if entities_found:
-                    st.info(f"🗺️ Canon entities detected: **{', '.join(entities_found)}**")
+                    st.info(f"🗺️ Entités canon détectées : **{', '.join(entities_found)}**")
 
-                if show_kg_details:
-                    violations = validation.get("violations", [])
-                    st.markdown("### 🔍 KG Validation")
-
+                violations = validation.get("violations", [])
+                with st.expander("🔍 Validation KG", expanded=bool(violations)):
                     if not violations:
-                        st.success("✅ **No canon violations detected.**")
+                        st.success("✅ Aucune violation canon détectée.")
                     else:
-                        st.warning(f"⚠️ {len(violations)} violation(s) found:")
+                        st.warning(f"⚠️ {len(violations)} violation(s) :")
                         for v in violations:
-                            severity = v.get("severity", "SOFT")
-                            icon = "🔴" if severity == "HARD" else "🟡"
+                            sev  = v.get("severity", "SOFT")
+                            icon = "🔴" if sev == "HARD" else "🟡"
                             st.markdown(
-                                f"{icon} **{severity}** · _{v.get('text', '')}_  \n"
+                                f"{icon} **{sev}** · _{v.get('text', '')}_  \n"
                                 f"→ {v.get('canon', '')}"
                             )
-
-                    with st.expander("ℹ️ How validation works"):
-                        st.markdown(
-                            "Validation is **deterministic** — no LLM involved.  \n"
-                            "- Role assertions: regex match → KG lookup  \n"
-                            "- Canon facts: pattern match against 12 hard rules  \n"
-                            "- Score: 100 − 25×HARD − 10×SOFT  \n\n"
-                            f"Method: `{validation.get('method', 'knowledge_graph')}`"
-                        )
+                    st.caption("Validation déterministe — 0 appel LLM supplémentaire.")
             else:
                 st.error(f"❌ {result['error']}")
+
+
+# ==============================================================================
+# MODE MANUEL (expander — accès direct aux pipelines)
+# ==============================================================================
+
+st.divider()
+with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
+    st.caption("Utilisez cet espace si vous souhaitez forcer un pipeline spécifique.")
+
+    tab_qa, tab_tr, tab_lore = st.tabs([
+        "💬 Q&A (Phase 1)",
+        "🧝 Traduction (Phase 2)",
+        "📖 Lore (Phase 3)",
+    ])
+
+    # ── Q&A ──────────────────────────────────────────────────────────────────
+    with tab_qa:
+        if not _qa_available:
+            st.warning("⚠️ Index FAISS non disponible.")
+        else:
+            q = st.text_input("Question", key="manual_qa")
+            if q:
+                with st.spinner("…"):
+                    res = retrieve(q, model, index, metadata, k=3)
+                    rep = answer(q, res["faiss"], res["dictionary"])
+                st.markdown("### Réponse")
+                st.write(rep)
+                rw = res.get("rewriter", {})
+                if rw:
+                    badge = "🟢 vocabulaire" if rw.get("type") == "vocabulary" else "🔵 lore"
+                    st.caption(f"Query Rewriter → {badge} · **{rw.get('keyword', '?')}**")
+                with st.expander("Sources"):
+                    for e in res["dictionary"][:5]:
+                        st.markdown(f"- **{e.get('word')}** ({e.get('language')}) → {e.get('translation')}")
+                    for r in res["faiss"]:
+                        src = r.get("source", "").split("/")[-1]
+                        st.markdown(f"*{src}* — {r['score']:.3f}")
+                        st.caption(r["text"][:200])
+
+    # ── TRANSLATE ─────────────────────────────────────────────────────────────
+    with tab_tr:
+        try:
+            import spacy as _sp
+            _sp_ok = True
+        except ImportError:
+            _sp_ok = False
+
+        if not _sp_ok:
+            st.error("spaCy non installé.")
+        else:
+            sent = st.text_input(
+                "English sentence",
+                placeholder="The warrior walks into the forest.",
+                key="manual_tr",
+            )
+            if sent:
+                from src.translator import translate as _translate
+                with st.spinner("…"):
+                    try:
+                        tr = _translate(sent)
+                    except Exception as e:
+                        st.error(str(e))
+                        tr = None
+                if tr:
+                    if not tr.quenya_sentence:
+                        st.error("❌ Impossible de parser cette phrase.")
+                    else:
+                        st.markdown(f"**{tr.quenya_sentence}**")
+                        from src.morphology import ConfidenceLevel
+                        cb = {ConfidenceLevel.HIGH: "🟢 HIGH", ConfidenceLevel.MEDIUM: "🟡 MEDIUM", ConfidenceLevel.LOW: "🔴 LOW"}.get(tr.confidence_floor, "⚪")
+                        st.caption(f"Confiance : {cb}")
+
+    # ── LORE ──────────────────────────────────────────────────────────────────
+    with tab_lore:
+        if not _kg_ready:
+            st.warning("⚠️ KG non construit.")
+        elif not _anthropic_key:
+            st.error("❌ ANTHROPIC_API_KEY manquante.")
+        elif not _qa_available:
+            st.error("❌ Index FAISS non disponible.")
+        else:
+            with KnowledgeGraph() as _kg:
+                _stats = _kg.get_stats()
+            st.caption(
+                f"🗂️ KG : {_stats['entities']} entités · "
+                f"{_stats['relations']} relations · "
+                f"{_stats['canon_facts']} règles"
+            )
+            lreq = st.text_area("Requête lore", height=80, key="manual_lore")
+            if st.button("Générer", key="manual_lore_btn"):
+                with st.spinner("…"):
+                    lr = generate_lore_p4(lreq, _anthropic_key, model, index, metadata)
+                if lr["success"]:
+                    st.write(lr["story"])
+                    v = lr["validation"]
+                    st.caption(f"Score KG : {v.get('score', 0)}/100 · {"✅" if v.get('is_valid') else "❌ violations"}")
+                else:
+                    st.error(lr["error"])
