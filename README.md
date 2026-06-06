@@ -11,12 +11,11 @@
 RAG Elfique n'est pas un simple traducteur. C'est une plateforme d'exploration de l'univers de Tolkien, construite couche par couche, qui ambitionne de devenir **le premier système multimodal lore-aware** dédié à cet univers.
 
 ```
-Texte → Traduction Quenya        (Phase 2 ✅)
-Texte → Génération de lore       (Phase 3 ✅)
-Texte → Validation canon KG      (Phase 4 ✅)
-Texte → Images                   (Phase 5 — à venir)
-Texte → Sons / Musique elfique   (Phase 6 — à venir)
-Texte → Vidéo narrative          (Phase 7 — à venir)
+Texte → Traduction Quenya              (Phase 2 ✅)
+Texte → Génération lore + KG           (Phase 3 ✅)
+Texte → Images elfiques                (Phase 4 — à venir)
+Texte → Sons / Musique elfique         (Phase 5 — à venir)
+Texte → Vidéo narrative                (Phase 6 — à venir)
 ```
 
 Le principe fondateur : **chaque génération respecte le canon Tolkien**. On peut inventer, mais on ne peut pas contredire.
@@ -89,46 +88,7 @@ Phrase Quenya + explication
 
 ---
 
-### ✅ Phase 3 — Génération de Lore (Terminée)
-
-**Objectif :** Générer des histoires et du lore *inventé mais cohérent* avec l'univers Tolkien.
-
-**Le défi :**
-> Permettre la créativité. Protéger le canon.
->
-> ✅ Bon : inventer une tribu elfique près de Doriath  
-> ❌ Mauvais : cette tribu a forgé les Silmarils
-
-**Architecture :**
-```
-Requête utilisateur ("Invente une tribu en Beleriand")
-    ↓
-[1] extract_context()      → localisation, période, espèce, langue
-    ↓
-[2] retrieve_context()     → FAISS : chunks pertinents comme contraintes
-    ↓
-[3] build_constraints()    → faits connus extraits des chunks
-    ↓
-[4] generate_story()       → Claude API + contexte + few-shot examples
-    ↓
-[5] validate_coherence()   → Claude re-vérifie les contradictions (2e appel LLM)
-    ↓
-Histoire générée + score de cohérence (0-100)
-```
-
-**Exemples de requêtes :**
-- *"Invente une tribu d'elfes en Beleriand au Premier Âge"*
-- *"Create a Sindarin kingdom in Mirkwood during the Second Age"*
-- *"What if there was a dwarf kingdom in the Grey Mountains?"*
-
-**Stack ajoutée :**
-- `anthropic` — Claude Sonnet pour la génération et la validation
-
-**Limitation identifiée :** La validation repose sur un second appel Claude — c'est mieux que rien, mais pas infaillible ni déterministe. C'est ce que Phase 4 résout.
-
----
-
-### ✅ Phase 4 — Knowledge Graph (Terminée)
+### ✅ Phase 3 — Génération de Lore + Knowledge Graph (Terminée)
 
 **Objectif :** Remplacer la validation LLM par une validation **entièrement déterministe** basée sur un graphe de connaissances extrait du corpus lore.
 
@@ -196,7 +156,7 @@ src/knowledge_graph.py — validate_story()
 
 ---
 
-### 🔜 Phase 5 — Images (Planifiée, session parallèle)
+### 🔜 Phase 4 — Images (Planifiée)
 
 **Objectif :** Associer des images aux mots, concepts, et lore généré.
 
@@ -233,7 +193,7 @@ Illustration de la scène ou du personnage
 
 ---
 
-### 🔜 Phase 6 — Son / Musique (Planifiée)
+### 🔜 Phase 5 — Son / Musique (Planifiée)
 
 **Objectif :** Donner une dimension sonore à l'univers elfique.
 
@@ -249,7 +209,7 @@ Illustration de la scène ou du personnage
 
 ---
 
-### 🔜 Phase 7 — Vidéo (Vision long terme)
+### 🔜 Phase 6 — Vidéo (Vision long terme)
 
 **Objectif :** Créer des mini-récits visuels animés à partir du lore généré.
 
@@ -282,7 +242,7 @@ Mini-film elfique
 │              Shared Universe Knowledge Base                  │
 │                                                             │
 │  FAISS Index (1512 chunks)  +  SQLite (8022 mots)          │
-│  + Knowledge Graph (126 entités, 131 relations) ✅          │
+│  + Knowledge Graph (126 entités, 131 relations, Phase 3) ✅  │
 └──────────────┬──────────────────────────────────────────────┘
                │
        ┌───────┴────────┐
@@ -303,7 +263,7 @@ Mini-film elfique
 
 ```
 rag_elven/
-├── app.py                      # Interface Streamlit (4 tabs)
+├── app.py                      # Interface Streamlit (3 tabs)
 ├── requirements.txt            # Dépendances
 │
 ├── src/
