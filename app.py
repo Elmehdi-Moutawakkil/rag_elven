@@ -26,6 +26,8 @@ from src.llm         import answer
 from src.lore_generator_p4 import generate_lore_p4
 from src.router      import classify_request
 from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
+from src.layer_registry import LAYER_META, LAYER_ORDER
+from src.pipeline_executor import execute_pipeline, format_final_output
 
 
 # ==============================================================================
@@ -400,3 +402,155 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
                     st.caption(f"Score KG : {v.get('score', 0)}/100 · {valid_str}")
                 else:
                     st.error(lr["error"])
+
+
+# ==============================================================================
+# LAB MODE (expander — sélection libre des layers atomiques)
+# ==============================================================================
+
+def _render_layer_output(output, otype):
+    if otype == "text":
+        st.write(output)
+    elif otype == "json_rewrite":
+        st.json(output)
+    elif otype == "json_chunks":
+        if output:
+            for chunk in output[:3]:
+                st.caption(f"[score {chunk.get('score', 0):.3f}] {chunk.get('source', '').split('/')[-1]}")
+                st.write(chunk.get("text", "")[:300])
+        else:
+            st.caption("Aucun chunk trouvé.")
+    elif otype == "json_dict":
+        if output:
+            for e in output[:5]:
+                st.markdown(f"**{e.get('word')}** ({e.get('language')}) → {e.get('translation')}")
+        else:
+            st.caption("Aucune entrée trouvée.")
+    elif otype == "semantic_ir":
+        if hasattr(output, "predicate") and output.predicate:
+            st.markdown(f"**Prédicat :** `{output.predicate.lemma}` [{output.predicate.tense} · {output.predicate.mood}]")
+            for arg in (output.arguments or []):
+                st.markdown(f"- **{arg.role.upper()}** : `{arg.lemma}` [{arg.case} · {arg.number}]")
+        else:
+            st.caption("Aucun prédicat détecté.")
+    elif otype == "morph_forms":
+        for f in output:
+            st.markdown(f"**{f.english_lemma}** → `{f.quenya_form}` · {f.feature}")
+    elif otype == "syntax_result":
+        if hasattr(output, "quenya_sentence"):
+            st.markdown(f"### {output.quenya_sentence}")
+            st.caption(f"Règle : {output.word_order_rule} · Confiance : {output.confidence:.0%}")
+    elif otype == "text_constraints":
+        st.write(output)
+    elif otype == "json_story":
+        if isinstance(output, dict):
+            st.write(output.get("story", ""))
+            for w in output.get("warnings", []):
+                st.warning(str(w))
+        else:
+            st.write(str(output))
+    else:
+        st.write(str(output))
+
+
+with st.expander("🔬 Lab Mode — composition libre des layers"):
+    st.caption(
+        "Sélectionne directement les layers à combiner. "
+        "Chaque layer est une unité atomique indépendante. "
+        "Exécution dans l'ordre numérique (L01 → L13)."
+    )
+
+    # ── Inventaire des 13 layers ──────────────────────────────────────────────
+    lab_selected: list[str] = []
+    col_a, col_b = st.columns(2)
+
+    for i, lid in enumerate(LAYER_ORDER):
+        meta = LAYER_META[lid]
+        col  = col_a if i % 2 == 0 else col_b
+        cost_icon = {"free": "🟢", "groq": "🔵", "claude": "🟣", "gpu": "🔴"}.get(meta.cost, "⚪")
+        det = "déterministe" if meta.deterministic else "LLM"
+
+        with col:
+            if meta.available:
+                checked = st.checkbox(
+                    f"{meta.emoji} **{lid}** — {meta.name}",
+                    value=(lid in ["L01", "L02", "L13"]),
+                    key=f"lab_{lid}",
+                )
+                st.caption(
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;{meta.description}  \n"
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;{cost_icon} `{meta.cost}` · `{meta.output_type}` · {det}"
+                )
+                if checked:
+                    lab_selected.append(lid)
+            else:
+                st.checkbox(
+                    f"{meta.emoji} **{lid}** — {meta.name}  *(non disponible)*",
+                    value=False, disabled=True, key=f"lab_{lid}",
+                )
+                st.caption(
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;{meta.description}  \n"
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;⚫ Phase future · `{meta.output_type}`"
+                )
+
+    lab_selected = sorted(lab_selected, key=lambda l: LAYER_ORDER.index(l))
+
+    # ── Pipeline composé + avertissements ─────────────────────────────────────
+    if lab_selected:
+        pipeline_str = " → ".join(f"{LAYER_META[l].emoji} {l}" for l in lab_selected)
+        st.markdown(f"**Pipeline actif :** `{pipeline_str}`")
+
+        if "L05" in lab_selected and "L04" not in lab_selected:
+            st.warning("⚠️ L05 a besoin de L04 en amont.")
+        if "L06" in lab_selected and not ("L04" in lab_selected and "L05" in lab_selected):
+            st.warning("⚠️ L06 a besoin de L04 + L05 en amont.")
+        if "L07" in lab_selected and "L02" not in lab_selected:
+            st.warning("⚠️ L07 fonctionne mieux avec L02 (FAISS) en amont.")
+        if "L08" in lab_selected and "L07" not in lab_selected:
+            st.warning("⚠️ L08 fonctionne mieux avec L07 (Constraints) en amont.")
+        if "L09" in lab_selected and "L08" not in lab_selected:
+            st.warning("⚠️ L09 nécessite L08 en amont.")
+    else:
+        st.info("Aucune layer sélectionnée.")
+
+    # ── Input + exécution ─────────────────────────────────────────────────────
+    lab_input = st.text_input(
+        "Input",
+        placeholder="Ex: What does elda mean? / The warrior walks. / Invent an elf tribe.",
+        key="lab_input",
+    )
+    lab_go = st.button("▶️ Exécuter", type="primary", key="lab_go", disabled=not lab_selected)
+
+    if lab_go and lab_input and lab_selected:
+        _lab_res = {"model": model, "index": index, "meta": metadata}
+        with st.spinner("Exécution…"):
+            lab_result = execute_pipeline(lab_selected, lab_input, _lab_res)
+
+        st.markdown("---")
+        st.markdown("**Sorties par layer**")
+
+        for step in lab_result["trace"]:
+            lid = step["layer_id"]
+            lr  = lab_result["outputs"].get(lid)
+            ok  = step["output_type"] != "error"
+            with st.expander(
+                f"{'✅' if ok else '❌'} {step['emoji']} **{step['name']}** `{lid}` "
+                f"— {step['label']} · {step['duration_ms']} ms",
+                expanded=ok,
+            ):
+                c1, c2, c3 = st.columns(3)
+                c1.caption(f"→ `{step['output_type']}`")
+                c2.caption(f"`{LAYER_META[lid].cost}`")
+                c3.caption("✅ déterministe" if LAYER_META[lid].deterministic else "🎲 LLM")
+                if lr:
+                    _render_layer_output(lr.output, lr.output_type)
+
+        st.markdown("---")
+        st.markdown("**Résultat final**")
+        if lab_result["error"]:
+            st.error(f"❌ {lab_result['error']}")
+        else:
+            st.success(format_final_output(lab_result))
+
+    elif lab_go and not lab_input:
+        st.warning("Entre un input avant d'exécuter.")
