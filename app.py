@@ -396,6 +396,7 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
                 if lr["success"]:
                     st.write(lr["story"])
                     v = lr["validation"]
-                    st.caption(f"Score KG : {v.get('score', 0)}/100 · {"✅" if v.get('is_valid') else "❌ violations"}")
+                    valid_str = "✅ valide" if v.get("is_valid") else "❌ violations"
+                    st.caption(f"Score KG : {v.get('score', 0)}/100 · {valid_str}")
                 else:
                     st.error(lr["error"])
