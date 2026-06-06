@@ -1,9 +1,10 @@
 """Interface Streamlit pour le RAG Elfique.
 
-Trois onglets :
+Quatre onglets :
   💬 Q&A           — Phase 1 : questions sur Quenya/Sindarin
   🧝 Translate      — Phase 2 : traduction anglais → Quenya (pipeline déterministe)
-  📖 Generate Lore  — Phase 3 : génération de lore compatible Tolkien
+  📖 Generate Lore  — Phase 3 : génération de lore (validation via Claude)
+  🔮 Generate Lore  — Phase 4 : génération de lore (validation via Knowledge Graph)
 
 Lance avec :
     streamlit run app.py
@@ -24,6 +25,7 @@ from src.embeddings import load_model
 from src.retrieval  import load_faiss, retrieve
 from src.llm        import answer
 from src.lore_generator import generate_lore
+from src.lore_generator_p4 import generate_lore_p4
 
 # ---------------------------------------------------------------------------
 # Chargement des ressources avec cache
@@ -69,10 +71,11 @@ _qa_available = model is not None and index is not None
 # Tabs : Q&A (Phase 1) | Translate (Phase 2) | Generate Lore (Phase 3)
 # ---------------------------------------------------------------------------
 
-tab_qa, tab_translate, tab_lore = st.tabs([
+tab_qa, tab_translate, tab_lore, tab_lore_p4 = st.tabs([
     "💬 Q&A (Phase 1)",
     "🧝 Translate (Phase 2)",
     "📖 Generate Lore (Phase 3)",
+    "🔮 Generate Lore (Phase 4 — KG)",
 ])
 
 # ============================= TAB 1 — Q&A ==================================
@@ -320,3 +323,126 @@ The model retrieves context from the knowledge base, then invents plausible new 
                         st.caption(f"Used {result['chunks_used']} FAISS chunks for context")
             else:
                 st.error(f"❌ {result['error']}")
+
+
+# ====================== TAB 4 — GENERATE LORE (PHASE 4 — KG) ================
+
+with tab_lore_p4:
+    st.markdown("""**Phase 4 — Lore Generation with Knowledge Graph validation**
+
+Same generation pipeline as Phase 3 (Claude), but validation is now **deterministic**:
+instead of asking Claude a second time to check coherence, the story is validated
+against a hand-curated **Knowledge Graph** (126 entities, 131 relations, 12 canon rules)
+built from the lore corpus.
+
+**What the KG checks:**
+- Role assertions — *"X is king of Doriath"* → is X actually Thingol?
+- Creation claims — *"X forged the Silmarils"* → were they created by Feanor?
+- Canon fact patterns — Beleriand in 2nd Age, Morgoth post-War of Wrath, etc.
+
+**Score interpretation:** 100 = no violation detected · -25 per HARD · -10 per SOFT
+""")
+
+    # KG status check
+    from src.knowledge_graph import KG_DB_PATH
+    _kg_ready = KG_DB_PATH.exists()
+    if not _kg_ready:
+        st.warning(
+            "⚠️ **Knowledge Graph not built yet.**  \n"
+            "Run `python scripts/build_kg.py` from the project root to populate it."
+        )
+    else:
+        from src.knowledge_graph import KnowledgeGraph
+        with KnowledgeGraph() as _kg:
+            _kg_stats = _kg.get_stats()
+        st.caption(
+            f"🗂️ KG loaded: **{_kg_stats['entities']} entities** · "
+            f"**{_kg_stats['relations']} relations** · "
+            f"**{_kg_stats['canon_facts']} canon rules**"
+        )
+
+    lore_request_p4 = st.text_area(
+        label="Lore Generation Request",
+        placeholder="Invent a tribe of elves in Beleriand...",
+        height=100,
+        key="lore_p4_input",
+    )
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        generate_button_p4 = st.button("🔮 Generate Lore (KG)", type="primary", key="btn_p4")
+    with col2:
+        show_kg_details = st.checkbox("Show KG validation details", value=True, key="chk_kg")
+
+    if generate_button_p4 and lore_request_p4:
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            st.error("❌ ANTHROPIC_API_KEY not found. Add it to your Streamlit Cloud secrets.")
+        elif not _qa_available:
+            st.error("❌ FAISS index not available. Cannot retrieve context for generation.")
+        elif not _kg_ready:
+            st.error("❌ Knowledge Graph not built. Run `python scripts/build_kg.py` first.")
+        else:
+            with st.spinner("🔍 Retrieving FAISS context + generating story…"):
+                result_p4 = generate_lore_p4(
+                    user_request=lore_request_p4,
+                    api_key=api_key,
+                    model=model,
+                    index=index,
+                    metadata=metadata,
+                )
+
+            if result_p4["success"]:
+                st.markdown("### 📖 Generated Lore")
+                st.write(result_p4["story"])
+
+                st.markdown("---")
+                validation = result_p4["validation"]
+
+                # Metrics row
+                col_a, col_b, col_c, col_d = st.columns(4)
+                with col_a:
+                    st.metric("Location", result_p4["context"]["location"])
+                with col_b:
+                    st.metric("Species", result_p4["context"]["species"])
+                with col_c:
+                    score = validation.get("score", 0)
+                    st.metric("KG Score", f"{score}/100")
+                with col_d:
+                    is_valid = validation.get("is_valid", False)
+                    st.metric("Valid", "✅ Yes" if is_valid else "❌ Violations")
+
+                # Entities found
+                entities_found = validation.get("entities_found", [])
+                if entities_found:
+                    st.info(f"🗺️ Canon entities detected in story: **{', '.join(entities_found)}**")
+
+                if show_kg_details:
+                    violations = validation.get("violations", [])
+                    st.markdown("### 🔍 KG Validation Details")
+
+                    if not violations:
+                        st.success(
+                            "✅ **No canon violations detected** — "
+                            "the story is compatible with the Knowledge Graph."
+                        )
+                    else:
+                        st.warning(f"⚠️ {len(violations)} violation(s) found:")
+                        for v in violations:
+                            severity = v.get("severity", "SOFT")
+                            icon = "🔴" if severity == "HARD" else "🟡"
+                            st.markdown(
+                                f"{icon} **{severity}** · _{v.get('text', '')}_ \n"
+                                f"→ {v.get('canon', '')}"
+                            )
+
+                    with st.expander("ℹ️ Validation method"):
+                        st.markdown(
+                            "**Phase 4 uses deterministic KG validation** (no LLM).  \n"
+                            "- Role assertions matched via regex + KG lookup  \n"
+                            "- Canon fact patterns checked against the story  \n"
+                            "- 0 extra API calls for validation  \n\n"
+                            f"Method: `{validation.get('method', 'knowledge_graph')}`"
+                        )
+            else:
+                st.error(f"❌ {result_p4['error']}")

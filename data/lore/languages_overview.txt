@@ -1,0 +1,159 @@
+The Languages of Tolkien's World: A Complete Overview
+
+Tolkien was a professional philologist and linguist, and the languages he created for Middle-earth were not mere decoration — they were the core of his creative work. He once wrote that the mythologies and tales were largely invented to give context to his invented languages, rather than the other way around. The languages of Middle-earth are among the most fully developed fictional languages ever created.
+
+---
+
+Valarin: The Language of the Valar
+
+Valarin is the original language of the Valar, the angelic powers who shaped the world. It is the oldest language in existence, predating the creation of the Elves. Very little Valarin is recorded, as it was rarely spoken to mortals.
+
+Valarin is described as rich and full of long, complex words. The Elves found it difficult to learn and somewhat alien to their ears. Only a few Valarin words were borrowed into Quenya, usually through Elvish approximation of Valarin sounds.
+
+Known Valarin words include: Ayanuz (Vala), Ezellohar (the Green Mound of the Two Trees), Uluboz (Ulmo), Arômez (Orome).
+
+The nature of Valarin suggests it operated differently from mortal languages — it was perhaps closer to the Music of the Ainur, a language of creative power rather than mere communication.
+
+---
+
+Primitive Quendian: The Root of All Elvish Languages
+
+When the Elves first awoke at Cuivienen, they developed language spontaneously — the very act of discovering the world around them prompted them to name it. Their original tongue is called Primitive Quendian (or Common Eldarin after the Eldar split off from the Avari).
+
+Primitive Quendian is not a spoken language in Tolkien's writings — it exists as a reconstructed proto-language that linguists can deduce from the changes in its daughter languages. Tolkien studied real-world historical linguistics (particularly the reconstruction of Proto-Indo-European) and applied the same principles to his fictional languages.
+
+All Elvish languages descend from Primitive Quendian: Quenya, Sindarin, Telerin, Nandorin (Silvan), and the various Avari tongues.
+
+---
+
+Quenya: The Ancient Tongue of the High Elves
+
+Quenya (meaning "speech" or "language" in Quenya itself) is the most prestigious and fully developed of all Elvish languages. It was the tongue of the Vanyar and Noldor in Valinor, where it was shaped by proximity to the Valar and grew into a rich, complex, and highly regular language.
+
+Quenya developed in Aman (the Blessed Realm) over thousands of years. Contact with Valarin gave it many loanwords. The isolation of Valinor from the rest of the world meant Quenya changed slowly compared to the languages of Middle-earth.
+
+After the exile of the Noldor, Quenya was banned in Beleriand by Thingol (King of Doriath) when he learned it was the language spoken at the Kinslaying. The Noldor adopted Sindarin as their daily tongue, and Quenya became a language of lore, ceremony, and high poetry — much like Latin in medieval Europe.
+
+Linguistic features of Quenya:
+- Highly inflected with many noun cases (nominative, genitive, possessive, dative, allative, locative, ablative, instrumental)
+- Verb system with active and passive forms, multiple tenses, and moods
+- Words tend to be polysyllabic with vowel harmony
+- Sounds are mellifluous, with many long vowels and diphthongs
+- Notable for its regular, derivable root system — most words can be analyzed back to a three-letter root
+
+Important Quenya vocabulary:
+- Aman — the Blessed Realm, the land of the Valar
+- Elda (pl. Eldar) — High Elf
+- Fea (pl. fear) — spirit, soul
+- Hroa — body
+- Iluvatar — "Father of All," the supreme deity
+- Ainur — the holy spirits created by Iluvatar
+- Silma — crystal, especially the substance of the Silmarils
+- Tengwar — the writing system invented by Feanor
+
+Quenya is the language of the Elvish prayers and formal greetings in The Lord of the Rings. "Elen sila lumenn' omentielvo" ("A star shines on the hour of our meeting") is Quenya. The word "namarie" (farewell) is Quenya.
+
+---
+
+Sindarin: The Living Language of the Grey Elves
+
+Sindarin is the language of the Sindar — the Grey Elves who remained in Middle-earth and never completed the Great Journey to Valinor. While Quenya developed in the isolation of the Blessed Realm, Sindarin evolved freely in Middle-earth over thousands of years, resulting in a very different character.
+
+Sindarin descends from an early stage of Elvish (Common Telerin) through dramatic sound changes. The most distinctive feature of Sindarin is its system of initial consonant mutations — the first consonant of a word changes depending on grammatical context. This is similar to the mutations found in Welsh and other Celtic languages, which clearly inspired Tolkien.
+
+Linguistic features of Sindarin:
+- Initial mutations: a word's first consonant changes based on grammatical context (nasal mutation, soft mutation, stop mutation, mixed mutation)
+- Less inflected than Quenya — fewer noun cases, simpler verb system
+- More consonant clusters and harsher sounds than the smooth Quenya
+- Many monosyllabic words, especially in common vocabulary
+- Extensive use of prefixes and compound formation
+
+Important Sindarin vocabulary:
+- Aran — king
+- Beleg — mighty
+- Caras — city (circular fortress)
+- Dor — land
+- Erin — on the
+- Fuin — darkness, night
+- Galad — light, radiance
+- Heru — lord
+- Im — I (first person pronoun)
+- Laer — summer
+- Mellon — friend ("Speak, friend, and enter" — Moria's gate)
+- Narn — tale (in verse)
+- Orch (pl. Yrch) — Orc
+- Peth — word
+- Tol — island
+- Uin — of the (genitive)
+
+Sindarin is the most widely used Elvish language in The Lord of the Rings. Rivendell (Imladris), Mirkwood (Eryn Lasgalen), Lothlorien (Lorien), and virtually all place names are Sindarin. The language of Aragorn's people (Gondor and Arnor) used Sindarin names extensively.
+
+---
+
+Telerin: Language of the Sea-Elves
+
+Telerin is the language of the Teleri, the third clan of the Eldar who journeyed to Valinor. The Teleri were delayed during the Great Journey and many were left behind or separated. Those who reached Valinor settled on the shores and became renowned shipbuilders and pearl-gatherers.
+
+Telerin is closely related to Quenya but developed separately, preserving some archaic features and developing unique changes. The Telerin spoken in Valinor influenced both Quenya and Sindarin (through the Grey Elves who were originally Teleri who turned back).
+
+---
+
+Nandorin and Silvan Elvish
+
+When the Nandor (a branch of the Teleri) turned back from the Great Journey at the Misty Mountains, their language diverged significantly from the languages of the Eldar who reached Valinor.
+
+Nandorin (also called Danian) was the language of these Wood-Elves. Over time, branches of Nandorin developed into the various Silvan tongues — the languages spoken by the Wood-Elves of Mirkwood and Lorien.
+
+By the Third Age, many Silvan Elves had adopted Sindarin as their language of culture, while preserving Silvan elements. Legolas speaks Sindarin, though his people's native tongue was originally Silvan.
+
+---
+
+Khuzdul: The Secret Language of the Dwarves
+
+Khuzdul is the language of the Dwarves (the Khazad), made by Aule the craftsman when he secretly fashioned the Dwarves. It is unlike any other language of Middle-earth — Tolkien modeled it on Semitic languages (particularly Hebrew and Arabic) with their system of consonantal roots.
+
+The Dwarves guard Khuzdul with extreme secrecy. They do not teach it to outsiders and do not speak it in the presence of other races. The names Dwarves give publicly (like Balin, Thorin, Gimli) are not their true Khuzdul names.
+
+Known Khuzdul:
+- Khazad-dum — the Dwarrowdelf (Moria), literally "Dwarf-mansion"
+- Baruk Khazad! Khazad ai-menu! — "Axes of the Dwarves! The Dwarves are upon you!" (Battle cry)
+- Zirak-zigil — Silvertine (one of the peaks above Moria)
+- Bundushathur — Cloudyhead (another peak)
+
+Khuzdul is essentially impenetrable to linguists outside the Dwarves because they refuse to share it, keeping no public records of its grammar or vocabulary.
+
+---
+
+The Black Speech: Language of Mordor
+
+The Black Speech was created by Sauron in the Second Age as a unifying language for all his servants. He intended it to replace the various languages of Orcs and other creatures, creating a single unified tongue for his domain.
+
+The project was only partially successful. After Sauron's first defeat, the Black Speech fragmented into various Orcish dialects. Only in the Third Age, in Mordor itself, did pure Black Speech return.
+
+The most famous Black Speech text is the Ring inscription:
+"Ash nazg durbatuluk, ash nazg gimbatul, ash nazg thrakatuluk agh burzum-ishi krimpatul."
+"One Ring to rule them all, One Ring to find them, One Ring to bring them all and in the darkness bind them."
+
+When Gandalf spoke these words at the Council of Elrond, all who heard them were horrified — the words of power caused a visible reaction of darkness and dread even among the Elves of Rivendell.
+
+The Black Speech was harsh and guttural. The Elvish name for the language of Mordor was sometimes given as the "Tongue of Sauron."
+
+---
+
+Westron: The Common Speech
+
+Westron (also called the Common Tongue, Common Speech, or Adunaic in its ancestor form) was the lingua franca of most of Middle-earth by the Third Age. It descended from Adunaic, the language of the Numenoreans, which spread throughout Middle-earth through trade and the colonization efforts of Numenor and later Gondor.
+
+In Tolkien's conceit, The Lord of the Rings is presented as a translation of the Red Book of Westmarch — the account written by Bilbo and Frodo. All dialogue rendered in English in the books was originally Westron (or other languages translated into English-equivalents). This is why Hobbits speak "plain English" while Elves speak elevated prose — they represent different registers of the same fictional translation.
+
+Hobbit names, place names in the Shire, and names like "Baggins" are Tolkien's English translations of the original Westron names.
+
+---
+
+The Writing Systems of Middle-earth
+
+Cirth (Runic Script) — Invented by Daeron, the lore-master and minstrel of Doriath. Originally designed for Sindarin, the Cirth were angular runes suited for carving in stone or wood. The Dwarves later adopted and significantly expanded the Cirth for use with Khuzdul. The inscription on Balin's tomb in Moria is in Cirth.
+
+Tengwar — Invented by Feanor of the Noldor, the Tengwar are a flowing, cursive script considered the finest writing system in Middle-earth. The Tengwar can be adapted to write any language — they were used for Quenya, Sindarin, Westron, and even the Black Speech (the Ring inscription uses Tengwar). The Tengwar system has consonant letters (tengwar) and vowel diacritical marks (tehtar).
+
+The relationship between Tolkien's invented languages and real-world linguistics is direct: Quenya was heavily inspired by Finnish, Sindarin by Welsh. Tolkien studied Old English, Middle English, Gothic, Norse, and many other languages professionally, and this scholarship is evident throughout his fictional linguistic work.
