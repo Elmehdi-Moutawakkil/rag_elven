@@ -49,12 +49,13 @@ def load_resources():
 # ==============================================================================
 
 st.set_page_config(
-    page_title="RAG Elfique",
-    page_icon="🧝",
+    page_title="Elmehdi Fiction",
+    page_icon="📚",
     layout="centered",
 )
 
-st.title("🧝 RAG Elfique")
+st.title("📚 Elmehdi Fiction")
+st.markdown("### 🧝 Elfique")
 st.caption("Quenya & Sindarin — posez une question, demandez une traduction, ou générez du lore.")
 
 with st.spinner("Chargement des ressources…"):
