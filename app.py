@@ -575,6 +575,26 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
         "Exécution dans l'ordre numérique (L01 → L13)."
     )
 
+    # ── Sélecteur d'univers ───────────────────────────────────────────────────
+    UNIVERSE_OPTIONS = {
+        "🧝 Elfique (Tolkien)":       {"index": index,    "meta": metadata,  "model": model},
+        "🖖 Empire Terran (Star Trek)": {"index": _te_index, "meta": _te_meta, "model": _te_model},
+    }
+
+    lab_universe = st.selectbox(
+        "Univers (corpus FAISS pour L02)",
+        options=list(UNIVERSE_OPTIONS.keys()),
+        key="lab_universe",
+    )
+    _lab_universe_res = UNIVERSE_OPTIONS[lab_universe]
+
+    unavailable_layers = []
+    if lab_universe == "🖖 Empire Terran (Star Trek)":
+        unavailable_layers = ["L03", "L04", "L05", "L06"]
+        st.info("ℹ️ L03 (dictionnaire), L04–L06 (traduction Quenya) ne s'appliquent pas à cet univers.")
+
+    st.markdown("---")
+
     # ── Inventaire des 13 layers ──────────────────────────────────────────────
     lab_selected: list[str] = []
     col_a, col_b = st.columns(2)
@@ -584,9 +604,28 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
         col  = col_a if i % 2 == 0 else col_b
         cost_icon = {"free": "🟢", "groq": "🔵", "claude": "🟣", "gpu": "🔴"}.get(meta.cost, "⚪")
         det = "déterministe" if meta.deterministic else "LLM"
+        universe_incompatible = lid in unavailable_layers
 
         with col:
-            if meta.available:
+            if not meta.available:
+                st.checkbox(
+                    f"{meta.emoji} **{lid}** — {meta.name}  *(non disponible)*",
+                    value=False, disabled=True, key=f"lab_{lid}",
+                )
+                st.caption(
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;{meta.description}  \n"
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;⚫ Phase future · `{meta.output_type}`"
+                )
+            elif universe_incompatible:
+                st.checkbox(
+                    f"{meta.emoji} **{lid}** — {meta.name}  *(hors univers)*",
+                    value=False, disabled=True, key=f"lab_{lid}",
+                )
+                st.caption(
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;{meta.description}  \n"
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;🚫 Non applicable à cet univers · `{meta.output_type}`"
+                )
+            else:
                 checked = st.checkbox(
                     f"{meta.emoji} **{lid}** — {meta.name}",
                     value=(lid in ["L01", "L02", "L13"]),
@@ -598,15 +637,6 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
                 )
                 if checked:
                     lab_selected.append(lid)
-            else:
-                st.checkbox(
-                    f"{meta.emoji} **{lid}** — {meta.name}  *(non disponible)*",
-                    value=False, disabled=True, key=f"lab_{lid}",
-                )
-                st.caption(
-                    f"&nbsp;&nbsp;&nbsp;&nbsp;{meta.description}  \n"
-                    f"&nbsp;&nbsp;&nbsp;&nbsp;⚫ Phase future · `{meta.output_type}`"
-                )
 
     lab_selected = sorted(lab_selected, key=lambda l: LAYER_ORDER.index(l))
 
@@ -637,7 +667,11 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
     lab_go = st.button("▶️ Exécuter", type="primary", key="lab_go", disabled=not lab_selected)
 
     if lab_go and lab_input and lab_selected:
-        _lab_res = {"model": model, "index": index, "meta": metadata}
+        _lab_res = {
+            "model": _lab_universe_res["model"],
+            "index": _lab_universe_res["index"],
+            "meta":  _lab_universe_res["meta"],
+        }
         with st.spinner("Exécution…"):
             lab_result = execute_pipeline(lab_selected, lab_input, _lab_res)
 
