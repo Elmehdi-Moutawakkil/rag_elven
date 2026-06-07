@@ -257,7 +257,8 @@ def _run_L09(input: Any, context: dict) -> LayerResult:
         story_data = {"story": str(input), "warnings": []}
 
     chunks_text = "\n\n".join([c["text"] for c in chunks[:3]])
-    warnings = validate_coherence(story_data["story"], chunks_text)
+    api_key = context["resources"].get("anthropic_api_key") or os.getenv("ANTHROPIC_API_KEY", "")
+    warnings = validate_coherence(story_data["story"], chunks_text, api_key)
     story_data = dict(story_data)
     story_data["warnings"] = warnings if isinstance(warnings, list) else []
     label = f"{'⚠️ ' + str(len(story_data['warnings'])) + ' avertissements' if story_data['warnings'] else '✅ cohérent'}"
