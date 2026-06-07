@@ -320,6 +320,7 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
 
     # ── Q&A ──────────────────────────────────────────────────────────────────
     with tab_qa:
+        st.caption("**Pipeline :** 🔄 L01 Query Rewriter → 🔍 L02 FAISS Search → 📚 L03 SQLite Dictionary → 💬 L13 Answer LLM")
         if not _qa_available:
             st.warning("⚠️ Index FAISS non disponible.")
         else:
@@ -344,6 +345,7 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
 
     # ── TRANSLATE ─────────────────────────────────────────────────────────────
     with tab_tr:
+        st.caption("**Pipeline :** 🌿 L04 spaCy Parser → ⚙️ L05 Morphology Engine → 🧩 L06 SOV Assembler")
         try:
             import spacy as _sp
             _sp_ok = True
@@ -377,6 +379,7 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
 
     # ── LORE ──────────────────────────────────────────────────────────────────
     with tab_lore:
+        st.caption("**Pipeline :** 🔄 L01 Query Rewriter → 🔍 L02 FAISS Search → 📐 L07 Constraint Builder → ✨ L08 Story Generation → 🛡️ L09 KG Validator")
         if not _kg_ready:
             st.warning("⚠️ KG non construit.")
         elif not _anthropic_key:
