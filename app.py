@@ -308,6 +308,21 @@ if submit and user_input.strip():
 # MODE MANUEL (expander — accès direct aux pipelines)
 # ==============================================================================
 
+def _pipeline_html(layer_ids: list[str]) -> str:
+    """Génère une ligne HTML 'Pipeline : L01 → L02 → ...' avec tooltips au survol."""
+    parts = []
+    for lid in layer_ids:
+        meta = LAYER_META[lid]
+        desc = meta.description.replace('"', "&quot;")
+        parts.append(
+            f'<span title="{desc}" style="'
+            f"border-bottom:1px dashed #aaa;cursor:help;"
+            f'">{meta.emoji} <b>{lid}</b> {meta.name}</span>'
+        )
+    arrow = ' <span style="color:#888">→</span> '
+    return "<small><b>Pipeline :</b> " + arrow.join(parts) + "</small>"
+
+
 st.divider()
 with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
     st.caption("Utilisez cet espace si vous souhaitez forcer un pipeline spécifique.")
@@ -320,7 +335,7 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
 
     # ── Q&A ──────────────────────────────────────────────────────────────────
     with tab_qa:
-        st.caption("**Pipeline :** 🔄 L01 Query Rewriter → 🔍 L02 FAISS Search → 📚 L03 SQLite Dictionary → 💬 L13 Answer LLM")
+        st.markdown(_pipeline_html(["L01", "L02", "L03", "L13"]), unsafe_allow_html=True)
         if not _qa_available:
             st.warning("⚠️ Index FAISS non disponible.")
         else:
@@ -345,7 +360,7 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
 
     # ── TRANSLATE ─────────────────────────────────────────────────────────────
     with tab_tr:
-        st.caption("**Pipeline :** 🌿 L04 spaCy Parser → ⚙️ L05 Morphology Engine → 🧩 L06 SOV Assembler")
+        st.markdown(_pipeline_html(["L04", "L05", "L06"]), unsafe_allow_html=True)
         try:
             import spacy as _sp
             _sp_ok = True
@@ -379,7 +394,7 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
 
     # ── LORE ──────────────────────────────────────────────────────────────────
     with tab_lore:
-        st.caption("**Pipeline :** 🔄 L01 Query Rewriter → 🔍 L02 FAISS Search → 📐 L07 Constraint Builder → ✨ L08 Story Generation → 🛡️ L09 KG Validator")
+        st.markdown(_pipeline_html(["L01", "L02", "L07", "L08", "L09"]), unsafe_allow_html=True)
         if not _kg_ready:
             st.warning("⚠️ KG non construit.")
         elif not _anthropic_key:
