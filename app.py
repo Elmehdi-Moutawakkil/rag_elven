@@ -21,7 +21,7 @@ if _ROOT not in sys.path:
 import streamlit as st
 
 from src.embeddings import load_model
-from src.retrieval   import load_faiss, retrieve
+from src.retrieval   import load_faiss, retrieve, search_faiss
 from src.llm         import answer
 from src.lore_generator_p4 import generate_lore_p4
 from src.router      import classify_request
@@ -39,6 +39,19 @@ def load_resources():
     try:
         model           = load_model()
         index, metadata = load_faiss()
+        return model, index, metadata
+    except Exception as e:
+        return None, None, str(e)
+
+
+@st.cache_resource
+def load_universe_resources(universe: str):
+    try:
+        model = load_model()
+        index, metadata = load_faiss(
+            index_path=f"vector_db/{universe}/faiss.index",
+            meta_path=f"vector_db/{universe}/metadata.json",
+        )
         return model, index, metadata
     except Exception as e:
         return None, None, str(e)
@@ -303,6 +316,53 @@ if submit and user_input.strip():
                     st.caption("Validation déterministe — 0 appel LLM supplémentaire.")
             else:
                 st.error(f"❌ {result['error']}")
+
+
+# ==============================================================================
+# EMPIRE TERRAN
+# ==============================================================================
+
+st.divider()
+st.markdown("### 🖖 Empire Terran")
+st.caption("Univers miroir de Star Trek — explorez le lore de l'Empire Terran et de l'Alliance Klingon-Cardassian.")
+
+with st.spinner("Chargement de l'index Empire Terran…"):
+    _te_model, _te_index, _te_meta = load_universe_resources("terran_empire")
+
+_te_available = _te_model is not None and _te_index is not None
+
+te_input = st.text_area(
+    label="Votre requête",
+    placeholder=(
+        "Ex : Who is the Intendant?\n"
+        "Ex : What is the Agony Booth?\n"
+        "Ex : How did the Terran Empire fall?"
+    ),
+    height=100,
+    key="te_input",
+)
+
+te_submit = st.button("⚡ Envoyer", type="primary", key="te_submit")
+
+if te_submit and te_input.strip():
+    if not _te_available:
+        st.error("❌ Index Empire Terran non disponible. Lancez : `python scripts/build_universe_index.py --universe terran_empire`")
+    elif not _groq_key:
+        st.error("❌ GROQ_API_KEY manquante.")
+    else:
+        with st.spinner("Recherche dans le lore de l'Empire Terran…"):
+            faiss_results = search_faiss(te_input, _te_model, _te_index, _te_meta, k=3)
+        with st.spinner("Génération de la réponse…"):
+            response = answer(te_input, faiss_results, [])
+
+        st.markdown("### Réponse")
+        st.write(response)
+
+        with st.expander("Sources utilisées"):
+            for r in faiss_results:
+                src = r.get("source", "").split("/")[-1]
+                st.markdown(f"*{src}* — score {r['score']:.3f}")
+                st.caption(r["text"][:300])
 
 
 # ==============================================================================

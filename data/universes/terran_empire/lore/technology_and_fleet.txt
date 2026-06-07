@@ -1,0 +1,83 @@
+The Terran Empire — Technology, Fleet, and Military Doctrine
+
+The Terran Empire built its technological foundation on theft, reverse-engineering, and aggressive development. Where the prime universe's Starfleet valued exploration and scientific discovery, the Imperial Starfleet valued combat capability, deterrence, and the capacity to project lethal force across stellar distances.
+
+---
+
+The Imperial Starfleet
+
+The Imperial Starfleet was the Empire's primary instrument of power projection. Every Imperial starship was a warship first and a science vessel a distant second, if at all. Ship design prioritized weapons systems, defensive shielding, speed, and crew redundancy (because crew were expected to be lost and replaced frequently in an organization where assassination was a promotion mechanism).
+
+Imperial starship designations carried the prefix ISS — Imperial Star Ship — rather than the prime universe's USS. The ISS nomenclature was not merely nominal; it reflected the fundamental difference in purpose. USS vessels were ships of exploration operating under Starfleet's peaceful mission. ISS vessels were instruments of Imperial policy, which was to say instruments of domination.
+
+The Imperial fleet's organization paralleled the prime universe's in terms of ship classes and basic technology — warp drive, phasers, photon torpedoes, deflector shields — but the weapons systems were generally more powerful and the diplomatic/scientific facilities minimal. Crew quarters reflected the Empire's brutal hierarchy: senior officers lived in relative comfort while enlisted crew and slave workers occupied utilitarian spaces.
+
+---
+
+The ISS Enterprise NX-01 (22nd Century)
+
+The ISS Enterprise NX-01 was the mirror universe counterpart to Jonathan Archer's ship. In the prime universe, the Enterprise NX-01 was a vessel of peaceful first contact and exploration. In the mirror universe, it was a warship operating in support of Imperial expansion, equipped with weapons that Terran engineers had derived from the captured Vulcan vessel seized after Cochrane's attack.
+
+The discovery of the USS Defiant — a Constitution-class starship from the prime universe's future, displaced through an interphase into the mirror universe in the mid-22nd century — gave the ISS Enterprise's crew access to technology more than a century ahead of their time. This was precisely the kind of technological windfall the Empire excelled at exploiting.
+
+Commander Archer's use of the Defiant was characteristic Imperial opportunism: rather than integrating the technology systematically for the fleet, he used it as a personal weapon in a bid for the Emperor's throne. The Defiant's advanced weapons and shields made it effectively invulnerable to contemporary Imperial vessels, and Archer used this advantage aggressively.
+
+---
+
+The ISS Enterprise NCC-1701 (23rd Century)
+
+By the 2260s, the Imperial Starfleet had evolved significantly. The ISS Enterprise NCC-1701 was a Constitution-class vessel — the same design as the prime universe's USS Enterprise — but configured for Imperial operations. Its weapons systems were fully operational and well-maintained, reflecting the Imperial principle that a warship exists to fight.
+
+The Enterprise's internal layout included several features specific to Imperial operation. The Agony Booth was positioned on the main deck, accessible quickly from multiple directions. The captain's quarters included the Tantalus Field control interface. The ship's security systems were designed to monitor crew as much as external threats — recording sensor data that could be used to build cases against officers who were becoming politically problematic.
+
+The ship's complement included both Starfleet officers (competing brutally for advancement) and enslaved personnel performing maintenance and support functions. The divide between free Terran officers and slave workers was physically expressed in the ship's spaces — officers occupied the upper decks, slave workers the lower.
+
+---
+
+The Tantalus Field
+
+The Tantalus Field was one of the most significant weapons in Imperial personal arsenals, and its nature remained somewhat mysterious even to those who used it. Mirror Kirk's Tantalus Field was installed in his private quarters and appeared to allow him to observe any individual — regardless of location — and eliminate them with no visible mechanism.
+
+The device's origin was unclear. It was described as technology not of known Terran or immediately available Imperial development. Whether it was a captured alien artifact, a product of some advanced research program, or something acquired through other means was never established. What was clear was its function: target identification, surveillance, and remote disintegration.
+
+The Tantalus Field's significance went beyond the practical capability to eliminate enemies. Its existence — or even rumors of its existence — was itself a deterrent. If an Imperial officer was known or suspected to possess a Tantalus Field, attacking them directly became enormously risky: the attacker could be eliminated before they ever made their move. Kirk's retention of command despite the constant threat of assassination that faced every Imperial captain was partially attributable to the field's deterrent effect.
+
+---
+
+Agonizers (Personal Discipline Devices)
+
+Agonizers were standard-issue personal devices for Imperial Starfleet officers. Approximately the size of a communicator, an agonizer was clipped to a uniform and could deliver a painful but non-damaging discharge when pressed against skin.
+
+The agonizer's design philosophy reflected the Empire's management approach: pain was a more reliable motivator than reward in a system where trust was impossible and every reward could be taken back. An officer who knew that failure would result in immediate physical pain from their superior's agonizer had a strong incentive to avoid failure, or at least to avoid failing visibly.
+
+Agonizers were issued at the rank of ensign and were expected to be used routinely. An officer who never used their agonizer on subordinates might be suspected of weakness. An officer who used it excessively might be resented enough that their subordinates would collectively arrange a convenient accident. The calibrated application of the agonizer was itself a political skill.
+
+---
+
+The Agony Booth
+
+The Agony Booth was the institutional-scale equivalent of the personal agonizer. A standing enclosure approximately the size of a lift car, the Agony Booth delivered full-body neural pain stimulation. A subject placed in the Agony Booth experienced immediate, total-body agony of adjustable intensity.
+
+Standard disciplinary use involved sessions of fifteen minutes to an hour. Serious violations — directly disobeying an officer, failing in a combat situation, being implicated in a conspiracy — might result in sessions of several hours. The booth was calibrated to avoid permanent neurological damage; the Empire needed functional crew members, not permanently damaged ones. But the experience was severe enough that few who underwent it failed to modify their behavior.
+
+The Agony Booth served a public function in addition to its individual disciplinary use. Placing an officer in the booth in front of their colleagues was a demonstration of the commanding officer's authority and a warning to everyone watching. The social dimension of the booth's use — the public humiliation as well as the physical pain — was part of its effectiveness.
+
+---
+
+Cloaking and Intelligence Technology
+
+The Terran Empire invested heavily in cloaking technology, though its development in this area lagged behind the Klingons and Romulans who had developed the technology first. Imperial intelligence operations relied on a combination of technical surveillance, human intelligence (informants within slave populations and within rival officers' circles), and the aggressive collection of enemy communications.
+
+After the Alliance took control of former Imperial space, Cardassian intelligence services — significantly more sophisticated than Imperial intelligence had been — became the dominant surveillance apparatus in the region. Cardassian data-gathering philosophy, which involved the systematic documentation of everything about everyone under their administration, was applied to the slave populations of Terok Nor and the surrounding sector with characteristic thoroughness.
+
+The Alliance's development of an interphasic cloaking device — the project mirror Jennifer Sisko was working on before her defection toward the Rebellion — would have represented a decisive military advantage. A cloaking device that functioned in interphasic conditions could not be detected by standard sensor systems. Ships equipped with such a device could attack from positions of complete concealment, which would have made the Rebellion's hit-and-run tactical approach significantly more dangerous.
+
+---
+
+Terran Rebellion Military Technology
+
+The Rebellion's technological state was determined by what they could steal, salvage, capture, and build clandestinely without access to proper industrial facilities. Their early weapons were mismatched, their vessels repaired rather than maintained, and their power systems improvised.
+
+The mirror Defiant-class vessel changed everything. Built using knowledge provided by prime universe visitors — specifically the design specifications known to prime Sisko — the Rebellion's Defiant was the first vessel they possessed that was genuinely capable of matching Alliance warships. Its ablative armor, quantum torpedoes, and pulse phaser cannons represented technology several generations beyond what either the old Terran Empire or the Alliance had deployed in the region.
+
+The Defiant's capability was the military foundation of the Rebellion's assault on Terok Nor. Without it, the Rebellion could raid and harass but could not take and hold a major installation. With it, they could contest control of a strategically significant facility. The Alliance's response — deploying a fleet to retake the station — demonstrated the limits of even this asset: one advanced vessel could not indefinitely hold a position against a determined fleet operation.
