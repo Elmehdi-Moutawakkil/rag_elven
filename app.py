@@ -24,6 +24,7 @@ from src.embeddings import load_model
 from src.retrieval   import load_faiss, retrieve, search_faiss
 from src.llm         import answer
 from src.lore_generator_p4 import generate_lore_p4
+from src.lore_generator_generic import generate_lore_for_universe
 from src.router      import classify_request
 from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
 from src.layer_registry import LAYER_META, LAYER_ORDER
@@ -331,38 +332,73 @@ with st.spinner("Chargement de l'index Empire Terran…"):
 
 _te_available = _te_model is not None and _te_index is not None
 
-te_input = st.text_area(
-    label="Votre requête",
-    placeholder=(
-        "Ex : Who is the Intendant?\n"
-        "Ex : What is the Agony Booth?\n"
-        "Ex : How did the Terran Empire fall?"
-    ),
-    height=100,
-    key="te_input",
-)
+te_tab_qa, te_tab_lore = st.tabs(["💬 Q&A", "📖 Générer du Lore"])
 
-te_submit = st.button("⚡ Envoyer", type="primary", key="te_submit")
+with te_tab_qa:
+    te_input = st.text_area(
+        label="Votre question",
+        placeholder=(
+            "Ex : Who is the Intendant?\n"
+            "Ex : What is the Agony Booth?\n"
+            "Ex : How did the Terran Empire fall?"
+        ),
+        height=100,
+        key="te_input",
+    )
+    te_submit = st.button("⚡ Envoyer", type="primary", key="te_submit")
 
-if te_submit and te_input.strip():
-    if not _te_available:
-        st.error("❌ Index Empire Terran non disponible. Lancez : `python scripts/build_universe_index.py --universe terran_empire`")
-    elif not _groq_key:
-        st.error("❌ GROQ_API_KEY manquante.")
-    else:
-        with st.spinner("Recherche dans le lore de l'Empire Terran…"):
-            faiss_results = search_faiss(te_input, _te_model, _te_index, _te_meta, k=3)
-        with st.spinner("Génération de la réponse…"):
-            response = answer(te_input, faiss_results, [])
+    if te_submit and te_input.strip():
+        if not _te_available:
+            st.error("❌ Index Empire Terran non disponible.")
+        elif not _groq_key:
+            st.error("❌ GROQ_API_KEY manquante.")
+        else:
+            with st.spinner("Recherche dans le lore de l'Empire Terran…"):
+                faiss_results = search_faiss(te_input, _te_model, _te_index, _te_meta, k=3)
+            with st.spinner("Génération de la réponse…"):
+                response = answer(te_input, faiss_results, [])
+            st.markdown("### Réponse")
+            st.write(response)
+            with st.expander("Sources utilisées"):
+                for r in faiss_results:
+                    src = r.get("source", "").split("/")[-1]
+                    st.markdown(f"*{src}* — score {r['score']:.3f}")
+                    st.caption(r["text"][:300])
 
-        st.markdown("### Réponse")
-        st.write(response)
+with te_tab_lore:
+    te_lore_input = st.text_area(
+        label="Votre requête de lore",
+        placeholder=(
+            "Ex : Invent a secret rebel cell operating inside Terok Nor\n"
+            "Ex : Create a Terran officer who survived the fall of the Empire\n"
+            "Ex : Write about a skirmish between the Rebellion and Alliance forces"
+        ),
+        height=120,
+        key="te_lore_input",
+    )
+    te_lore_submit = st.button("✨ Générer", type="primary", key="te_lore_submit")
 
-        with st.expander("Sources utilisées"):
-            for r in faiss_results:
-                src = r.get("source", "").split("/")[-1]
-                st.markdown(f"*{src}* — score {r['score']:.3f}")
-                st.caption(r["text"][:300])
+    if te_lore_submit and te_lore_input.strip():
+        if not _te_available:
+            st.error("❌ Index Empire Terran non disponible.")
+        elif not _anthropic_key:
+            st.error("❌ ANTHROPIC_API_KEY manquante.")
+        else:
+            with st.spinner("Récupération du contexte + génération…"):
+                result = generate_lore_for_universe(
+                    user_request=te_lore_input,
+                    universe_name="Terran Empire (Star Trek Mirror Universe)",
+                    api_key=_anthropic_key,
+                    model=_te_model,
+                    index=_te_index,
+                    metadata=_te_meta,
+                )
+            if result["success"]:
+                st.markdown("### 📖 Lore généré")
+                st.write(result["story"])
+                st.caption(f"Contexte : {result['chunks_used']} passages utilisés")
+            else:
+                st.error(f"❌ {result['error']}")
 
 
 # ==============================================================================
