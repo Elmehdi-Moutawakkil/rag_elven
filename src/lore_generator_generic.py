@@ -1,15 +1,67 @@
-"""Generic lore generation for any universe — no KG, no Tolkien-specific logic.
+"""Generic lore generation for any universe — with optional KG validation.
 
 Pipeline:
-1. search_faiss() — retrieve relevant chunks from universe index
-2. Claude API    — generate story grounded in those chunks
+1. search_faiss()     — retrieve relevant chunks from universe index
+2. KG canon check     — load hard rules if a KG exists for this universe
+3. Claude API         — generate story grounded in chunks + KG constraints
+4. KG violation check — flag any canon violations in the output
 """
+
+import re
+import sqlite3
+from pathlib import Path
 
 from anthropic import Anthropic
 from sentence_transformers import SentenceTransformer
 import faiss
 
 from src.retrieval import search_faiss
+
+PROJECT_ROOT = Path(__file__).parent.parent
+
+# Map universe_id → KG path (add new universes here)
+KG_PATHS = {
+    "terran_empire": PROJECT_ROOT / "vector_db" / "terran_empire" / "knowledge_graph.sqlite",
+}
+
+
+def _load_kg_constraints(universe_id: str) -> tuple[str, list[dict]]:
+    """Return (constraints_text, canon_facts) from the KG if it exists."""
+    kg_path = KG_PATHS.get(universe_id)
+    if not kg_path or not kg_path.exists():
+        return "", []
+
+    conn = sqlite3.connect(kg_path)
+    conn.row_factory = sqlite3.Row
+
+    # Key entities for the prompt
+    entities = conn.execute(
+        "SELECT name, entity_type, description FROM entities ORDER BY entity_type, name"
+    ).fetchall()
+
+    # Hard canon facts only
+    facts = conn.execute(
+        "SELECT description, violation_pattern, severity FROM canon_facts"
+    ).fetchall()
+    conn.close()
+
+    entity_lines = [f"- [{r['entity_type'].upper()}] {r['name']}: {r['description']}" for r in entities]
+    constraints = "KNOWN ENTITIES (respect these):\n" + "\n".join(entity_lines)
+    return constraints, [dict(f) for f in facts]
+
+
+def _check_violations(story: str, canon_facts: list[dict]) -> list[str]:
+    """Return list of canon violation descriptions found in the story."""
+    violations = []
+    for fact in canon_facts:
+        pattern = fact.get("violation_pattern")
+        if pattern:
+            try:
+                if re.search(pattern, story):
+                    violations.append(f"[{fact['severity']}] {fact['description']}")
+            except re.error:
+                pass
+    return violations
 
 
 def generate_lore_for_universe(
@@ -20,6 +72,7 @@ def generate_lore_for_universe(
     index: faiss.Index,
     metadata: list[dict],
     k: int = 5,
+    universe_id: str = "",
 ) -> dict:
     """Generate lore for any universe using FAISS context + Claude.
 
@@ -53,18 +106,23 @@ def generate_lore_for_universe(
 
         context_text = "\n\n---\n\n".join(c["text"] for c in chunks[:4])
 
+        # Load KG constraints if available for this universe
+        kg_constraints, canon_facts = _load_kg_constraints(universe_id)
+
+        kg_section = f"\n\n{kg_constraints}" if kg_constraints else ""
+
         prompt = f"""You are a creative writer and lore expert for the {universe_name} universe.
 
 Using the following canon excerpts as your foundation, generate an original, coherent piece of lore
 that fits seamlessly within the universe. Stay true to the tone, terminology, and established facts.
 
 CANON CONTEXT:
-{context_text}
+{context_text}{kg_section}
 
 USER REQUEST:
 {user_request}
 
-Write the lore now. Be creative but respect the canon established in the context above."""
+Write the lore now. Be creative but strictly respect the canon entities and facts above."""
 
         client = Anthropic(api_key=api_key)
         message = client.messages.create(
@@ -73,10 +131,16 @@ Write the lore now. Be creative but respect the canon established in the context
             messages=[{"role": "user", "content": prompt}],
         )
 
+        story = message.content[0].text
+
+        # Check for canon violations
+        violations = _check_violations(story, canon_facts) if canon_facts else []
+
         return {
             "success": True,
-            "story": message.content[0].text,
+            "story": story,
             "chunks_used": len(chunks),
+            "kg_violations": violations,
         }
 
     except Exception as e:
@@ -85,4 +149,5 @@ Write the lore now. Be creative but respect the canon established in the context
             "error": str(e),
             "story": None,
             "chunks_used": 0,
+            "kg_violations": [],
         }

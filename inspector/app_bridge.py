@@ -205,6 +205,7 @@ def call_lore_terran(request: str) -> dict:
             model=model,
             index=index,
             metadata=metadata,
+            universe_id="terran_empire",
         )
         if result.get("success"):
             return {
