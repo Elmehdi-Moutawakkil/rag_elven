@@ -177,9 +177,24 @@ POLISH: [your stylistic notes, or "kept as-is" if assembly is good]
 # ---------------------------------------------------------------------------
 
 def _call_llm(prompt: str) -> str:
-    """Call the configured LLM. Tries Groq first, then LM Studio (local), then fails gracefully."""
+    """Call the LLM for stylistic polish. Tries Claude first, then Groq, then LM Studio."""
 
-    # --- Try Groq ---
+    # --- Try Claude (preferred — much better Quenya comprehension) ---
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+    if anthropic_key:
+        try:
+            from anthropic import Anthropic
+            client = Anthropic(api_key=anthropic_key)
+            message = client.messages.create(
+                model="claude-haiku-4-5-20251001",  # fast + cheap for polish
+                max_tokens=512,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return message.content[0].text.strip()
+        except Exception:
+            pass
+
+    # --- Fallback: Groq ---
     groq_key = os.getenv("GROQ_API_KEY")
     if groq_key:
         try:
@@ -189,31 +204,26 @@ def _call_llm(prompt: str) -> str:
                 model="llama-3.1-8b-instant",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=512,
-                temperature=0.4,
+                temperature=0.1,
             )
             return response.choices[0].message.content.strip()
-        except Exception as e:
-            # Fall through to LM Studio
+        except Exception:
             pass
 
-    # --- Try LM Studio (local OpenAI-compatible server) ---
+    # --- Fallback: LM Studio (local) ---
     try:
         import openai  # type: ignore
-        client = openai.OpenAI(
-            base_url="http://localhost:1234/v1",
-            api_key="lm-studio",  # LM Studio ignores the key value
-        )
+        client = openai.OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
         response = client.chat.completions.create(
             model="local-model",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=512,
-            temperature=0.4,
+            temperature=0.1,
         )
         return response.choices[0].message.content.strip()
     except Exception:
         pass
 
-    # --- No LLM available: return None so caller can fallback ---
     return ""
 
 
@@ -382,6 +392,15 @@ def translate(english_sentence: str) -> TranslationResult:
         explanation     = _extract_field(llm_resp, "POLISH")
         if not explanation:
             explanation = _extract_field(llm_resp, "EXPLANATION")
+
+        # Sanity check: reject LLM output if it contains none of the pre-computed
+        # Quenya forms — this catches hallucinated outputs like "Qelionar Quenya"
+        computed_words = {f.quenya_form.lower() for f in forms if f.quenya_form}
+        llm_words      = set((quenya_sentence or "").lower().split())
+        if quenya_sentence and not computed_words.intersection(llm_words):
+            quenya_sentence = syntax_result.quenya_sentence
+            explanation     = "LLM output rejected (no pre-computed forms found) — using deterministic assembly."
+
         llm_used = True
     else:
         # No LLM available: use deterministic assembly as-is

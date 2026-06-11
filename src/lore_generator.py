@@ -156,6 +156,54 @@ def build_constraints_from_chunks(chunks: list[dict]) -> str:
 
 
 # ==============================================================================
+# NAMED ENTITY EXTRACTION (for hard constraints)
+# ==============================================================================
+
+def _extract_named_entities(request: str) -> list[str]:
+    """Extract proper nouns and known Tolkien entities from the user request.
+
+    These become mandatory constraints in the generation prompt so the LLM
+    cannot silently substitute a different race/character/location.
+    """
+    import re
+
+    # Known Tolkien proper nouns to detect (case-insensitive)
+    KNOWN_ENTITIES = [
+        "Noldor", "Sindar", "Teleri", "Vanyar", "Avari", "Silvan",
+        "Galadriel", "Celeborn", "Celebrimbor", "Fëanor", "Fingolfin",
+        "Thingol", "Melian", "Elrond", "Legolas", "Aragorn", "Sauron",
+        "Morgoth", "Gandalf",
+        "Beleriand", "Mirkwood", "Rivendell", "Lothlórien", "Gondor",
+        "Rohan", "Valinor", "Eregion", "Doriath", "Nargothrond", "Lindon",
+        "Silmaril", "Silmarils", "Quenya", "Sindarin",
+        "First Age", "Second Age", "Third Age",
+    ]
+
+    found = []
+    lower = request.lower()
+    for entity in KNOWN_ENTITIES:
+        if entity.lower() in lower:
+            found.append(entity)
+
+    # Also grab any capitalized words not in common stop-words (catches unknown proper nouns)
+    stopwords = {"the", "a", "an", "in", "of", "and", "or", "who", "with",
+                 "that", "is", "are", "was", "were", "be", "been", "have",
+                 "has", "had", "do", "does", "did", "will", "would", "could",
+                 "should", "may", "might", "shall", "can", "not", "but", "if",
+                 "then", "than", "so", "as", "at", "by", "for", "from", "into",
+                 "on", "to", "up", "about", "after", "before", "between",
+                 "during", "un", "une", "le", "la", "les", "de", "du", "des",
+                 "en", "et", "ou", "qui", "que", "dans", "sur", "pour", "avec",
+                 "Invente", "Create", "Generate", "Génère"}
+    capitals = re.findall(r'\b[A-ZÀÂÉÈÊË][a-zàâéèêë]{2,}\b', request)
+    for w in capitals:
+        if w not in stopwords and w not in found:
+            found.append(w)
+
+    return list(dict.fromkeys(found))  # deduplicate, preserve order
+
+
+# ==============================================================================
 # GENERATION
 # ==============================================================================
 
@@ -178,13 +226,21 @@ def generate_story(
     chunks_text = "\n\n".join([c["text"] for c in chunks[:3]])
     constraints = build_constraints_from_chunks(chunks)
 
-    # Build the request for Claude
-    request = f"""Generate a story about {context['species']}
-in {context['location']}
-{f"during the {context['period']}" if context['period'] else ""}
-{f"speaking {context['language']}" if context['language'] else ""}.
+    # Extract named entities from the original request and add them as hard constraints
+    raw = context.get("raw_request", "")
+    named_entities = _extract_named_entities(raw)
+    if named_entities:
+        entity_constraint = (
+            "MANDATORY — the following elements from the user's request MUST appear "
+            f"prominently in the story: {', '.join(named_entities)}. "
+            "Do not replace or ignore them."
+        )
+        constraints = entity_constraint + "\n" + constraints
 
-Be creative but respect established Tolkien canon."""
+    # Use the raw user request directly — do not paraphrase or lose specifics
+    request = raw if raw else (
+        f"Generate a story about {context['species']} in {context['location']}."
+    )
 
     # Format full prompt
     prompt = format_generation_prompt(

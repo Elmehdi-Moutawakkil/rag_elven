@@ -33,3 +33,11 @@ vector_db/*.faiss
 # OS
 .DS_Store
 Thumbs.db
+
+# Inspector runtime data
+inspector/inspector.db
+inspector/logs/
+inspector/reports/
+vector_db/test_init.sqlite
+vector_db/test_init.sqlite-journal
+vector_db/test_write
