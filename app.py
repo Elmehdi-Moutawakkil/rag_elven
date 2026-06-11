@@ -577,8 +577,8 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
 
     # ── Sélecteur d'univers ───────────────────────────────────────────────────
     UNIVERSE_OPTIONS = {
-        "🧝 Elfique (Tolkien)":       {"index": index,    "meta": metadata,  "model": model},
-        "🖖 Empire Terran (Star Trek)": {"index": _te_index, "meta": _te_meta, "model": _te_model},
+        "🧝 Elfique (Tolkien)":        {"index": index,     "meta": metadata,  "model": model,     "universe": "Tolkien's Middle-earth"},
+        "🖖 Empire Terran (Star Trek)": {"index": _te_index, "meta": _te_meta,  "model": _te_model, "universe": "Terran Empire (Star Trek Mirror Universe)"},
     }
 
     lab_universe = st.selectbox(
@@ -668,9 +668,10 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
 
     if lab_go and lab_input and lab_selected:
         _lab_res = {
-            "model": _lab_universe_res["model"],
-            "index": _lab_universe_res["index"],
-            "meta":  _lab_universe_res["meta"],
+            "model":    _lab_universe_res["model"],
+            "index":    _lab_universe_res["index"],
+            "meta":     _lab_universe_res["meta"],
+            "universe": _lab_universe_res["universe"],
         }
         with st.spinner("Exécution…"):
             lab_result = execute_pipeline(lab_selected, lab_input, _lab_res)

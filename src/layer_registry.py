@@ -228,18 +228,51 @@ def _run_L07(input: Any, context: dict) -> LayerResult:
 
 
 def _run_L08(input: Any, context: dict) -> LayerResult:
-    from src.lore_generator import generate_story, extract_context
+    from anthropic import Anthropic
+
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
-        return LayerResult(output={"story": "[ANTHROPIC_API_KEY manquante]", "warnings": []}, output_type="json_story", label="Clé API Claude manquante")
+        return LayerResult(
+            output={"story": "[ANTHROPIC_API_KEY manquante]", "warnings": []},
+            output_type="json_story",
+            label="Clé API Claude manquante",
+        )
+
+    # Universe comes from resources (set by Lab Mode selector or defaults to Tolkien)
+    universe = context["resources"].get("universe", "Tolkien's Middle-earth")
 
     user_request = context["user_input"]
-    lore_context = extract_context(user_request)
+
+    # Constraints from L07 if available, else from raw chunks
+    prev_L07 = context["outputs"].get("L07")
+    constraints = prev_L07.output if (prev_L07 and prev_L07.output_type == "text_constraints") else ""
 
     prev_L02 = context["outputs"].get("L02")
     chunks = prev_L02.output if (prev_L02 and prev_L02.output_type == "json_chunks") else []
+    context_text = "\n\n".join(c["text"] for c in chunks[:4])
 
-    story = generate_story(lore_context, chunks, api_key)
+    prompt = f"""You are a creative lore writer for the {universe} universe.
+
+Using the canon excerpts below as your foundation, generate an original story or lore piece
+that fits seamlessly within this universe. Respect its tone, terminology, and established facts.
+
+CANON CONTEXT:
+{context_text}
+
+{"CONSTRAINTS FROM CORPUS:" + chr(10) + constraints if constraints else ""}
+
+USER REQUEST:
+{user_request}
+
+Write the lore now, staying true to the {universe} universe."""
+
+    client = Anthropic(api_key=api_key)
+    message = client.messages.create(
+        model="claude-sonnet-4-5",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    story = message.content[0].text
     return LayerResult(output={"story": story, "warnings": []}, output_type="json_story", label="Lore généré par Claude")
 
 
