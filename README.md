@@ -34,7 +34,7 @@ Question utilisateur
     ↓
 [Agent] Query Rewriter → identifie l'intention (vocabulaire ou lore)
     ↓
-[FAISS] Recherche sémantique dans le corpus (1512 chunks)
+[FAISS] Recherche sémantique dans le corpus (1490 chunks elfique, 128 chunks Terran)
     ↓
 [SQLite] Lookup dictionnaire (8022 mots Quenya/Sindarin)
     ↓
@@ -50,7 +50,8 @@ Réponse avec sources citées
 - `Groq API` — LLM de réponse
 
 **Données :**
-- Cours Quenya PDF (~80 pages) → 1512 chunks FAISS
+- Cours Quenya PDF (~80 pages) + lore Tolkien → 1490 chunks FAISS
+- Corpus Terran Empire → 128 chunks FAISS
 - 8022 mots en base SQLite
 - Fichiers lore (Sindar, Noldor, Vanyar, Teleri...)
 
@@ -106,7 +107,7 @@ Phase 4 : génération Claude → validation KG (SQLite)
 
 **Architecture KG :**
 ```
-Corpus lore (9 fichiers .txt)
+Corpus lore Tolkien (4 fichiers .txt)
     ↓
 scripts/build_kg.py — extraction manuelle et curatée
     ↓
@@ -241,7 +242,7 @@ Mini-film elfique
 ┌─────────────────────────────────────────────────────────────┐
 │              Shared Universe Knowledge Base                  │
 │                                                             │
-│  FAISS Index (1512 chunks)  +  SQLite (8022 mots)          │
+│  FAISS Index (1490 chunks)  +  SQLite (8022 mots)          │
 │  + Knowledge Graph (126 entités, 131 relations, Phase 3) ✅  │
 └──────────────┬──────────────────────────────────────────────┘
                │
@@ -279,31 +280,29 @@ rag_elven/
 │   ├── embeddings.py           # Modèle d'embeddings
 │   ├── llm.py                  # LLM Q&A (Groq)
 │   ├── query_rewriter.py       # Agent d'analyse d'intention
-│   ├── database.py             # SQLite access
-│   └── data_loader.py          # Chargement des données
+│   └── database.py             # SQLite access
 │
 ├── scripts/
-│   └── build_kg.py             # Population du Knowledge Graph (run once)
+│   ├── build_kg.py             # Population du Knowledge Graph Tolkien
+│   └── build_universe_index.py # Construction d'index FAISS multi-univers
 │
 ├── vector_db/
-│   ├── faiss.index             # Index FAISS (1512 vecteurs)
+│   ├── faiss.index             # Index FAISS elfique (1490 vecteurs)
 │   ├── metadata.json           # Metadata des chunks
 │   ├── dictionary.sqlite       # Dictionnaire 8022 mots
-│   └── knowledge_graph.sqlite  # Knowledge Graph (126 entités, 131 relations)
+│   ├── knowledge_graph.sqlite  # Knowledge Graph Tolkien (126 entités, 131 relations)
+│   └── terran_empire/          # Index FAISS Terran Empire
+│
+├── inspector/                  # Tests sémantiques récurrents + rapports locaux
 │
 └── data/
     ├── quenya_course/          # Cours Quenya PDF (~80 pages)
     ├── sindarin/               # Ressources Sindarin
-    └── lore/                   # Fichiers lore (9 fichiers .txt)
-        ├── elves_origin.txt
-        ├── sindar.txt
-        ├── noldor.txt
-        ├── vanyar_teleri.txt
+    └── lore/                   # Fichiers lore (4 fichiers .txt)
         ├── maiar_sauron.txt
         ├── valar_morgoth.txt
         ├── first_age_wars.txt
-        ├── languages_overview.txt
-        └── quenya_vs_sindarin.txt
+        └── languages_overview.txt
 ```
 
 ---

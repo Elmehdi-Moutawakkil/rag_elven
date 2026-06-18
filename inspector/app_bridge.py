@@ -18,7 +18,12 @@ if str(PROJECT_ROOT) not in sys.path:
 # Change working directory so relative paths (vector_db/, data/) work
 os.chdir(PROJECT_ROOT)
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv(*_args, **_kwargs):
+        return False
+
 load_dotenv(PROJECT_ROOT / ".env")
 
 

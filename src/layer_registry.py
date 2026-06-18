@@ -17,7 +17,11 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv(*_args, **_kwargs):
+        return False
 
 load_dotenv()
 
@@ -289,11 +293,13 @@ def _run_L09(input: Any, context: dict) -> LayerResult:
     else:
         story_data = {"story": str(input), "warnings": []}
 
-    chunks_text = "\n\n".join([c["text"] for c in chunks[:3]])
     api_key = context["resources"].get("anthropic_api_key") or os.getenv("ANTHROPIC_API_KEY", "")
-    warnings = validate_coherence(story_data["story"], chunks_text, api_key)
+    validation = validate_coherence(story_data["story"], chunks, api_key)
+    warnings = validation.get("contradictions", []) if isinstance(validation, dict) else []
     story_data = dict(story_data)
-    story_data["warnings"] = warnings if isinstance(warnings, list) else []
+    story_data["warnings"] = warnings
+    if isinstance(validation, dict):
+        story_data["validation"] = validation
     label = f"{'⚠️ ' + str(len(story_data['warnings'])) + ' avertissements' if story_data['warnings'] else '✅ cohérent'}"
     return LayerResult(output=story_data, output_type="json_story", label=label)
 

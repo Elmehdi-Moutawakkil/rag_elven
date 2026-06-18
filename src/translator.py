@@ -21,7 +21,11 @@ import os
 from dataclasses import dataclass
 from typing import Optional
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv(*_args, **_kwargs):
+        return False
 
 from src.ir import SemanticIR, parse_english
 from src.morphology import MorphResult, ConfidenceLevel, compute_noun_form, compute_verb_form
@@ -392,16 +396,19 @@ def translate(english_sentence: str) -> TranslationResult:
         explanation     = _extract_field(llm_resp, "POLISH")
         if not explanation:
             explanation = _extract_field(llm_resp, "EXPLANATION")
-
-        # Sanity check: reject LLM output if it contains none of the pre-computed
-        # Quenya forms — this catches hallucinated outputs like "Qelionar Quenya"
-        computed_words = {f.quenya_form.lower() for f in forms if f.quenya_form}
-        llm_words      = set((quenya_sentence or "").lower().split())
-        if quenya_sentence and not computed_words.intersection(llm_words):
+        if quenya_sentence and not _uses_precomputed_forms(quenya_sentence, forms):
+            warning = (
+                (warning + " " if warning else "")
+                + "LLM polish rejected: output did not reuse the deterministic forms."
+            )
             quenya_sentence = syntax_result.quenya_sentence
-            explanation     = "LLM output rejected (no pre-computed forms found) — using deterministic assembly."
-
-        llm_used = True
+            explanation = (
+                "Deterministic assembly kept because the LLM polish did not reuse "
+                "the pre-computed morphology."
+            )
+            llm_used = False
+        else:
+            llm_used = True
     else:
         # No LLM available: use deterministic assembly as-is
         quenya_sentence = syntax_result.quenya_sentence
@@ -431,6 +438,20 @@ def _extract_field(text: str, field: str) -> str:
         if line.strip().startswith(f"{field}:"):
             return line.split(":", 1)[1].strip()
     return ""
+
+
+def _uses_precomputed_forms(sentence: str, forms: list[MorphResult]) -> bool:
+    """Return True when the polished sentence still contains deterministic forms."""
+    expected = [
+        f.quenya_form.lower()
+        for f in forms
+        if f.quenya_form and not f.quenya_form.startswith("[")
+    ]
+    if not expected:
+        return True
+
+    lowered = sentence.lower()
+    return any(form in lowered for form in expected)
 
 
 # ---------------------------------------------------------------------------

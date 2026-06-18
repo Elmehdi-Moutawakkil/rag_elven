@@ -105,6 +105,16 @@ def get_runs_since(hours: int = 24) -> list[sqlite3.Row]:
         ).fetchall()
 
 
+def get_runs_by_run_id(run_id: str) -> list[sqlite3.Row]:
+    with get_conn() as conn:
+        return conn.execute(
+            """SELECT * FROM runs
+               WHERE run_id = ?
+               ORDER BY ts ASC""",
+            (run_id,),
+        ).fetchall()
+
+
 def get_runs_since_days(days: int) -> list[sqlite3.Row]:
     with get_conn() as conn:
         return conn.execute(

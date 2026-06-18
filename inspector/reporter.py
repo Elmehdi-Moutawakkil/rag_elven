@@ -18,7 +18,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from inspector.config import CORRECTNESS_THRESHOLD, HALLUCINATION_THRESHOLD
-from inspector.db import get_runs_since, get_runs_since_days, save_report
+from inspector.db import get_runs_by_run_id, get_runs_since, get_runs_since_days, save_report
 
 
 # ---------------------------------------------------------------------------
@@ -54,11 +54,12 @@ def _health_badge(correct_rate: float, hallucination_rate: float) -> str:
 # ---------------------------------------------------------------------------
 
 def build_daily_report(run_id: str | None = None) -> str:
-    rows = get_runs_since(hours=24)
+    rows = get_runs_by_run_id(run_id) if run_id else get_runs_since(hours=24)
     now  = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     if not rows:
-        return f"# Rapport Journalier — {now}\n\nAucun test exécuté dans les dernières 24h.\n"
+        scope = f"pour le run `{run_id}`" if run_id else "dans les dernières 24h"
+        return f"# Rapport Journalier — {now}\n\nAucun test exécuté {scope}.\n"
 
     total       = len(rows)
     by_feature: dict[str, list] = defaultdict(list)
@@ -73,7 +74,8 @@ def build_daily_report(run_id: str | None = None) -> str:
     hallucination_total = verdicts["HALLUCINATION"]
     correct_rate       = correct_total / total
     hallucination_rate = hallucination_total / total
-    avg_score          = sum(r["score"] for r in rows if r["score"] is not None) / total
+    scored_rows = [r for r in rows if r["score"] is not None]
+    avg_score = sum(r["score"] for r in scored_rows) / len(scored_rows) if scored_rows else 0.0
 
     badge = _health_badge(correct_rate, hallucination_rate)
 
@@ -114,7 +116,8 @@ def build_daily_report(run_id: str | None = None) -> str:
         f_halluc   = fverdicts["HALLUCINATION"]
         f_rate     = f_correct / n
         f_hallrate = f_halluc / n
-        f_score    = sum(r["score"] for r in runs if r["score"] is not None) / n
+        f_scored = [r for r in runs if r["score"] is not None]
+        f_score = sum(r["score"] for r in f_scored) / len(f_scored) if f_scored else 0.0
         f_badge    = _health_badge(f_rate, f_hallrate)
 
         universe = runs[0]["universe"]

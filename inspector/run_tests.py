@@ -22,7 +22,12 @@ if str(PROJECT_ROOT) not in sys.path:
 
 os.chdir(PROJECT_ROOT)
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv(*_args, **_kwargs):
+        return False
+
 load_dotenv(PROJECT_ROOT / ".env")
 
 from inspector.config   import FEATURES, TESTS_PER_FEATURE
@@ -31,6 +36,20 @@ from inspector.question_bank import get_questions
 from inspector.app_bridge    import call_feature
 from inspector.evaluator     import evaluate_response
 from inspector.reporter      import generate_and_save_daily_report, generate_and_save_weekly_report
+
+
+def _distribute_test_counts(feature_ids: list[str], n_total: int) -> dict[str, int]:
+    """Spread exactly n_total tests across enabled features."""
+    if n_total < 0:
+        raise ValueError("n_total must be >= 0")
+    if not feature_ids:
+        return {}
+
+    base, remainder = divmod(n_total, len(feature_ids))
+    return {
+        feature_id: base + (1 if i < remainder else 0)
+        for i, feature_id in enumerate(feature_ids)
+    }
 
 
 def run_tests(n_total: int | None = None, feature_filter: str | None = None) -> str:
@@ -46,9 +65,9 @@ def run_tests(n_total: int | None = None, feature_filter: str | None = None) -> 
 
     # Distribute n_total across features
     if n_total is not None:
-        per_feature = max(1, n_total // len(enabled_features))
+        test_counts = _distribute_test_counts([f["id"] for f in enabled_features], n_total)
     else:
-        per_feature = TESTS_PER_FEATURE
+        test_counts = {f["id"]: TESTS_PER_FEATURE for f in enabled_features}
 
     total_run = 0
     total_correct = 0
@@ -59,8 +78,12 @@ def run_tests(n_total: int | None = None, feature_filter: str | None = None) -> 
         universe = feat["universe"]
         feature  = feat["feature"]
 
+        n_for_feature = test_counts.get(fid, 0)
+        if n_for_feature <= 0:
+            continue
+
         recent   = get_recent_questions(fid, days=30)
-        questions = get_questions(fid, per_feature, exclude_questions=recent)
+        questions = get_questions(fid, n_for_feature, exclude_questions=recent)
 
         print(f"\n{'='*60}")
         print(f"[{fid}] {universe} — {feature} ({len(questions)} tests)")
@@ -114,10 +137,12 @@ def run_tests(n_total: int | None = None, feature_filter: str | None = None) -> 
             if verdict == "HALLUCINATION":
                 total_halluc += 1
 
+    correct_pct = total_correct / total_run * 100 if total_run else 0.0
+    halluc_pct = total_halluc / total_run * 100 if total_run else 0.0
     print(f"\n{'='*60}")
     print(f"[runner] Run {run_id} complete — {total_run} tests")
-    print(f"  ✅ Correct:       {total_correct}/{total_run} ({total_correct/total_run*100:.0f}%)")
-    print(f"  🚨 Hallucination: {total_halluc}/{total_run} ({total_halluc/total_run*100:.0f}%)")
+    print(f"  ✅ Correct:       {total_correct}/{total_run} ({correct_pct:.0f}%)")
+    print(f"  🚨 Hallucination: {total_halluc}/{total_run} ({halluc_pct:.0f}%)")
     print(f"{'='*60}")
 
     return run_id

@@ -15,6 +15,7 @@ from anthropic import Anthropic
 from sentence_transformers import SentenceTransformer
 import faiss
 
+from src.knowledge_graph import KnowledgeGraph
 from src.retrieval import search_faiss
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -72,7 +73,7 @@ def generate_lore_for_universe(
     index: faiss.Index,
     metadata: list[dict],
     k: int = 5,
-    universe_id: str = "",
+    universe_id: str | None = None,
 ) -> dict:
     """Generate lore for any universe using FAISS context + Claude.
 
@@ -84,6 +85,7 @@ def generate_lore_for_universe(
         index         : FAISS index for the target universe
         metadata      : FAISS metadata parallel to the index
         k             : number of context chunks to retrieve
+        universe_id   : optional vector_db/<universe_id>/knowledge_graph.sqlite namespace
 
     Returns:
         {
@@ -132,15 +134,16 @@ Write the lore now. Be creative but strictly respect the canon entities and fact
         )
 
         story = message.content[0].text
-
-        # Check for canon violations
-        violations = _check_violations(story, canon_facts) if canon_facts else []
+        regex_violations = _check_violations(story, canon_facts) if canon_facts else []
+        kg_validation = _validate_with_universe_kg(story, universe_id)
+        kg_violations = kg_validation.get("violations", []) if kg_validation else []
 
         return {
             "success": True,
             "story": story,
             "chunks_used": len(chunks),
-            "kg_violations": violations,
+            "kg_validation": kg_validation,
+            "kg_violations": kg_violations or regex_violations,
         }
 
     except Exception as e:
@@ -150,4 +153,32 @@ Write the lore now. Be creative but strictly respect the canon entities and fact
             "story": None,
             "chunks_used": 0,
             "kg_violations": [],
+        }
+
+
+def _validate_with_universe_kg(story: str, universe_id: str | None) -> dict | None:
+    """Validate story against vector_db/<universe_id>/knowledge_graph.sqlite if present."""
+    if not universe_id:
+        return None
+
+    db_path = Path(__file__).parent.parent / "vector_db" / universe_id / "knowledge_graph.sqlite"
+    if not db_path.exists():
+        return {
+            "method": "knowledge_graph",
+            "is_valid": None,
+            "score": None,
+            "violations": [],
+            "warning": f"Knowledge graph not found: {db_path}",
+        }
+
+    try:
+        with KnowledgeGraph(db_path=db_path) as kg:
+            return kg.validate_story(story)
+    except Exception as exc:
+        return {
+            "method": "knowledge_graph",
+            "is_valid": None,
+            "score": None,
+            "violations": [],
+            "warning": str(exc),
         }

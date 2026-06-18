@@ -150,7 +150,7 @@ def search_translation(query: str, db_path: str = DB_PATH) -> Sequence[sqlite3.R
 
     # \b = limite de mot (word boundary) : assure qu'on matche le mot exact, pas une sous-chaîne
     # (?i) = insensible à la casse (Elda = elda)
-    pattern = rf"(?i)\b{query}\b"
+    pattern = rf"(?i)\b{re.escape(query)}\b"
 
     # SQLite ne supporte pas REGEXP nativement — on lui ajoute la fonction via Python
     conn.create_function("REGEXP", 2, lambda pat, val: (

@@ -219,6 +219,9 @@ RELATIONS = [
 # ─────────────────────────────────────────────────────────────────────────────
 CANON_FACTS = [
     # HARD — factual errors that break canon
+    ("The Terran Empire is an autocracy, not a democracy, republic, or representative system",
+     r"(?i)\bterran empire\b.{0,80}\b(democracy|republic|representative system)\b",
+     "HARD"),
     ("The Terran Empire is from the Mirror Universe, not the Prime Star Trek universe",
      r"(?i)(prime universe|federation universe).{0,30}terran empire|terran empire.{0,30}(prime universe|star fleet command(?! mirror))",
      "HARD"),
@@ -262,6 +265,9 @@ CANON_FACTS = [
 # ─────────────────────────────────────────────────────────────────────────────
 
 def build():
+    if KG_PATH.exists():
+        KG_PATH.unlink()
+
     conn = sqlite3.connect(KG_PATH)
     conn.executescript(SCHEMA_SQL)
 

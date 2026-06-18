@@ -27,7 +27,12 @@ PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv(*_args, **_kwargs):
+        return False
+
 load_dotenv(PROJECT_ROOT / ".env")
 
 
@@ -38,7 +43,10 @@ load_dotenv(PROJECT_ROOT / ".env")
 def web_search(query: str, max_results: int = 3) -> str:
     """Return a summary of top search results for query."""
     try:
-        from duckduckgo_search import DDGS
+        try:
+            from ddgs import DDGS
+        except ModuleNotFoundError:
+            from duckduckgo_search import DDGS
         results = []
         with DDGS() as ddgs:
             for r in ddgs.text(query, max_results=max_results):

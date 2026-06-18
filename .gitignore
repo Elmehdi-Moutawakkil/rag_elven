@@ -26,6 +26,14 @@ build/
 # Note: faiss.index, metadata.json, dictionary.sqlite ARE committed
 # so Streamlit Cloud can load them without rebuilding.
 vector_db/*.faiss
+vector_db/test_init.sqlite
+vector_db/test_init.sqlite-journal
+vector_db/test_write
+
+# Inspector runtime artifacts
+inspector/inspector.db
+inspector/logs/
+inspector/reports/
 
 # Jupyter
 .ipynb_checkpoints/

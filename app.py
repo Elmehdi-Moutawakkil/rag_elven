@@ -13,6 +13,7 @@ Lance avec :
 
 import os
 import sys
+from html import escape
 
 _ROOT = os.path.dirname(os.path.abspath(__file__))
 if _ROOT not in sys.path:
@@ -110,9 +111,10 @@ if submit and user_input.strip():
 
     # ── 2. Display routing decision ──────────────────────────────────────────
     method_badge = "🔵 règles" if route["method"] == "rules" else "🟣 LLM"
+    reason = escape(str(route.get("reason", "")))
     st.markdown(
         f"**→ {route['label']}** &nbsp; "
-        f"<span style='color:grey;font-size:0.85em;'>({method_badge} · {route['reason']})</span>",
+        f"<span style='color:grey;font-size:0.85em;'>({method_badge} · {reason})</span>",
         unsafe_allow_html=True,
     )
 
@@ -392,11 +394,19 @@ with te_tab_lore:
                     model=_te_model,
                     index=_te_index,
                     metadata=_te_meta,
+                    universe_id="terran_empire",
                 )
             if result["success"]:
                 st.markdown("### 📖 Lore généré")
                 st.write(result["story"])
                 st.caption(f"Contexte : {result['chunks_used']} passages utilisés")
+                kg_validation = result.get("kg_validation") or {}
+                if kg_validation.get("warning"):
+                    st.info(f"Validation KG non appliquée : {kg_validation['warning']}")
+                if result.get("kg_violations"):
+                    st.warning(f"{len(result['kg_violations'])} violation(s) canon détectée(s).")
+                    with st.expander("Voir les violations KG"):
+                        st.json(result["kg_violations"])
             else:
                 st.error(f"❌ {result['error']}")
 

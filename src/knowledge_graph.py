@@ -388,15 +388,11 @@ class KnowledgeGraph:
             if not pattern:
                 continue
             if re.search(pattern, story_lower, re.IGNORECASE):
-                # Only flag as violation if the canonical answer is NOT in the story
-                # (e.g. the story itself mentions "Feanor created the Silmarils" → OK)
-                canon_answer = _extract_canon_answer(fact["description"])
-                if canon_answer and canon_answer.lower() not in story_lower:
-                    violations.append({
-                        "text": f"Pattern matched: {fact['description']}",
-                        "canon": fact["description"],
-                        "severity": fact["severity"],
-                    })
+                violations.append({
+                    "text": f"Pattern matched: {fact['description']}",
+                    "canon": fact["description"],
+                    "severity": fact["severity"],
+                })
 
         # ── Step 4 : score ─────────────────────────────────────────────
         hard_count = sum(1 for v in violations if v["severity"] == "HARD")

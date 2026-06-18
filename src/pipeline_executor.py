@@ -155,13 +155,13 @@ def format_final_output(result: dict) -> str:
     if otype == "semantic_ir":
         if hasattr(output, "predicate"):
             pred = output.predicate.lemma if output.predicate else "?"
-            args = [a.head_lemma for a in output.arguments] if output.arguments else []
+            args = [a.lemma for a in output.arguments] if output.arguments else []
             return f"Prédicat : {pred} · Arguments : {', '.join(args)}"
         return str(output)
 
     if otype == "morph_forms":
         if isinstance(output, list):
-            lines = [f"{f.english_lemma} → {f.quenya_form} ({f.case or ''} {f.number or ''})" for f in output[:5]]
+            lines = [f"{f.english_lemma} → {f.quenya_form} ({f.feature})" for f in output[:5]]
             return "\n".join(lines)
         return str(output)
 
