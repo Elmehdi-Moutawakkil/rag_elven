@@ -1,207 +1,719 @@
 # RAGElven Technical Specification
 
 Status: active architecture contract.
+Date: 2026-06-25.
 
-This document is the source of truth for the next architecture phase. Older
-planning files are archived in `docs/archive/` and should not drive new work.
+Older planning files are archived in `docs/archive/`. They are historical
+context, not active instructions.
 
 ## Objective
 
-Build a modular, open-source lore system where a user can maintain fictional
-universes as versioned corpora, query them, generate new material, validate it
-against canon, and experiment with interchangeable modules in Lab Mode.
+RAGElven is an open-source modular lore platform. Its goal is to let users
+store fictional universes as versioned corpora, search them, generate new
+material, validate generated content against canon, and experiment with
+interchangeable AI modules.
 
-## Operating Modes
+The system must support two modes:
 
 Normal Mode:
-The app chooses the right pipeline automatically and returns a polished answer,
-translation, lore piece, or validated generation.
+The application chooses the right pipeline automatically and gives the user a
+clean answer, translation, generated lore item, or validated output.
 
 Lab Mode:
-The user manually composes modules, changes providers, swaps indexes, tests
-local models, and inspects intermediate outputs. This mode is essential for
-open-source extension and experimentation.
+The user manually composes modules, swaps providers, selects universes, inspects
+intermediate results, and tests their own models or future modules.
 
-## Architecture Layers
+## Current Repository Baseline
 
-1. Canonical Git Repository
+Existing app:
+`app.py`
+
+Current source modules:
+`src/router.py`, `src/query_rewriter.py`, `src/retrieval.py`,
+`src/embeddings.py`, `src/llm.py`, `src/translator.py`, `src/ir.py`,
+`src/morphology.py`, `src/syntax.py`, `src/lore_generator.py`,
+`src/lore_generator_p4.py`, `src/lore_generator_generic.py`,
+`src/knowledge_graph.py`, `src/layer_registry.py`,
+`src/pipeline_executor.py`, `src/settings.py`
+
+Current data:
+`data/lore/`, `data/quenya_course/`, `data/quenya_dictionary/`,
+`data/sindarin/`, `data/universes/terran_empire/`
+
+Current indexes and databases:
+`vector_db/faiss.index`, `vector_db/metadata.json`,
+`vector_db/dictionary.sqlite`, `vector_db/knowledge_graph.sqlite`,
+`vector_db/terran_empire/faiss.index`,
+`vector_db/terran_empire/metadata.json`,
+`vector_db/terran_empire/knowledge_graph.sqlite`
+
+Current validation:
+`scripts/sanity_check.py`, `tests/`, `Makefile`
+
+## Cross-Cutting Design Rules
+
+1. Do not treat generated content as canon unless it has been validated.
+2. Keep canon, generated memory, raw assets, indexes, and runtime caches separate.
+3. Every durable output needs provenance: source files, chunks, model, prompt or
+   tool trace, validation result, and timestamp.
+4. Lab Mode modules must be small, explicit, and independently testable.
+5. MCP comes after stable internal tool contracts, not before.
+6. Local and provider-backed models must share the same high-level interfaces.
+7. Missing API keys must degrade gracefully where possible.
+8. No real API key may be committed.
+
+## Layer 1: Canonical Git Repository
 
 Role:
-Version the canonical corpus and make lore changes reviewable.
+Version the source-of-truth corpus for each universe.
 
 Responsibilities:
-Store universe folders, source notes, generated-but-validated lore, metadata,
-and change history.
+Store canonical text, notes, source manifests, asset references, validated
+memory, and reviewable changes. Make the corpus understandable to both humans
+and tools.
 
-Inputs:
-Markdown, text, PDF, images, audio, video, manual notes, validated generations.
+Data in:
+Manual notes, Markdown lore files, text files, PDFs, image/audio/video asset
+references, imported source metadata, validated generated lore.
 
-Outputs:
-Versioned corpus files and metadata ready for ingestion.
-
-Suggested paths:
-`corpus/universes/<universe_id>/canon/`
-`corpus/universes/<universe_id>/notes/`
-`corpus/universes/<universe_id>/validated_memory/`
-`corpus/universes/<universe_id>/assets/`
-
-2. Multimodal Storage
-
-Role:
-Keep raw and processed assets organized without mixing source files with indexes.
-
-Responsibilities:
-Store original files, extracted text, normalized metadata, thumbnails,
-transcripts, captions, and asset hashes.
+Data out:
+Versioned corpus records ready for ingestion, review, indexing, and validation.
 
 Formats:
-Markdown, JSON, SQLite, image/audio/video files, extracted text sidecars.
+Markdown for human-authored canon and notes.
+JSON for manifests and metadata.
+Binary assets referenced by manifest, not silently mixed with indexes.
 
-Suggested paths:
-`storage/raw/`
-`storage/processed/`
-`storage/manifests/`
+Folders/files to create:
+`corpus/README.md`
+`corpus/universes/<universe_id>/manifest.json`
+`corpus/universes/<universe_id>/SUMMARY.md`
+`corpus/universes/<universe_id>/canon/`
+`corpus/universes/<universe_id>/notes/`
+`corpus/universes/<universe_id>/assets/`
+`corpus/universes/<universe_id>/validated_memory/`
 
-3. Multimodal Ingestion
+Tables:
+None required at this layer. Git is the versioning database.
 
-Role:
-Transform raw files into normalized, traceable records.
+Manifest fields:
+`universe_id`, `display_name`, `collections`, `themes`, `canon_policy`,
+`default_kg_path`, `default_index_path`, `summary_path`.
 
-Responsibilities:
-Extract text from PDFs, parse Markdown, transcribe audio, caption images,
-hash assets, detect duplicates, and create ingestion manifests.
+Current modules concerned:
+Future ingestion scripts will read this layer. Existing `data/` should remain
+available until migration is complete.
 
-Outputs:
-Normalized documents with stable IDs, source pointers, modality, timestamps,
-and provenance.
+Dependencies:
+Git, file-system conventions, JSON validation.
 
-Likely modules:
-`src/ingestion/`
-`scripts/ingest_universe.py`
-
-4. Indexing And Retrieval
-
-Role:
-Let the system find the right material quickly.
-
-Responsibilities:
-Chunk text, embed text/images/audio transcripts, build FAISS or other indexes,
-query by universe, modality, source, time period, entity, and confidence.
-
-Current state:
-FAISS and SQLite already exist for text retrieval and dictionary lookup.
-
-Likely modules:
-`src/retrieval.py`
-`src/embeddings.py`
-future `src/indexing/`
-
-5. Knowledge Graph
-
-Role:
-Represent canon as entities, relations, and constraints.
-
-Responsibilities:
-Store entities, aliases, relationships, canon facts, contradiction rules,
-source provenance, and validation severity.
-
-Current state:
-SQLite Knowledge Graph exists for Tolkien and Terran Empire.
-
-Likely modules:
-`src/knowledge_graph.py`
-future `src/kg/`
-
-6. Validated Memory
-
-Role:
-Store accepted AI outputs as new controlled knowledge, without confusing them
-with original canon.
-
-Responsibilities:
-Track generated lore, validation status, reviewer decision, source context,
-KG impact, and whether the content can be reused in future generations.
-
-Suggested states:
-`draft`, `validated`, `rejected`, `superseded`.
-
-7. AI Agent
-
-Role:
-Choose where to search, which tools to call, and when to ask for validation.
-
-Responsibilities:
-Route requests, select universe, inspect metadata, retrieve context, call tools,
-ask generation models, request validation, and produce traceable outputs.
-
-Current state:
-Query rewriting and routing exist as early agent-like components.
-
-Likely modules:
-`src/router.py`
-`src/query_rewriter.py`
-future `src/agent/`
-
-8. Tools And MCP
-
-Role:
-Expose internal capabilities through controlled tool interfaces, then MCP
-servers when the local tool contracts are stable.
-
-Responsibilities:
-Provide tools for search, ingestion, KG lookup, validation, memory write,
-asset fetch, and generation.
+Risks:
+Moving too fast may break existing paths in `app.py`, `src/retrieval.py`, and
+build scripts. Large binary assets can bloat Git if stored carelessly.
 
 Implementation order:
-First Python tool interfaces, then MCP wrappers. Do not start with MCP before
-the internal tool contracts are stable.
+Create folder structure and manifests first. Then migrate one universe as a
+pilot. Add `SUMMARY.md` files before large-scale ingestion so the future agent
+can read section summaries before loading chunks. Keep existing `data/` paths
+working until all tests and app flows pass.
 
-9. Generation And Fine-Tuning
-
-Role:
-Generate lore, translations, images, audio, and structured data while respecting
-retrieved context and validation constraints.
-
-Responsibilities:
-Support provider APIs, local models, LoRA/fine-tuning experiments, prompt
-templates, model configuration, and output traces.
-
-Current state:
-Provider-backed text generation exists. Local LM Studio fallback exists for
-translation polish.
-
-10. Validation, Safety, And Governance
+## Layer 2: Multimodal Storage
 
 Role:
-Prevent hallucinations, secret leaks, corrupted memory, and unreviewed canon
-changes.
+Store raw and processed multimodal assets without confusing them with canon or
+indexes.
 
 Responsibilities:
-Validate against KG, cite sources, separate canon from generated memory, avoid
-committing secrets, log failures, and require human approval for durable memory.
+Keep original files, extracted text, thumbnails, image captions, audio
+transcripts, video scene descriptions, hashes, and processing metadata.
 
-Current state:
-`scripts/sanity_check.py`, regression tests, `.env` handling, and KG validation
-are in place.
+Data in:
+PDFs, text files, Markdown files, images, audio, video, generated assets,
+external references.
 
-## Implementation Order
+Data out:
+Stable asset records and processed sidecars for ingestion and retrieval.
 
-1. Keep the current app stable.
-2. Define canonical corpus folders under Git.
-3. Formalize module/tool interfaces for Normal Mode and Lab Mode.
-4. Move ingestion/indexing toward explicit universe manifests.
-5. Expand KG and validation contracts.
-6. Add validated memory.
-7. Build a real agent layer over the internal tools.
-8. Add multimodal ingestion and retrieval.
-9. Add MCP wrappers after internal tools are stable.
-10. Explore fine-tuning/LoRA only after enough validated data exists.
+Formats:
+Original binary formats for raw assets.
+`.txt` or `.md` sidecars for extracted text.
+`.json` sidecars for metadata.
+SQLite for larger asset catalogs if JSON becomes too large.
 
-## Current Validation Commands
+Folders/files to create:
+`storage/raw/<universe_id>/`
+`storage/processed/<universe_id>/`
+`storage/manifests/<universe_id>.json`
+`storage/cache/`
+
+Tables:
+Optional future table `assets`:
+`asset_id`, `universe_id`, `modality`, `path`, `sha256`, `source_uri`,
+`license`, `access_level`, `created_at`, `processed_at`, `status`.
+
+Optional future table `asset_derivatives`:
+`derivative_id`, `asset_id`, `kind`, `path`, `model`, `created_at`,
+`metadata_json`.
+
+Current modules concerned:
+No direct current module. Future `src/storage/` should provide path and manifest
+helpers.
+
+Dependencies:
+`pypdf` for PDFs, future image/audio/video processing libraries as needed.
+
+Risks:
+Asset licensing, oversized repo, duplicate files, unclear provenance, slow
+processing.
+
+Implementation order:
+Start with manifests and raw/processed folders. Only then add processors for
+image, audio, and video.
+
+## Layer 3: Multimodal Ingestion
+
+Role:
+Convert raw corpus and assets into normalized records.
+
+Responsibilities:
+Extract text from PDFs, parse Markdown, normalize plain text, create stable
+document IDs, attach provenance, transcribe audio, caption images, describe
+video scenes, and write ingestion reports.
+
+Data in:
+Files from `corpus/` and `storage/raw/`.
+
+Data out:
+Normalized documents and asset records ready for chunking, embedding, KG
+extraction, and validation.
+
+Formats:
+JSONL for normalized records.
+JSON ingestion reports.
+Text sidecars for extracted text.
+
+Folders/files to create:
+`src/ingestion/__init__.py`
+`src/ingestion/documents.py`
+`src/ingestion/loaders.py`
+`src/ingestion/manifests.py`
+`scripts/ingest_universe.py`
+`storage/processed/<universe_id>/documents.jsonl`
+
+Tables:
+Optional future table `ingestion_runs`:
+`run_id`, `universe_id`, `started_at`, `finished_at`, `input_count`,
+`output_count`, `error_count`, `status`.
+
+Current modules concerned:
+`src/text_splitter.py` already handles PDF/text chunk preparation.
+`scripts/build_universe_index.py` already builds universe indexes.
+
+Dependencies:
+Current: `pypdf`, `langchain_text_splitters`.
+Future: OCR, speech-to-text, image captioning if multimodal ingestion expands.
+
+Risks:
+Bad extraction quality, duplicated chunks, broken page/source attribution,
+expensive multimodal processing.
+
+Implementation order:
+First normalize text and Markdown. Then PDF extraction. Then images/audio/video.
+
+## Layer 4: Indexing And Retrieval
+
+Role:
+Retrieve the right evidence for a request.
+
+Responsibilities:
+Chunk normalized documents, create embeddings, build indexes, load indexes,
+query by universe, modality, source, period, entity, and confidence. Return
+chunks with traceable provenance. Support hybrid retrieval: vector search plus
+lexical and structured filters.
+
+Data in:
+Normalized documents from ingestion, query text, routing metadata, selected
+universe.
+
+Data out:
+Ranked retrieval results with text, score, source, page, chunk ID, modality,
+and universe ID.
+
+Formats:
+FAISS index files for dense retrieval.
+JSON metadata for index records.
+SQLite for dictionaries and structured lookup.
+
+Folders/files to create:
+`indexes/<universe_id>/text/faiss.index`
+`indexes/<universe_id>/text/metadata.json`
+Future: `indexes/<universe_id>/image/`, `indexes/<universe_id>/audio/`
+
+Tables:
+Current:
+`vector_db/dictionary.sqlite`
+
+Optional future table `chunks`:
+`chunk_id`, `document_id`, `universe_id`, `modality`, `text`, `source_path`,
+`page`, `start_offset`, `end_offset`, `embedding_model`, `index_path`.
+
+Optional future catalog tables:
+`collections`, `files`, `tags`, `sources`, `access_rights`.
+
+Current modules concerned:
+`src/retrieval.py`
+`src/embeddings.py`
+`src/database.py`
+`src/query_rewriter.py`
+`scripts/build_universe_index.py`
+
+Dependencies:
+`sentence-transformers`, `faiss-cpu`, `numpy`, SQLite.
+
+Risks:
+Index metadata drift, stale indexes after corpus changes, weak retrieval on
+small corpora, hidden coupling to old `vector_db/` paths.
+
+Implementation order:
+Keep current `vector_db/` working. Introduce universe manifest fields for index
+paths. Move new indexes to `indexes/` only after adapters are tested.
+
+## Layer 5: Knowledge Graph
+
+Role:
+Represent canon as entities, aliases, relations, and contradiction rules.
+
+Responsibilities:
+Store named entities, relationships, canon facts, aliases, severities,
+events, periods, timeline constraints, political hierarchies, continuity rules,
+validation patterns, source provenance, and graph queries.
+
+Data in:
+Curated canon facts, extracted entities/relations, validated generated memory,
+manual graph edits.
+
+Data out:
+Entity lookups, relation lookups, validation results, contradiction reports,
+canon constraints for generation.
+
+Formats:
+SQLite for the current graph.
+JSON export/import for reviewable graph diffs.
+
+Folders/files to create:
+`kg/<universe_id>/knowledge_graph.sqlite`
+`kg/<universe_id>/export.json`
+`src/kg/` when the current module is split.
+
+Tables:
+Current expected tables:
+`entities`, `relations`, `canon_facts`.
+
+Future tables:
+`aliases`, `sources`, `validation_rules`, `entity_mentions`, `events`,
+`timeline`, `periods`, `continuity_constraints`.
+
+Current modules concerned:
+`src/knowledge_graph.py`
+`scripts/build_kg.py`
+`scripts/build_kg_terran.py`
+`src/lore_generator_p4.py`
+`src/layer_registry.py` for L09.
+
+Dependencies:
+SQLite, regex validation, future NLP extraction if automated KG expansion is
+added.
+
+Risks:
+False positives from regex rules, incomplete canon coverage, graph drift between
+universes, over-trusting generated facts.
+
+Implementation order:
+Document the current SQLite schema. Add import/export. Then move from hardcoded
+builders to universe-specific graph manifests.
+
+## Layer 6: Validated Memory
+
+Role:
+Store accepted AI outputs as reusable project memory without turning them into
+original canon.
+
+Responsibilities:
+Track generated lore, reviewer decisions, validation status, KG violations,
+retrieval context, model used, prompt template, and whether the output can be
+used in future generations. Keep request history and the reason a memory item
+was accepted, rejected, or left pending.
+
+Data in:
+Generated stories, answers, translations, images, audio, user approvals,
+validation reports.
+
+Data out:
+Validated memory records for retrieval, KG candidate facts, changelog entries,
+and future generation context.
+
+Formats:
+Markdown for approved lore.
+JSON for metadata.
+SQLite for queryable memory.
+
+Folders/files to create:
+`memory/<universe_id>/drafts/`
+`memory/<universe_id>/pending/`
+`memory/<universe_id>/validated/`
+`memory/<universe_id>/rejected/`
+`memory/<universe_id>/memory.sqlite`
+
+Tables:
+`memory_items`:
+`memory_id`, `universe_id`, `status`, `modality`, `content_path`,
+`summary`, `created_at`, `validated_at`, `reviewer`, `model`,
+`source_chunk_ids`, `kg_validation_score`, `notes`.
+
+`memory_events`:
+`event_id`, `memory_id`, `event_type`, `timestamp`, `payload_json`.
+
+Current modules concerned:
+No complete module yet. Future integration with `src/knowledge_graph.py`,
+`src/lore_generator_generic.py`, and Lab Mode.
+
+Dependencies:
+SQLite, JSON, human review flow.
+
+Risks:
+Memory pollution, canon/generated confusion, accepting hallucinated facts,
+unclear reviewer accountability.
+
+Implementation order:
+Create status model first: `draft`, `pending`, `validated`, `rejected`,
+`superseded`. Require manual approval before retrieval uses memory. Only later
+add automatic candidate extraction.
+
+## Layer 7: AI Agent
+
+Role:
+Decide what to do for a user request.
+
+Responsibilities:
+Classify intent, select universe, select tools, retrieve context, inspect KG,
+choose generation provider, request validation, return an auditable trace, and
+fall back gracefully when providers or keys are missing.
+
+Data in:
+User request, selected mode, available universes, tool registry, model config,
+environment state.
+
+Data out:
+Plan, executed tool trace, final response, intermediate outputs for Lab Mode.
+
+Formats:
+JSON-compatible trace objects.
+Typed Python dataclasses or dictionaries for early implementation.
+
+Folders/files to create:
+`src/agent/__init__.py`
+`src/agent/planner.py`
+`src/agent/state.py`
+`src/agent/traces.py`
+
+Tables:
+Optional future table `agent_runs`:
+`run_id`, `user_input`, `mode`, `universe_id`, `started_at`, `finished_at`,
+`status`, `trace_json`.
+
+Current modules concerned:
+`src/router.py`
+`src/query_rewriter.py`
+`src/pipeline_executor.py`
+`src/layer_registry.py`
+`app.py`
+
+Dependencies:
+Current provider SDKs: Groq, Anthropic, OpenAI-compatible local endpoint.
+Candidate local agent/model stack: Hermes or a similar small local model for
+routing, planning, drafts, and simple tool orchestration.
+
+Risks:
+Opaque decisions, tool loops, hidden API costs, brittle prompts, hard-to-debug
+state. The agent must not read the whole corpus blindly, write directly to
+canon, ignore KG violations, or self-approve generated lore.
+
+Implementation order:
+First formalize the existing router and Lab Mode pipeline outputs as traces.
+Then add a small planner. Avoid autonomous write actions until validation and
+memory governance exist.
+
+## Layer 8: Tools And MCP
+
+Role:
+Expose internal capabilities through stable tool contracts, then wrap them as
+MCP servers later.
+
+Responsibilities:
+Provide controlled tools for search, KG lookup, validation, ingestion, memory
+write, asset fetch, generation, and test execution.
+
+Data in:
+Tool call arguments as structured JSON.
+
+Data out:
+Tool results as structured JSON with status, data, warnings, and trace IDs.
+
+Formats:
+Python tool functions first.
+JSON schemas for tool inputs and outputs.
+MCP server definitions later.
+
+Folders/files to create:
+`src/tools/__init__.py`
+`src/tools/search.py`
+`src/tools/kg.py`
+`src/tools/validation.py`
+`src/tools/memory.py`
+`src/tools/inspector.py`
+`mcp/` only after Python tools stabilize.
+
+Tables:
+Optional `tool_runs` table:
+`tool_run_id`, `tool_name`, `args_json`, `result_json`, `started_at`,
+`finished_at`, `status`.
+
+Current modules concerned:
+Existing layer functions in `src/layer_registry.py` are the closest current
+tool-like units.
+
+Dependencies:
+No MCP dependency at first. Future MCP SDK/server runtime.
+
+Candidate MCP servers:
+Corpus/Git MCP for listing universes, collections, manifests, summaries, and
+source files.
+Storage MCP for asset metadata and attachments.
+Retrieval MCP for chunk search and source lookup.
+KG MCP for entity search, relation listing, assertion checks, and text
+validation.
+Lore Memory MCP for pending/validated/rejected memory workflows.
+Inspector MCP for test runs, reports, scores, and regression checks.
+
+Risks:
+Building MCP too early, exposing unsafe write tools, unclear auth boundaries,
+tool schemas changing too often.
+
+Implementation order:
+Create internal Python tools. Add tests. Freeze schemas. Then wrap selected
+tools with MCP.
+
+## Layer 9: Generation And Fine-Tuning
+
+Role:
+Generate lore, translations, images, audio, and structured artifacts while
+respecting evidence and validation constraints.
+
+Responsibilities:
+Manage provider-backed generation, local model fallback, prompt templates,
+model configuration, output parsing, LoRA/fine-tuning experiments, and dataset
+creation from validated memory.
+
+Data in:
+User request, retrieved context, KG constraints, memory records, model config,
+prompt templates.
+
+Data out:
+Generated text, structured JSON, images, audio, validation candidates, training
+examples.
+
+Formats:
+Text/Markdown, JSON, image/audio files, dataset JSONL for fine-tuning.
+
+Folders/files to create:
+`src/generation/`
+`prompts/`
+`datasets/fine_tuning/`
+`outputs/generated/`
+
+Tables:
+Optional `generation_runs` table:
+`run_id`, `universe_id`, `provider`, `model`, `prompt_template`,
+`input_json`, `output_path`, `created_at`, `validation_status`.
+
+Current modules concerned:
+`src/lore_generator.py`
+`src/lore_generator_p4.py`
+`src/lore_generator_generic.py`
+`src/prompt_templates.py`
+`src/translator.py`
+`src/settings.py`
+
+Dependencies:
+Anthropic, Groq, OpenAI-compatible local endpoint, future image/audio model
+dependencies.
+
+Risks:
+API cost, model drift, invalid model IDs, prompt fragility, generating more data
+than can be validated, premature fine-tuning without clean data.
+
+Implementation order:
+Unify provider calls behind a generation interface. Use stronger models for
+long generation and difficult validation, local/small models for routing,
+drafts, reformulation, and simple tasks, and fast low-cost APIs for short
+answers when appropriate. Improve trace capture. Collect validated examples.
+Only then create fine-tuning datasets.
+
+## Layer 10: Validation, Safety, And Governance
+
+Role:
+Keep the system trustworthy.
+
+Responsibilities:
+Run sanity checks, unit tests, KG validation, source citation checks, secret
+scans, memory approval, error reporting, and governance rules for write actions.
+
+Data in:
+Generated outputs, retrieval traces, KG validation results, environment config,
+test runs.
+
+Data out:
+Validation reports, warnings, blocked writes, test results, governance logs.
+
+Formats:
+Console output, JSON reports, Markdown reports, SQLite inspector DB.
+
+Folders/files to create:
+`reports/validation/`
+`governance/policies.md`
+`governance/checklists/`
+
+Tables:
+Current inspector uses SQLite runtime data.
+Future `validation_runs` table:
+`validation_id`, `target_type`, `target_id`, `validator`, `score`, `status`,
+`violations_json`, `created_at`.
+
+Validation statuses:
+`validated`, `attention`, `rejected`, `needs_human_review`,
+`hard_contradiction`, `soft_contradiction`, `missing_data`.
+
+Current modules concerned:
+`scripts/sanity_check.py`
+`tests/`
+`inspector/`
+`src/knowledge_graph.py`
+`src/settings.py`
+`.env.example`
+`Makefile`
+
+Dependencies:
+pytest, unittest, SQLite, optional provider APIs for inspector judging.
+
+Risks:
+False confidence from shallow tests, provider-key failures, accidental secret
+commits, accepting memory without human review.
+
+Implementation order:
+Keep `make sanity` and `make test` mandatory. Add validation reports before
+automatic memory writes. Add stronger secret scanning before public releases.
+
+Governance policy:
+Broad read access is acceptable. Write access must be limited by tool,
+permission, and target. Canonization is never automatic. History should be
+append-only where possible. Canon, generated content, pending memory, rejected
+items, and fanon must remain separate.
+
+## Target Directory Map
+
+Current directories remain valid during migration:
+`data/`, `vector_db/`, `src/`, `scripts/`, `tests/`, `inspector/`.
+
+Target directories to add gradually:
+
+```text
+corpus/
+  universes/<universe_id>/
+    manifest.json
+    SUMMARY.md
+    canon/
+    notes/
+    assets/
+    validated_memory/
+
+storage/
+  raw/<universe_id>/
+  processed/<universe_id>/
+  manifests/
+  cache/
+
+indexes/
+  <universe_id>/
+    text/
+    image/
+    audio/
+
+kg/
+  <universe_id>/
+
+memory/
+  <universe_id>/
+
+prompts/
+datasets/
+outputs/
+governance/
+reports/
+```
+
+## Implementation Roadmap
+
+Phase 3A: Specification and contracts.
+Complete this document, define the universe manifest shape, and document the
+current KG schema.
+
+Phase 3B: Corpus structure.
+Create `corpus/` and migrate one universe without breaking existing `data/`
+paths.
+
+Phase 3C: Tool contracts.
+Extract stable Python tool functions from retrieval, KG validation, generation,
+and memory candidates.
+
+Phase 3D: Normal Mode and Lab Mode cleanup.
+Make both modes use the same module/tool registry and trace objects.
+
+Phase 3E: Validated memory.
+Add memory statuses and manual approval. Do not auto-promote generated lore.
+
+Phase 3F: Multimodal ingestion.
+Add image/audio/video only after text corpus and tool contracts are stable.
+
+Phase 3G: MCP.
+Wrap stable internal tools as MCP servers.
+
+Phase 3H: Fine-tuning and LoRA.
+Start only after enough validated examples exist.
+
+## Reference Ideal Flow
+
+1. User submits a request.
+2. Router detects the universe, task type, and mode.
+3. Agent reads the relevant manifest and `SUMMARY.md` files before loading
+   detailed chunks.
+4. Agent calls retrieval, KG, memory, and source tools as needed.
+5. Generator receives relevant excerpts, KG constraints, timeline constraints,
+   style rules, and the user request.
+6. Model generates a draft.
+7. Validator checks KG contradictions, source sufficiency, entity coherence,
+   hard/soft rules, timeline, and style constraints.
+8. If problems exist, the system returns warnings or asks for regeneration.
+9. If acceptable, the system returns a final answer with sources.
+10. If the user validates the output, it enters lore memory as `pending`.
+11. After review, it may become `validated` memory and be available for future
+    generation.
+
+## Validation Commands
+
+Run before committing architecture changes:
 
 ```bash
 make sanity
 make test
+git diff --check
 ```
-
-Both commands should pass before architecture changes are committed.
