@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "universe_id": "terran_empire",
+  "display_name": "Terran Empire",
+  "status": "pilot",
+  "summary_path": "corpus/universes/terran_empire/SUMMARY.md",
+  "canon_policy": {
+    "default_status": "canon",
+    "generated_content_requires_review": true,
+    "validated_memory_statuses": [
+      "draft",
+      "pending",
+      "validated",
+      "rejected",
+      "superseded"
+    ]
+  },
+  "collections": [
+    {
+      "collection_id": "lore",
+      "label": "Lore",
+      "source_path": "data/universes/terran_empire/lore",
+      "modality": "text",
+      "canon_status": "canon",
+      "themes": [
+        "history",
+        "politics",
+        "technology",
+        "figures",
+        "rebellion",
+        "alliance"
+      ]
+    }
+  ],
+  "source_files": [
+    "data/universes/terran_empire/lore/history_and_origins.txt",
+    "data/universes/terran_empire/lore/key_figures.txt",
+    "data/universes/terran_empire/lore/mirror_universe_crossover_events.txt",
+    "data/universes/terran_empire/lore/political_structure.txt",
+    "data/universes/terran_empire/lore/technology_and_fleet.txt",
+    "data/universes/terran_empire/lore/terok_nor_and_rebellion.txt",
+    "data/universes/terran_empire/lore/the_alliance_and_fall.txt"
+  ],
+  "indexes": {
+    "text": {
+      "type": "faiss",
+      "index_path": "vector_db/terran_empire/faiss.index",
+      "metadata_path": "vector_db/terran_empire/metadata.json",
+      "embedding_model": "all-MiniLM-L6-v2"
+    }
+  },
+  "knowledge_graph": {
+    "type": "sqlite",
+    "path": "vector_db/terran_empire/knowledge_graph.sqlite"
+  },
+  "memory": {
+    "path": "memory/terran_empire",
+    "enabled": false
+  },
+  "notes": [
+    "Pilot manifest only. Runtime code still reads the existing data and vector_db paths."
+  ]
+}

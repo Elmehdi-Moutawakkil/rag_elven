@@ -62,6 +62,81 @@ def _json_count(path: Path) -> int | None:
     return len(data) if isinstance(data, list) else None
 
 
+def _check_universe_manifest(path: Path) -> list[str]:
+    errors: list[str] = []
+    rel = path.relative_to(PROJECT_ROOT)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return [f"{rel}: invalid JSON: {exc}"]
+
+    required_fields = [
+        "schema_version",
+        "universe_id",
+        "display_name",
+        "summary_path",
+        "collections",
+        "source_files",
+        "indexes",
+        "knowledge_graph",
+    ]
+    for field in required_fields:
+        if field not in data:
+            errors.append(f"{rel}: missing field `{field}`")
+
+    def require_path(field_name: str, value: str) -> None:
+        target = PROJECT_ROOT / value
+        if not target.exists():
+            errors.append(f"{rel}: `{field_name}` points to missing path `{value}`")
+
+    summary_path = data.get("summary_path")
+    if isinstance(summary_path, str):
+        require_path("summary_path", summary_path)
+
+    for source_file in data.get("source_files", []):
+        if isinstance(source_file, str):
+            require_path("source_files", source_file)
+        else:
+            errors.append(f"{rel}: source_files contains a non-string entry")
+
+    for collection in data.get("collections", []):
+        if not isinstance(collection, dict):
+            errors.append(f"{rel}: collections contains a non-object entry")
+            continue
+        source_path = collection.get("source_path")
+        if isinstance(source_path, str):
+            require_path("collections.source_path", source_path)
+        else:
+            errors.append(f"{rel}: collection missing string `source_path`")
+
+    text_index = data.get("indexes", {}).get("text", {})
+    if isinstance(text_index, dict):
+        for field in ("index_path", "metadata_path"):
+            value = text_index.get(field)
+            if isinstance(value, str):
+                require_path(f"indexes.text.{field}", value)
+            else:
+                errors.append(f"{rel}: indexes.text missing string `{field}`")
+    else:
+        errors.append(f"{rel}: indexes.text must be an object")
+
+    kg_path = data.get("knowledge_graph", {}).get("path")
+    if isinstance(kg_path, str):
+        require_path("knowledge_graph.path", kg_path)
+    else:
+        errors.append(f"{rel}: knowledge_graph missing string `path`")
+
+    return errors
+
+
+def _check_universe_manifests() -> tuple[int, list[str]]:
+    manifest_paths = sorted((PROJECT_ROOT / "corpus" / "universes").glob("*/manifest.json"))
+    errors: list[str] = []
+    for path in manifest_paths:
+        errors.extend(_check_universe_manifest(path))
+    return len(manifest_paths), errors
+
+
 def _dependency_report() -> list[tuple[str, bool]]:
     modules = [
         "streamlit",
@@ -133,6 +208,11 @@ def main() -> int:
     except Exception as exc:
         failures.append(f"metadata check failed: {exc}")
         print(f"[WARN] metadata check failed: {exc}")
+
+    manifest_count, manifest_errors = _check_universe_manifests()
+    print(f"[{_status(not manifest_errors)}] universe manifests: {manifest_count}")
+    if manifest_errors:
+        failures.extend(manifest_errors)
 
     print()
     for env_name in (GROQ_API_KEY_ENV, ANTHROPIC_API_KEY_ENV):
