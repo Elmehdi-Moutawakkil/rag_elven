@@ -34,7 +34,8 @@ Current source modules:
 `src/morphology.py`, `src/syntax.py`, `src/lore_generator.py`,
 `src/lore_generator_p4.py`, `src/lore_generator_generic.py`,
 `src/knowledge_graph.py`, `src/layer_registry.py`,
-`src/module_registry.py`, `src/pipeline_executor.py`, `src/settings.py`
+`src/module_registry.py`, `src/normal_mode.py`, `src/pipeline_executor.py`,
+`src/settings.py`
 
 Current data:
 `data/lore/`, `data/quenya_course/`, `data/quenya_dictionary/`,
@@ -424,6 +425,7 @@ Optional future table `agent_runs`:
 Current modules concerned:
 `src/router.py`
 `src/query_rewriter.py`
+`src/normal_mode.py`
 `src/pipeline_executor.py`
 `src/layer_registry.py`
 `src/module_registry.py`
