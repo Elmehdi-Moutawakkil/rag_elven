@@ -24,6 +24,7 @@ from src.prompt_templates import (
     format_extraction_prompt,
 )
 from src.retrieval import load_faiss, load_model, search_faiss
+from src.settings import ANTHROPIC_API_KEY_ENV, ANTHROPIC_LORE_MODEL, missing_key_message
 
 
 # ==============================================================================
@@ -222,6 +223,9 @@ def generate_story(
     Returns:
         Generated story text
     """
+    if not api_key:
+        raise ValueError(missing_key_message(ANTHROPIC_API_KEY_ENV, "generation de lore"))
+
     # Format constraints from chunks
     chunks_text = "\n\n".join([c["text"] for c in chunks[:3]])
     constraints = build_constraints_from_chunks(chunks)
@@ -252,7 +256,7 @@ def generate_story(
     # Call Claude
     client = Anthropic(api_key=api_key)
     message = client.messages.create(
-        model="claude-sonnet-4-5",
+        model=ANTHROPIC_LORE_MODEL,
         max_tokens=1024,
         messages=[
             {"role": "user", "content": prompt}
@@ -284,6 +288,9 @@ def validate_coherence(
             "is_valid": bool,
         }
     """
+    if not api_key:
+        raise ValueError(missing_key_message(ANTHROPIC_API_KEY_ENV, "validation Claude"))
+
     # Format canon facts from chunks
     canon_facts = "\n\n".join([c["text"] for c in chunks[:3]])
 
@@ -292,7 +299,7 @@ def validate_coherence(
 
     client = Anthropic(api_key=api_key)
     message = client.messages.create(
-        model="claude-sonnet-4-5",
+        model=ANTHROPIC_LORE_MODEL,
         max_tokens=512,
         messages=[
             {"role": "user", "content": validation_prompt}

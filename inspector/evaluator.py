@@ -35,6 +35,8 @@ except ModuleNotFoundError:
 
 load_dotenv(PROJECT_ROOT / ".env")
 
+from src.settings import ANTHROPIC_API_KEY_ENV, ANTHROPIC_JUDGE_MODEL, env_value, missing_key_message
+
 
 # ---------------------------------------------------------------------------
 # Optional web search via DuckDuckGo (no API key required)
@@ -86,12 +88,12 @@ def evaluate_response(
             "judge_notes": "App returned an empty response.",
         }
 
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = env_value(ANTHROPIC_API_KEY_ENV)
     if not api_key:
         return {
             "verdict": "ERROR",
             "score": 0.0,
-            "judge_notes": "ANTHROPIC_API_KEY not set — cannot evaluate.",
+            "judge_notes": missing_key_message(ANTHROPIC_API_KEY_ENV, "Inspector judge"),
         }
 
     # For Q&A features, optionally search for extra context
@@ -142,7 +144,7 @@ Scoring guide:
 
     client = anthropic.Anthropic(api_key=api_key)
     message = client.messages.create(
-        model="claude-sonnet-4-6",
+        model=ANTHROPIC_JUDGE_MODEL,
         max_tokens=256,
         messages=[{"role": "user", "content": prompt}],
     )

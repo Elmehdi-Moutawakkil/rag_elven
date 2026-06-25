@@ -17,6 +17,7 @@ import faiss
 
 from src.knowledge_graph import KnowledgeGraph
 from src.retrieval import search_faiss
+from src.settings import ANTHROPIC_API_KEY_ENV, ANTHROPIC_LORE_MODEL, missing_key_message
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
@@ -96,6 +97,15 @@ def generate_lore_for_universe(
         }
     """
     try:
+        if not api_key:
+            return {
+                "success": False,
+                "error": missing_key_message(ANTHROPIC_API_KEY_ENV, "generation de lore"),
+                "story": None,
+                "chunks_used": 0,
+                "kg_violations": [],
+            }
+
         chunks = search_faiss(user_request, model, index, metadata, k=k)
 
         if not chunks:
@@ -128,7 +138,7 @@ Write the lore now. Be creative but strictly respect the canon entities and fact
 
         client = Anthropic(api_key=api_key)
         message = client.messages.create(
-            model="claude-sonnet-4-5",
+            model=ANTHROPIC_LORE_MODEL,
             max_tokens=1024,
             messages=[{"role": "user", "content": prompt}],
         )

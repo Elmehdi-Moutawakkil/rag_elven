@@ -587,8 +587,22 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
 
     # ── Sélecteur d'univers ───────────────────────────────────────────────────
     UNIVERSE_OPTIONS = {
-        "🧝 Elfique (Tolkien)":        {"index": index,     "meta": metadata,  "model": model,     "universe": "Tolkien's Middle-earth"},
-        "🖖 Empire Terran (Star Trek)": {"index": _te_index, "meta": _te_meta,  "model": _te_model, "universe": "Terran Empire (Star Trek Mirror Universe)"},
+        "🧝 Elfique (Tolkien)": {
+            "index": index,
+            "meta": metadata,
+            "model": model,
+            "universe": "Tolkien's Middle-earth",
+            "universe_id": "tolkien",
+            "kg_db_path": str(KG_DB_PATH),
+        },
+        "🖖 Empire Terran (Star Trek)": {
+            "index": _te_index,
+            "meta": _te_meta,
+            "model": _te_model,
+            "universe": "Terran Empire (Star Trek Mirror Universe)",
+            "universe_id": "terran_empire",
+            "kg_db_path": "vector_db/terran_empire/knowledge_graph.sqlite",
+        },
     }
 
     lab_universe = st.selectbox(
@@ -682,6 +696,8 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
             "index":    _lab_universe_res["index"],
             "meta":     _lab_universe_res["meta"],
             "universe": _lab_universe_res["universe"],
+            "universe_id": _lab_universe_res["universe_id"],
+            "kg_db_path": _lab_universe_res["kg_db_path"],
         }
         with st.spinner("Exécution…"):
             lab_result = execute_pipeline(lab_selected, lab_input, _lab_res)

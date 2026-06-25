@@ -15,7 +15,15 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Optional
+from src.settings import (
+    ANTHROPIC_API_KEY_ENV,
+    ANTHROPIC_LORE_MODEL,
+    PROJECT_ROOT,
+    env_value,
+    missing_key_message,
+)
 
 try:
     from dotenv import load_dotenv
@@ -105,7 +113,7 @@ LAYER_META: dict[str, LayerMeta] = {
     ),
     "L09": LayerMeta(
         id="L09", name="KG Validator", emoji="🛡️",
-        description="Vérifie la cohérence du lore généré contre un graphe de connaissances SQLite (126 entités, 131 relations, 12 règles canon) et signale les contradictions.",
+        description="Vérifie déterministement le lore généré contre le Knowledge Graph SQLite de l'univers sélectionné et signale les contradictions.",
         input_types=["json_story", "text"], output_type="json_story",
         cost="free", deterministic=True,
     ),
@@ -234,10 +242,10 @@ def _run_L07(input: Any, context: dict) -> LayerResult:
 def _run_L08(input: Any, context: dict) -> LayerResult:
     from anthropic import Anthropic
 
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    api_key = env_value(ANTHROPIC_API_KEY_ENV)
     if not api_key:
         return LayerResult(
-            output={"story": "[ANTHROPIC_API_KEY manquante]", "warnings": []},
+            output={"story": f"[{missing_key_message(ANTHROPIC_API_KEY_ENV, 'generation de lore')}]", "warnings": []},
             output_type="json_story",
             label="Clé API Claude manquante",
         )
@@ -272,7 +280,7 @@ Write the lore now, staying true to the {universe} universe."""
 
     client = Anthropic(api_key=api_key)
     message = client.messages.create(
-        model="claude-sonnet-4-5",
+        model=ANTHROPIC_LORE_MODEL,
         max_tokens=1024,
         messages=[{"role": "user", "content": prompt}],
     )
@@ -281,10 +289,6 @@ Write the lore now, staying true to the {universe} universe."""
 
 
 def _run_L09(input: Any, context: dict) -> LayerResult:
-    from src.lore_generator import validate_coherence
-    prev_L02 = context["outputs"].get("L02")
-    chunks = prev_L02.output if (prev_L02 and prev_L02.output_type == "json_chunks") else []
-
     if isinstance(input, dict) and "story" in input:
         story_data = input
     elif isinstance(context["outputs"].get("L08"), object):
@@ -293,14 +297,35 @@ def _run_L09(input: Any, context: dict) -> LayerResult:
     else:
         story_data = {"story": str(input), "warnings": []}
 
-    api_key = context["resources"].get("anthropic_api_key") or os.getenv("ANTHROPIC_API_KEY", "")
-    validation = validate_coherence(story_data["story"], chunks, api_key)
-    warnings = validation.get("contradictions", []) if isinstance(validation, dict) else []
+    from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
+
+    kg_path_raw = context.get("resources", {}).get("kg_db_path")
+    kg_path = Path(kg_path_raw) if kg_path_raw else KG_DB_PATH
+    if not kg_path.is_absolute():
+        kg_path = PROJECT_ROOT / kg_path
+    story = story_data.get("story", "") if isinstance(story_data, dict) else str(story_data)
+    if not kg_path.exists():
+        warning = f"Knowledge Graph introuvable : {kg_path}"
+        validation = {
+            "method": "knowledge_graph",
+            "is_valid": None,
+            "score": None,
+            "violations": [],
+            "warning": warning,
+        }
+        warnings = [warning]
+    else:
+        with KnowledgeGraph(db_path=kg_path) as kg:
+            validation = kg.validate_story(story)
+        warnings = [
+            f"{v.get('severity', 'WARN')} - {v.get('canon') or v.get('text')}"
+            for v in validation.get("violations", [])
+        ]
+
     story_data = dict(story_data)
     story_data["warnings"] = warnings
-    if isinstance(validation, dict):
-        story_data["validation"] = validation
-    label = f"{'⚠️ ' + str(len(story_data['warnings'])) + ' avertissements' if story_data['warnings'] else '✅ cohérent'}"
+    story_data["validation"] = validation
+    label = f"{'⚠️ ' + str(len(warnings)) + ' violation(s) KG' if warnings else '✅ KG cohérent'}"
     return LayerResult(output=story_data, output_type="json_story", label=label)
 
 

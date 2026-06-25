@@ -30,6 +30,15 @@ except ModuleNotFoundError:
 from src.ir import SemanticIR, parse_english
 from src.morphology import MorphResult, ConfidenceLevel, compute_noun_form, compute_verb_form
 from src.syntax import realize_syntax, add_stylistic_polish, SyntaxResult
+from src.settings import (
+    ANTHROPIC_API_KEY_ENV,
+    ANTHROPIC_POLISH_MODEL,
+    GROQ_API_KEY_ENV,
+    GROQ_MODEL,
+    LM_STUDIO_BASE_URL,
+    LOCAL_MODEL_NAME,
+    env_value,
+)
 
 load_dotenv()
 
@@ -184,13 +193,13 @@ def _call_llm(prompt: str) -> str:
     """Call the LLM for stylistic polish. Tries Claude first, then Groq, then LM Studio."""
 
     # --- Try Claude (preferred — much better Quenya comprehension) ---
-    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+    anthropic_key = env_value(ANTHROPIC_API_KEY_ENV)
     if anthropic_key:
         try:
             from anthropic import Anthropic
             client = Anthropic(api_key=anthropic_key)
             message = client.messages.create(
-                model="claude-haiku-4-5-20251001",  # fast + cheap for polish
+                model=ANTHROPIC_POLISH_MODEL,  # fast + cheap for polish
                 max_tokens=512,
                 messages=[{"role": "user", "content": prompt}],
             )
@@ -199,13 +208,13 @@ def _call_llm(prompt: str) -> str:
             pass
 
     # --- Fallback: Groq ---
-    groq_key = os.getenv("GROQ_API_KEY")
+    groq_key = env_value(GROQ_API_KEY_ENV)
     if groq_key:
         try:
             from groq import Groq  # type: ignore
             client = Groq(api_key=groq_key)
             response = client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model=GROQ_MODEL,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=512,
                 temperature=0.1,
@@ -217,9 +226,9 @@ def _call_llm(prompt: str) -> str:
     # --- Fallback: LM Studio (local) ---
     try:
         import openai  # type: ignore
-        client = openai.OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+        client = openai.OpenAI(base_url=LM_STUDIO_BASE_URL, api_key="lm-studio")
         response = client.chat.completions.create(
-            model="local-model",
+            model=LOCAL_MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=512,
             temperature=0.1,

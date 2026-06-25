@@ -37,6 +37,7 @@ from typing import Optional
 
 from dotenv import load_dotenv             # charge le fichier .env local
 from groq import Groq                      # client Groq pour appeler le LLM
+from src.settings import GROQ_API_KEY_ENV, GROQ_MODEL, env_value
 
 load_dotenv()
 
@@ -44,7 +45,7 @@ load_dotenv()
 # Configuration
 # ---------------------------------------------------------------------------
 
-MODEL       = "llama-3.1-8b-instant"  # même modèle que le reste du projet
+MODEL       = GROQ_MODEL              # même modèle que le reste du projet
 TEMPERATURE = 0.0   # 0 = déterministe : on veut toujours la même analyse pour la même question
 MAX_TOKENS  = 80    # la réponse est un petit JSON, inutile d'allouer plus
 
@@ -122,7 +123,7 @@ def rewrite_query(question: str, api_key: Optional[str] = None) -> dict:
         rewrite_query("qui sont les Noldor?")
         → {"keyword": "Noldor history", "type": "lore"}
     """
-    key = api_key or os.getenv("GROQ_API_KEY")
+    key = api_key or env_value(GROQ_API_KEY_ENV)
     if not key:
         # Pas de clé API → fallback immédiat sans appel réseau
         return _safe_fallback(question)

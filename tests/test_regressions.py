@@ -14,7 +14,7 @@ from src.database import search_translation
 from src.ir import Argument, PredicateIR, SemanticIR
 from src.knowledge_graph import KnowledgeGraph
 from src.morphology import ConfidenceLevel, MorphResult
-from src.pipeline_executor import format_final_output
+from src.pipeline_executor import execute_pipeline, format_final_output
 
 
 class RegressionTests(unittest.TestCase):
@@ -125,6 +125,28 @@ class RegressionTests(unittest.TestCase):
 
         self.assertFalse(result["is_valid"])
         self.assertEqual(len(result["violations"]), 1)
+
+    def test_lab_l09_uses_kg_validation_without_llm(self):
+        with tempfile.NamedTemporaryFile(suffix=".sqlite") as tmp:
+            with KnowledgeGraph(Path(tmp.name)) as kg:
+                kg.add_canon_fact(
+                    "The Terran Empire is not a democracy.",
+                    r"(?i)\bterran empire\b.{0,80}\bdemocracy\b",
+                    "HARD",
+                )
+
+            result = execute_pipeline(
+                ["L09"],
+                "The Terran Empire was a democracy.",
+                resources={"kg_db_path": tmp.name},
+            )
+
+        self.assertIsNone(result["error"])
+        final = result["final_output"]
+        self.assertIn("validation", final)
+        self.assertEqual(final["validation"]["method"], "knowledge_graph")
+        self.assertFalse(final["validation"]["is_valid"])
+        self.assertEqual(len(final["validation"]["violations"]), 1)
 
 
 if __name__ == "__main__":

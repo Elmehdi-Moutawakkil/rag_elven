@@ -1,6 +1,7 @@
 """Inspector configuration — add a universe or feature here to make it testable."""
 
 from pathlib import Path
+from src.settings import ANTHROPIC_JUDGE_MODEL, GROQ_MODEL as DEFAULT_GROQ_MODEL
 
 PROJECT_ROOT = Path(__file__).parent.parent
 INSPECTOR_DB = PROJECT_ROOT / "inspector" / "inspector.db"
@@ -61,10 +62,10 @@ FEATURES = [
 TESTS_PER_FEATURE = 6
 
 # Groq model under test
-GROQ_MODEL = "llama-3.1-8b-instant"
+GROQ_MODEL = DEFAULT_GROQ_MODEL
 
 # Anthropic model used by the inspector as judge
-JUDGE_MODEL = "claude-sonnet-4-6"
+JUDGE_MODEL = ANTHROPIC_JUDGE_MODEL
 
 # Minimum acceptable correctness rate (below this → flagged in report)
 CORRECTNESS_THRESHOLD = 0.70

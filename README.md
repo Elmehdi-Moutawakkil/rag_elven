@@ -339,6 +339,14 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 # Dépendances
 pip install -r requirements.txt
 
+# Vérification locale sans appel API
+python scripts/sanity_check.py
+# ou: make sanity
+
+# Tests
+python -m pytest -q
+# ou: make test
+
 # Variables d'environnement
 cp .env.example .env
 # Remplis .env avec tes clés API :
@@ -352,7 +360,14 @@ python scripts/build_kg.py
 
 # Lancement
 streamlit run app.py
+# ou: make run
 ```
+
+Notes :
+- `scripts/sanity_check.py` ne modifie aucun fichier et n'appelle aucune API.
+- Les clés API absentes sont signalées comme avertissements par le sanity check,
+  mais elles restent requises pour Q&A Groq, génération Claude et Inspector.
+- Ne committez jamais `.env` ni de vraie clé API.
 
 ---
 
@@ -361,8 +376,8 @@ streamlit run app.py
 Dans **Settings → Secrets** de ton app Streamlit Cloud :
 
 ```toml
-GROQ_API_KEY = "gsk_..."
-ANTHROPIC_API_KEY = "sk-ant-..."   # requis pour Phase 3 et 4 (génération uniquement)
+GROQ_API_KEY = "<your-groq-api-key>"
+ANTHROPIC_API_KEY = "<your-anthropic-api-key>"   # requis pour Phase 3 et 4 (génération uniquement)
 ```
 
 ---

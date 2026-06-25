@@ -24,13 +24,14 @@ from sentence_transformers import SentenceTransformer
 
 from src.database import lookup_word, search_translation  # fonctions de recherche SQLite
 from src.query_rewriter import rewrite_query               # agent d'analyse de la question
+from src.settings import EMBEDDING_MODEL, ELVISH_INDEX_PATH, ELVISH_METADATA_PATH
 
 # ---------------------------------------------------------------------------
 # Chemins vers les fichiers générés par embeddings.py
 # ---------------------------------------------------------------------------
 
-INDEX_PATH = Path("vector_db/faiss.index")    # index FAISS binaire
-META_PATH  = Path("vector_db/metadata.json")  # metadata JSON parallèles à l'index
+INDEX_PATH = ELVISH_INDEX_PATH     # index FAISS binaire
+META_PATH  = ELVISH_METADATA_PATH  # metadata JSON parallèles à l'index
 
 # ---------------------------------------------------------------------------
 # Extraction du mot-clé depuis une question de vocabulaire
@@ -85,7 +86,7 @@ def load_faiss(
     return index, metadata
 
 
-def load_model(model_name: str = "all-MiniLM-L6-v2") -> SentenceTransformer:
+def load_model(model_name: str = EMBEDDING_MODEL) -> SentenceTransformer:
     """Charge le modèle d'embeddings (depuis le cache local après la première fois)."""
     return SentenceTransformer(model_name)
 

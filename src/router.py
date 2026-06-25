@@ -16,6 +16,7 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from groq import Groq
+from src.settings import GROQ_API_KEY_ENV, GROQ_MODEL, env_value
 
 load_dotenv()
 
@@ -130,7 +131,7 @@ def _llm_classify(text: str, api_key: str) -> dict:
     try:
         client = Groq(api_key=api_key)
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model=GROQ_MODEL,
             messages=[{"role": "user", "content": _ROUTER_PROMPT.format(request=text)}],
             max_tokens=80,
             temperature=0.0,
@@ -165,7 +166,7 @@ def classify_request(user_input: str, api_key: Optional[str] = None) -> dict:
             "label"  : str,
         }
     """
-    groq_key = api_key or os.getenv("GROQ_API_KEY")
+    groq_key = api_key or env_value(GROQ_API_KEY_ENV)
 
     # 1. Fast path
     fast_route = _fast_classify(user_input)

@@ -18,6 +18,7 @@ from typing import Optional
 
 from dotenv import load_dotenv  # lit le fichier .env et charge les variables en mémoire
 from groq import Groq           # client Python officiel pour l'API Groq
+from src.settings import GROQ_API_KEY_ENV, GROQ_MODEL, env_value, missing_key_message
 
 load_dotenv()  # charge .env au moment où ce fichier est importé (rend GROQ_API_KEY disponible via os.getenv)
 
@@ -25,7 +26,7 @@ load_dotenv()  # charge .env au moment où ce fichier est importé (rend GROQ_AP
 # Configuration du modèle
 # ---------------------------------------------------------------------------
 
-MODEL       = "llama-3.1-8b-instant"  # modèle Groq : rapide, gratuit, bon pour Q&A
+MODEL       = GROQ_MODEL              # modèle Groq : rapide, gratuit, bon pour Q&A
 MAX_TOKENS  = 1024                    # longueur maximale de la réponse (en tokens ≈ mots)
 TEMPERATURE = 0.2                     # 0 = très factuel/répétable, 1 = créatif/aléatoire
 
@@ -107,9 +108,9 @@ def call_llm(prompt: str, api_key: Optional[str] = None) -> str:
     Returns:
         texte brut de la réponse du LLM
     """
-    key = api_key or os.getenv("GROQ_API_KEY")  # priorité à l'argument, sinon lit le .env
+    key = api_key or env_value(GROQ_API_KEY_ENV)  # priorité à l'argument, sinon lit le .env
     if not key:
-        raise ValueError("GROQ_API_KEY manquante. Vérifie ton fichier .env")
+        raise ValueError(missing_key_message(GROQ_API_KEY_ENV, "Q&A Groq"))
 
     client = Groq(api_key=key)  # initialise le client avec la clé API
 

@@ -26,12 +26,29 @@ except ModuleNotFoundError:
 
 load_dotenv(PROJECT_ROOT / ".env")
 
+from src.settings import (
+    ANTHROPIC_API_KEY_ENV,
+    GROQ_API_KEY_ENV,
+    GROQ_MODEL,
+    env_value,
+    missing_key_message,
+)
+
 
 # ---------------------------------------------------------------------------
 # Lazy resource cache — loaded once, reused across tests
 # ---------------------------------------------------------------------------
 
 _cache: dict = {}
+
+
+def _missing_key_result(env_name: str, feature: str, started_at: float) -> dict:
+    return {
+        "success": False,
+        "response": None,
+        "duration_ms": int((time.time() - started_at) * 1000),
+        "error": missing_key_message(env_name, feature),
+    }
 
 
 def _get_embedding_model():
@@ -71,6 +88,10 @@ def call_qa_elvish(question: str) -> dict:
     """Q&A Tolkien — FAISS + SQLite + Groq LLM."""
     t0 = time.time()
     try:
+        groq_key = env_value(GROQ_API_KEY_ENV)
+        if not groq_key:
+            return _missing_key_result(GROQ_API_KEY_ENV, "Q&A Elfique", t0)
+
         from src.retrieval import retrieve
         from src.llm import answer
 
@@ -82,7 +103,7 @@ def call_qa_elvish(question: str) -> dict:
             question,
             results["faiss"],
             results.get("dictionary", []),
-            api_key=os.getenv("GROQ_API_KEY"),
+            api_key=groq_key,
         )
         return {
             "success": True,
@@ -121,6 +142,10 @@ def call_lore_tolkien(request: str) -> dict:
     """Tolkien lore generation — FAISS + Claude."""
     t0 = time.time()
     try:
+        anthropic_key = env_value(ANTHROPIC_API_KEY_ENV)
+        if not anthropic_key:
+            return _missing_key_result(ANTHROPIC_API_KEY_ENV, "generation lore Tolkien", t0)
+
         from src.lore_generator import generate_lore
 
         model = _get_embedding_model()
@@ -128,7 +153,7 @@ def call_lore_tolkien(request: str) -> dict:
 
         result = generate_lore(
             user_request=request,
-            api_key=os.getenv("ANTHROPIC_API_KEY"),
+            api_key=anthropic_key,
             model=model,
             index=index,
             metadata=metadata,
@@ -155,6 +180,10 @@ def call_qa_terran(question: str) -> dict:
     """Q&A Mirror Universe — FAISS + Groq LLM."""
     t0 = time.time()
     try:
+        groq_key = env_value(GROQ_API_KEY_ENV)
+        if not groq_key:
+            return _missing_key_result(GROQ_API_KEY_ENV, "Q&A Empire Terran", t0)
+
         from src.retrieval import search_faiss
         from groq import Groq
 
@@ -176,9 +205,9 @@ IMPORTANT: Answer in the same language as the question.
 Question: {question}
 Answer:"""
 
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        client = Groq(api_key=groq_key)
         resp = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model=GROQ_MODEL,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=512,
             temperature=0.2,
@@ -198,6 +227,10 @@ def call_lore_terran(request: str) -> dict:
     """Mirror Universe lore generation — FAISS + Claude."""
     t0 = time.time()
     try:
+        anthropic_key = env_value(ANTHROPIC_API_KEY_ENV)
+        if not anthropic_key:
+            return _missing_key_result(ANTHROPIC_API_KEY_ENV, "generation lore Empire Terran", t0)
+
         from src.lore_generator_generic import generate_lore_for_universe
 
         model = _get_embedding_model()
@@ -206,7 +239,7 @@ def call_lore_terran(request: str) -> dict:
         result = generate_lore_for_universe(
             user_request=request,
             universe_name="Terran Empire (Star Trek Mirror Universe)",
-            api_key=os.getenv("ANTHROPIC_API_KEY"),
+            api_key=anthropic_key,
             model=model,
             index=index,
             metadata=metadata,
