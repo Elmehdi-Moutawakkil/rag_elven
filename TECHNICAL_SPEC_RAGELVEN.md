@@ -35,7 +35,7 @@ Current source modules:
 `src/lore_generator_p4.py`, `src/lore_generator_generic.py`,
 `src/knowledge_graph.py`, `src/layer_registry.py`,
 `src/module_registry.py`, `src/normal_mode.py`, `src/pipeline_executor.py`,
-`src/settings.py`
+`src/ingestion/`, `src/settings.py`
 
 Current data:
 `data/lore/`, `data/quenya_course/`, `data/quenya_dictionary/`,
@@ -207,6 +207,10 @@ Optional future table `ingestion_runs`:
 `output_count`, `error_count`, `status`.
 
 Current modules concerned:
+`src/ingestion/documents.py` defines normalized document records.
+`src/ingestion/loaders.py` ingests Markdown and plain text.
+`src/ingestion/manifests.py` reads universe manifests.
+`scripts/ingest_universe.py` writes processed JSONL records and reports.
 `src/text_splitter.py` already handles PDF/text chunk preparation.
 `scripts/build_universe_index.py` already builds universe indexes.
 
@@ -220,6 +224,10 @@ expensive multimodal processing.
 
 Implementation order:
 First normalize text and Markdown. Then PDF extraction. Then images/audio/video.
+
+Current status:
+Text and Markdown ingestion are implemented for manifest-backed universes.
+PDF, image, and audio ingestion remain future extensions.
 
 ## Layer 4: Indexing And Retrieval
 

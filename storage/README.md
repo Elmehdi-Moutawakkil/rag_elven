@@ -9,3 +9,10 @@ This directory is intentionally separate from `corpus/` and `indexes/`:
 - `indexes/` stores retrieval artifacts.
 
 The current app does not read this directory yet.
+
+Current processed document outputs:
+
+- `storage/processed/<universe_id>/documents.jsonl`: normalized document
+  records produced by `scripts/ingest_universe.py`.
+- `storage/processed/<universe_id>/ingestion_report.json`: deterministic
+  ingestion summary for review and sanity checks.

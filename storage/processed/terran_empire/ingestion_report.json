@@ -1,0 +1,66 @@
+{
+  "collections": {
+    "lore": 7
+  },
+  "document_count": 7,
+  "documents": [
+    {
+      "document_id": "doc_969ac44ec9cadcbc",
+      "sha256": "2a468b710e5755718fca5fc337107330f438d43ea11f3e118ec08a05c7bcb138",
+      "source_path": "data/universes/terran_empire/lore/history_and_origins.txt",
+      "validation_status": "pending",
+      "version": "sha256:2a468b710e57"
+    },
+    {
+      "document_id": "doc_760f7698e246d325",
+      "sha256": "c82c53c8d152c03598453e69230b50d4a64540fdf4f4e28c95eeb2f553c72954",
+      "source_path": "data/universes/terran_empire/lore/key_figures.txt",
+      "validation_status": "pending",
+      "version": "sha256:c82c53c8d152"
+    },
+    {
+      "document_id": "doc_65109d3641255525",
+      "sha256": "9b2434e0e850c8c617786519f6d8fc5f2c4ef2cb72d933e267841b4bbbd8f8ad",
+      "source_path": "data/universes/terran_empire/lore/mirror_universe_crossover_events.txt",
+      "validation_status": "pending",
+      "version": "sha256:9b2434e0e850"
+    },
+    {
+      "document_id": "doc_b2615bff32844ba5",
+      "sha256": "1464fdccefba5284a86d86430ab853d4271a9815e7847bb98ee75e07c2acc512",
+      "source_path": "data/universes/terran_empire/lore/political_structure.txt",
+      "validation_status": "pending",
+      "version": "sha256:1464fdccefba"
+    },
+    {
+      "document_id": "doc_c25a5e3f88b9e67c",
+      "sha256": "9288b3846d50f64134307f90d18b2ec178e7770b8e522856ce5d8d36b638b5b8",
+      "source_path": "data/universes/terran_empire/lore/technology_and_fleet.txt",
+      "validation_status": "pending",
+      "version": "sha256:9288b3846d50"
+    },
+    {
+      "document_id": "doc_236fe62c5528bdeb",
+      "sha256": "acaed904640e536a1c980eea76db3dfb22192b45ba6c0752ee56b1282e20b464",
+      "source_path": "data/universes/terran_empire/lore/terok_nor_and_rebellion.txt",
+      "validation_status": "pending",
+      "version": "sha256:acaed904640e"
+    },
+    {
+      "document_id": "doc_d7bf0bd22bdc04ae",
+      "sha256": "6038bcdfdcc01b6c80513f52d3aba2a5f60f8bc1693cf838fc623a67d6f2dbb2",
+      "source_path": "data/universes/terran_empire/lore/the_alliance_and_fall.txt",
+      "validation_status": "pending",
+      "version": "sha256:6038bcdfdcc0"
+    }
+  ],
+  "manifest_path": "corpus/universes/terran_empire/manifest.json",
+  "modalities": {
+    "text": 7
+  },
+  "output_path": "storage/processed/terran_empire/documents.jsonl",
+  "schema_version": 1,
+  "validation_statuses": {
+    "pending": 7
+  }
+}

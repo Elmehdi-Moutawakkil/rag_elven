@@ -137,6 +137,48 @@ def _check_universe_manifests() -> tuple[int, list[str]]:
     return len(manifest_paths), errors
 
 
+def _check_processed_documents() -> tuple[int, int, list[str]]:
+    processed_root = PROJECT_ROOT / "storage" / "processed"
+    paths = sorted(processed_root.glob("*/documents.jsonl"))
+    errors: list[str] = []
+    document_count = 0
+    required_fields = {
+        "schema_version",
+        "document_id",
+        "universe_id",
+        "collection_id",
+        "source_path",
+        "modality",
+        "raw_content",
+        "clean_content",
+        "metadata",
+        "sha256",
+        "version",
+        "validation_status",
+    }
+    for path in paths:
+        rel = path.relative_to(PROJECT_ROOT)
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            if not line.strip():
+                continue
+            document_count += 1
+            try:
+                document = json.loads(line)
+            except Exception as exc:
+                errors.append(f"{rel}:{line_number}: invalid JSONL record: {exc}")
+                continue
+            if not isinstance(document, dict):
+                errors.append(f"{rel}:{line_number}: record is not an object")
+                continue
+            missing = sorted(required_fields - set(document))
+            if missing:
+                errors.append(f"{rel}:{line_number}: missing field(s): {', '.join(missing)}")
+            source_path = document.get("source_path")
+            if isinstance(source_path, str) and not (PROJECT_ROOT / source_path).exists():
+                errors.append(f"{rel}:{line_number}: source_path points to missing file `{source_path}`")
+    return len(paths), document_count, errors
+
+
 def _dependency_report() -> list[tuple[str, bool]]:
     modules = [
         "streamlit",
@@ -213,6 +255,14 @@ def main() -> int:
     print(f"[{_status(not manifest_errors)}] universe manifests: {manifest_count}")
     if manifest_errors:
         failures.extend(manifest_errors)
+
+    processed_file_count, processed_doc_count, processed_errors = _check_processed_documents()
+    print(
+        f"[{_status(not processed_errors)}] processed documents: "
+        f"{processed_doc_count} record(s) in {processed_file_count} file(s)"
+    )
+    if processed_errors:
+        failures.extend(processed_errors)
 
     print()
     for env_name in (GROQ_API_KEY_ENV, ANTHROPIC_API_KEY_ENV):
