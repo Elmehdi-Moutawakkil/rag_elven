@@ -20,7 +20,7 @@ from __future__ import annotations
 import time
 from typing import Any, Optional
 
-from src.layer_registry import LAYER_META, LAYER_RUNNERS, LayerResult
+from src.layer_registry import LAYER_META, MODULE_REGISTRY, LayerResult
 
 
 def execute_pipeline(
@@ -54,17 +54,35 @@ def execute_pipeline(
     current_type: str = "text"
 
     for layer_id in layer_sequence:
-        if layer_id not in LAYER_RUNNERS:
+        if layer_id not in MODULE_REGISTRY:
             return {
                 "final_output": None,
                 "final_type": "error",
                 "trace": trace,
                 "outputs": context["outputs"],
-                "error": f"Layer inconnue : {layer_id}",
+                "error": f"Module inconnu : {layer_id}",
+            }
+
+        module = MODULE_REGISTRY[layer_id]
+        if not module.available:
+            return {
+                "final_output": None,
+                "final_type": "error",
+                "trace": trace,
+                "outputs": context["outputs"],
+                "error": f"Module indisponible : {layer_id} ({module.status})",
             }
 
         meta   = LAYER_META[layer_id]
-        runner = LAYER_RUNNERS[layer_id]
+        runner = module.run
+        if runner is None:
+            return {
+                "final_output": None,
+                "final_type": "error",
+                "trace": trace,
+                "outputs": context["outputs"],
+                "error": f"Module sans runner : {layer_id}",
+            }
 
         t0 = time.perf_counter()
         try:
@@ -73,6 +91,7 @@ def execute_pipeline(
             error_msg = f"{layer_id} ({meta.name}) a échoué : {exc}"
             trace.append({
                 "layer_id": layer_id,
+                "module_status": module.status,
                 "name": meta.name,
                 "emoji": meta.emoji,
                 "label": f"❌ {exc}",
@@ -95,6 +114,7 @@ def execute_pipeline(
 
         trace.append({
             "layer_id": layer_id,
+            "module_status": module.status,
             "name": meta.name,
             "emoji": meta.emoji,
             "label": result.label,

@@ -34,7 +34,7 @@ Current source modules:
 `src/morphology.py`, `src/syntax.py`, `src/lore_generator.py`,
 `src/lore_generator_p4.py`, `src/lore_generator_generic.py`,
 `src/knowledge_graph.py`, `src/layer_registry.py`,
-`src/pipeline_executor.py`, `src/settings.py`
+`src/module_registry.py`, `src/pipeline_executor.py`, `src/settings.py`
 
 Current data:
 `data/lore/`, `data/quenya_course/`, `data/quenya_dictionary/`,
@@ -426,6 +426,7 @@ Current modules concerned:
 `src/query_rewriter.py`
 `src/pipeline_executor.py`
 `src/layer_registry.py`
+`src/module_registry.py`
 `app.py`
 
 Dependencies:
@@ -479,8 +480,9 @@ Optional `tool_runs` table:
 `finished_at`, `status`.
 
 Current modules concerned:
-Existing layer functions in `src/layer_registry.py` are the closest current
-tool-like units.
+Existing layer functions in `src/layer_registry.py` are adapted into
+`src/module_registry.py`, which is the current seed of the shared module
+contract.
 
 Dependencies:
 No MCP dependency at first. Future MCP SDK/server runtime.

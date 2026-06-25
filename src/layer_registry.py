@@ -13,10 +13,10 @@ Le context contient :
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
+from src.module_registry import ModuleDefinition, ModuleResult, ModuleStatus
 from src.settings import (
     ANTHROPIC_API_KEY_ENV,
     ANTHROPIC_LORE_MODEL,
@@ -39,10 +39,8 @@ load_dotenv()
 # ==============================================================================
 
 @dataclass
-class LayerResult:
-    output: Any
-    output_type: str
-    label: str  # description lisible de ce qui s'est passé (pour la trace)
+class LayerResult(ModuleResult):
+    """Backward-compatible alias for the shared module result."""
 
 
 @dataclass
@@ -56,6 +54,10 @@ class LayerMeta:
     cost: str                # "free" | "groq" | "claude"
     deterministic: bool
     available: bool = True   # False = phase future, layer non implémentée
+    status: ModuleStatus = "stable"
+    dependencies: list[str] = field(default_factory=list)
+    confidence: str = "unknown"
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 # ==============================================================================
@@ -68,78 +70,107 @@ LAYER_META: dict[str, LayerMeta] = {
         description="Envoie la requête brute à un LLM qui en extrait le mot-clé en anglais et détecte si c'est une question de vocabulaire ou de lore.",
         input_types=["text"], output_type="json_rewrite",
         cost="groq", deterministic=False,
+        dependencies=["GROQ_API_KEY optional"],
+        confidence="medium",
     ),
     "L02": LayerMeta(
         id="L02", name="FAISS Semantic Search", emoji="🔍",
         description="Transforme la requête en vecteur et cherche les 5 passages les plus proches sémantiquement dans les 1 512 chunks du corpus Tolkien.",
         input_types=["text", "json_rewrite"], output_type="json_chunks",
         cost="free", deterministic=True,
+        dependencies=["resources.model", "resources.index", "resources.meta"],
+        confidence="high",
     ),
     "L03": LayerMeta(
         id="L03", name="SQLite Dictionary", emoji="📚",
         description="Cherche le mot dans les 8 022 entrées du dictionnaire elfique (Quenya + Sindarin) et retourne définition, catégorie grammaticale et exemples.",
         input_types=["text", "json_rewrite"], output_type="json_dict",
         cost="free", deterministic=True,
+        dependencies=["vector_db/dictionary.sqlite"],
+        confidence="high",
     ),
     "L04": LayerMeta(
         id="L04", name="spaCy NLP Parser", emoji="🌿",
         description="Analyse grammaticalement la phrase anglaise avec spaCy et construit une représentation structurée (sujet, verbe, compléments, temps, mode).",
         input_types=["text"], output_type="semantic_ir",
         cost="free", deterministic=True,
+        dependencies=["spacy", "en_core_web_sm"],
+        confidence="medium",
     ),
     "L05": LayerMeta(
         id="L05", name="Morphology Engine", emoji="⚙️",
         description="Applique plus de 80 règles déterministes pour décliner les noms et conjuguer les verbes en Quenya selon la classe de radical (voyelle, consonne, etc.).",
         input_types=["semantic_ir"], output_type="morph_forms",
         cost="free", deterministic=True,
+        dependencies=["src.morphology", "src.database"],
+        confidence="medium",
     ),
     "L06": LayerMeta(
         id="L06", name="SOV Syntax Assembler", emoji="🧩",
         description="Prend les formes morphologiques calculées et les assemble dans l'ordre Sujet-Objet-Verbe du Quenya, en ajoutant les particules et marqueurs de cas.",
         input_types=["morph_forms"], output_type="syntax_result",
         cost="free", deterministic=True,
+        dependencies=["L04", "L05"],
+        confidence="medium",
     ),
     "L07": LayerMeta(
         id="L07", name="Constraint Builder", emoji="📐",
         description="Lit les chunks FAISS récupérés et en extrait les faits établis du canon Tolkien qui devront être respectés lors de la génération de lore.",
         input_types=["json_chunks"], output_type="text_constraints",
         cost="free", deterministic=True,
+        dependencies=["L02"],
+        confidence="medium",
     ),
     "L08": LayerMeta(
         id="L08", name="Story Generation", emoji="✨",
         description="Envoie à Claude (Anthropic) le contexte et les contraintes canon pour générer une histoire ou un lore inédit mais cohérent avec l'univers Tolkien.",
         input_types=["text_constraints", "text"], output_type="json_story",
         cost="claude", deterministic=False,
+        dependencies=["ANTHROPIC_API_KEY"],
+        confidence="medium",
     ),
     "L09": LayerMeta(
         id="L09", name="KG Validator", emoji="🛡️",
         description="Vérifie déterministement le lore généré contre le Knowledge Graph SQLite de l'univers sélectionné et signale les contradictions.",
         input_types=["json_story", "text"], output_type="json_story",
         cost="free", deterministic=True,
+        dependencies=["knowledge_graph.sqlite"],
+        confidence="high",
     ),
     "L10": LayerMeta(
         id="L10", name="CLIP Image Search", emoji="🖼️",
         description="Encode la requête avec CLIP et retrouve les images les plus proches sémantiquement dans un index visuel (illustrations Tolkien).",
         input_types=["text"], output_type="json_images",
         cost="free", deterministic=True, available=False,
+        status="future",
+        dependencies=["future image index", "CLIP"],
+        confidence="unknown",
     ),
     "L11": LayerMeta(
         id="L11", name="Image Generator", emoji="🎨",
         description="Génère une illustration de scène ou de personnage elfique via Stable Diffusion à partir d'un prompt textuel.",
         input_types=["text"], output_type="image",
         cost="gpu", deterministic=False, available=False,
+        status="future",
+        dependencies=["future image model"],
+        confidence="unknown",
     ),
     "L12": LayerMeta(
         id="L12", name="TTS Quenya", emoji="🔊",
         description="Synthétise la prononciation elfique d'un texte Quenya en audio (Text-To-Speech adapté aux phonèmes elfiques).",
         input_types=["text", "syntax_result"], output_type="audio",
         cost="free", deterministic=True, available=False,
+        status="future",
+        dependencies=["future TTS model"],
+        confidence="unknown",
     ),
     "L13": LayerMeta(
         id="L13", name="Answer LLM", emoji="💬",
         description="Prend le contexte FAISS et les entrées de dictionnaire récupérés et les soumet à Groq (llama-3.1-8b) pour synthétiser une réponse finale en langage naturel.",
         input_types=["json_chunks", "json_dict", "text"], output_type="text",
         cost="groq", deterministic=False,
+        dependencies=["GROQ_API_KEY optional"],
+        confidence="medium",
     ),
 }
 
@@ -357,4 +388,35 @@ LAYER_RUNNERS: dict[str, Any] = {
     "L08": _run_L08,
     "L09": _run_L09,
     "L13": _run_L13,
+}
+
+
+def _module_from_layer(meta: LayerMeta) -> ModuleDefinition:
+    runner = LAYER_RUNNERS.get(meta.id)
+    status: ModuleStatus = meta.status
+    if not meta.available:
+        status = "future"
+    return ModuleDefinition(
+        id=meta.id,
+        name=meta.name,
+        description=meta.description,
+        status=status,
+        input_types=list(meta.input_types),
+        output_type=meta.output_type,
+        dependencies=list(meta.dependencies),
+        run=runner,
+        cost=meta.cost,  # type: ignore[arg-type]
+        deterministic=meta.deterministic,
+        confidence=meta.confidence,  # type: ignore[arg-type]
+        metadata={
+            **meta.metadata,
+            "emoji": meta.emoji,
+            "legacy_layer_id": meta.id,
+        },
+    )
+
+
+MODULE_REGISTRY: dict[str, ModuleDefinition] = {
+    layer_id: _module_from_layer(meta)
+    for layer_id, meta in LAYER_META.items()
 }
