@@ -2,8 +2,15 @@
 
 **Version:** 1.0  
 **Date:** 2026-05-26  
-**Status:** ACTIVE  
+**Status:** ARCHIVED — historical MVP product spec
 **Audience:** Fans/Researchers learning Elvish; NLP/RAG researchers  
+
+> Maintenance note, 2026-06-25:
+> This document describes the original Quenya dictionary/RAG MVP. It is useful
+> project history, but it is no longer the active product strategy. RAGElven is
+> moving toward a modular lore/corpus platform with Git-versioned canon,
+> multimodal assets, retrieval, Knowledge Graph validation, Normal Mode,
+> Lab Mode, agents/tools, and MCP later.
 
 ---
 

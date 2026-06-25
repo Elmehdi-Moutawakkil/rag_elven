@@ -1,7 +1,11 @@
 # Phase 2 — Elven Sentence Translation: Planning Document
 
 > Session date: 2026-05-30 (revised from 2026-05-29)
-> Status: **Planning** — Phase 1 MVP validated, Phase 2 design refined with architectural review
+> Status: **ARCHIVED / partially implemented** — historical translation design.
+> The Semantic IR, deterministic morphology, syntax, and optional LLM polish
+> ideas are now implemented in `src/ir.py`, `src/morphology.py`,
+> `src/syntax.py`, and `src/translator.py`. Keep this file as rationale, not
+> as the active roadmap.
 
 ---
 

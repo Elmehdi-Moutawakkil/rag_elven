@@ -5,6 +5,12 @@
 **Repo**: https://github.com/Elmehdi-Moutawakkil/rag_elven  
 **Developer**: Elmehdi Moutawakkil (elmehdi@moutawakkil.com)
 
+> Maintenance note, 2026-06-25:
+> This is a historical discussion note. It treats image support as an add-on to
+> the Tolkien app. The current strategy is broader: multimodal storage,
+> ingestion, indexing, retrieval, validation, and generation should be designed
+> as first-class layers in the next technical spec.
+
 ---
 
 ## 1. Current Project State

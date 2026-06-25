@@ -13,17 +13,11 @@ Pipeline:
 6. generate_lore_p4()     → main orchestrator
 """
 
-import json
 from typing import Optional
-from pathlib import Path
 
-from anthropic import Anthropic
 from sentence_transformers import SentenceTransformer
 import faiss
 
-from src.prompt_templates import (
-    format_generation_prompt,
-)
 from src.retrieval import load_faiss, load_model, search_faiss
 from src.knowledge_graph import KnowledgeGraph, KG_DB_PATH
 

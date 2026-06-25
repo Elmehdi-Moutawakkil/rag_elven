@@ -2,7 +2,7 @@
 
 Le "chunking" = découper un long document en petits morceaux (~800 caractères)
 que le modèle d'embeddings peut traiter. Les dictionnaires sont exclus ici
-car ils vont dans SQLite via dictionary_parser.py.
+car ils vont dans la base SQLite dictionnaire.
 
 Pipeline :
     pages brutes
@@ -145,7 +145,7 @@ CHUNK_CONFIG = {
 # Nettoyage
 # ---------------------------------------------------------------------------
 
-# Mêmes patterns de bruit que dans dictionary_parser.py :
+# Patterns de bruit issus du nettoyage dictionnaire historique :
 # en-têtes/pieds de page, URLs, numéros de page seuls sur une ligne
 _NOISE_PATTERNS = [
     re.compile(r"Helge K\.\s*Fauskanger.*?$", re.MULTILINE),         # nom auteur en en-tête
@@ -266,7 +266,7 @@ def concatenate_pages(pages: List[str], fix_runons: bool = False) -> Tuple[str, 
 def page_for_offset(offset: int, page_offsets: List[Tuple[int, int]]) -> Optional[int]:
     """Retrouve le numéro de page qui contient la position `offset` dans le texte global.
 
-    Même logique que dans dictionary_parser.py : on cherche la dernière page
+    Même logique que le nettoyage dictionnaire historique : on cherche la dernière page
     dont le début est avant ou à la position donnée.
 
     Args:
@@ -296,7 +296,7 @@ def split_pdf(pdf_path: str) -> List[dict]:
         - 'text'    : le texte du chunk (≤ 800 caractères)
         - 'metadata': infos sur l'origine (source, type, page, config de chunking)
 
-    Les dictionnaires sont exclus ici (ils vont dans SQLite via dictionary_parser.py).
+    Les dictionnaires sont exclus ici (ils vont dans SQLite).
 
     Args:
         pdf_path: chemin vers le fichier PDF

@@ -2,8 +2,17 @@
 
 **Version:** 1.0  
 **Date:** 2026-05-26  
-**Status:** ACTIVE  
-**Scope:** MVP (Weeks 1–2)  
+**Status:** ARCHIVED — historical MVP draft
+**Scope:** Original MVP (Weeks 1-2), not the current architecture contract
+
+> Maintenance note, 2026-06-25:
+> This document is kept for project history only. It describes the early
+> Quenya RAG MVP and references modules/commands that are no longer the active
+> implementation contract, such as `src/data_loader.py`,
+> `src/dictionary_parser.py`, `main.py`, and `metadata.pickle`.
+> The current validated runtime is described in `README.md`.
+> The next active architecture contract should be written as
+> `TECHNICAL_SPEC_RAGELVEN.md`.
 
 ---
 

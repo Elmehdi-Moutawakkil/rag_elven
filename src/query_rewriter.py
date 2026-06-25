@@ -32,7 +32,6 @@ Pipeline :
 """
 
 import json                                # pour parser la réponse JSON du LLM
-import os                                  # pour lire GROQ_API_KEY
 from typing import Optional
 
 from dotenv import load_dotenv             # charge le fichier .env local
@@ -81,16 +80,30 @@ Rules:
 - Respond ONLY with valid JSON. No explanation, no markdown, no code block."""
 
 # ---------------------------------------------------------------------------
-# Fallback basé sur les anciens patterns regex
+# Fallback regex local
 # ---------------------------------------------------------------------------
 
-# Si le LLM est inaccessible (quota, erreur réseau...), on revient aux regex.
-# Importe la fonction de l'ancien système pour assurer la continuité de service.
-try:
-    from src.retrieval_legacy import extract_keyword as _regex_extract  # type: ignore
-except ImportError:
-    def _regex_extract(query: str) -> str:   # type: ignore[misc]
-        return query   # dernier recours : retourne la question brute
+def _regex_extract(query: str) -> str:
+    """Minimal no-API keyword extraction used when Groq is unavailable."""
+    patterns = [
+        r"what does (.+?) mean",
+        r"what is (.+?)\??$",
+        r"translate (.+)",
+        r"definition of (.+)",
+        r"meaning of (.+)",
+        r"c'est quoi (.+?)\??$",
+        r"qu(?:e|')est[-\s]ce que (.+?)\??$",
+        r"que signifie (.+?)\??$",
+        r"(?:définis?|définition de) (.+)",
+        r"traduis? (.+)",
+        r"signification de (.+?)\??$",
+    ]
+    import re
+    for pattern in patterns:
+        match = re.search(pattern, query, re.IGNORECASE)
+        if match:
+            return match.group(1).strip().rstrip("?").strip()
+    return query
 
 
 # ---------------------------------------------------------------------------

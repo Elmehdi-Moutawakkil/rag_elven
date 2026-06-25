@@ -4,6 +4,13 @@
 **Date:** 2026-05-26  
 **Timeline:** 2 weeks (10 working days)  
 **Scope:** MVP (Quenya dictionary search + Streamlit UI + Groq integration)  
+**Status:** ARCHIVED — historical execution plan
+
+> Maintenance note, 2026-06-25:
+> This plan is no longer an active task tracker. Several tasks reference old
+> module names or commands (`src/data_loader.py`, `src/dictionary_parser.py`,
+> `main.py`, `metadata.pickle`) that are not the current implementation path.
+> Keep this file as context for the first MVP only.
 
 ---
 

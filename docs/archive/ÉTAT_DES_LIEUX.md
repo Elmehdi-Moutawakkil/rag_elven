@@ -4,6 +4,14 @@
 **App live :** [ragelven.streamlit.app](https://ragelven.streamlit.app)  
 **Projet local :** `/Users/emm/Projets/RAGElven/`
 
+> Note de maintenance, 2026-06-25 :
+> ce fichier est un snapshot d'audit, pas une documentation active. Il reste
+> utile pour comprendre l'état du projet au 2026-06-11, mais certains détails
+> ont changé depuis : le projet local principal est `/Volumes/ssd1/rag_elven`,
+> la configuration est centralisée dans `src/settings.py`, L09 valide via le
+> Knowledge Graph local, et le modèle Anthropic lore par défaut est
+> `claude-sonnet-4-6`.
+
 ---
 
 ## 1. Vision du projet
@@ -49,7 +57,7 @@ Lab Mode            → composition libre des layers + sélecteur d'univers
 | Dictionnaire Quenya | SQLite (8 022 entrées, source : Fauskanger 152p) |
 | Knowledge Graph | SQLite (schéma entities/relations/canon_facts) |
 | LLM Q&A | Groq — `llama-3.1-8b-instant` |
-| LLM Génération lore | Claude Sonnet (`claude-sonnet-4-5`) |
+| LLM Génération lore | Claude Sonnet (`claude-sonnet-4-6` par défaut actuel) |
 | LLM Polish traduction | Claude Haiku (`claude-haiku-4-5-20251001`) |
 | NLP parsing | spaCy `en_core_web_sm` |
 | Variables d'env | `.env` local / Streamlit Cloud Secrets |
