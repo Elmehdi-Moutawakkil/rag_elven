@@ -70,7 +70,7 @@ class GroqProvider:
         self.api_key = api_key
 
     def generate(self, request: LLMRequest) -> LLMResponse:
-        key = self.api_key or env_value(GROQ_API_KEY_ENV)
+        key = env_value(GROQ_API_KEY_ENV) if self.api_key is None else self.api_key.strip()
         if not key:
             raise MissingLLMKeyError(missing_key_message(GROQ_API_KEY_ENV, "generation Groq"))
         from groq import Groq
@@ -103,7 +103,7 @@ class AnthropicProvider:
         self.api_key = api_key
 
     def generate(self, request: LLMRequest) -> LLMResponse:
-        key = self.api_key or env_value(ANTHROPIC_API_KEY_ENV)
+        key = env_value(ANTHROPIC_API_KEY_ENV) if self.api_key is None else self.api_key.strip()
         if not key:
             raise MissingLLMKeyError(missing_key_message(ANTHROPIC_API_KEY_ENV, "generation Anthropic"))
         import anthropic

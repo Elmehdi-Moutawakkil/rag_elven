@@ -275,7 +275,12 @@ with te_tab_qa:
             with st.spinner("Recherche dans le lore de l'Empire Terran…"):
                 faiss_results = search_faiss(te_input, _te_model, _te_index, _te_meta, k=3)
             with st.spinner("Génération de la réponse…"):
-                response = answer(te_input, faiss_results, [])
+                response = answer(
+                    te_input,
+                    faiss_results,
+                    [],
+                    universe_name="Terran Empire — Star Trek Mirror Universe",
+                )
             st.markdown("### Réponse")
             st.write(response)
             with st.expander("Sources utilisées"):

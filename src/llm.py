@@ -39,6 +39,7 @@ def build_prompt(
     question: str,
     faiss_results: list[dict],
     dict_results: list[dict],
+    universe_name: str = "Tolkien's Middle-earth and Elvish languages",
 ) -> str:
     """Assemble le prompt envoyé au LLM.
 
@@ -49,6 +50,7 @@ def build_prompt(
         question     : question de l'utilisateur
         faiss_results: chunks cours/lore récupérés par FAISS
         dict_results : entrées de dictionnaire récupérées par SQLite
+        universe_name: univers ou corpus à utiliser pour cadrer la réponse
 
     Returns:
         prompt complet sous forme de string
@@ -77,10 +79,10 @@ def build_prompt(
 
     # --- prompt final ---
     # Les triple quotes """ permettent d'écrire sur plusieurs lignes
-    prompt = f"""You are an expert on Elvish languages (Quenya and Sindarin) from Tolkien's world.
+    prompt = f"""You are a lore and language assistant for this corpus: {universe_name}.
 Answer the question using the context provided below as your primary source.
-If the context is insufficient, answer from your general knowledge of Tolkien's world — but clearly signal it with "(general knowledge)" at the start of that sentence.
-Never refuse to answer a question about Tolkien lore. Always provide your best answer.
+If the context is insufficient, say what is missing instead of switching to another fictional universe.
+Never apologize because the corpus is not Tolkien; use the selected corpus and its sources.
 Be precise and concise.
 IMPORTANT: Always answer in the same language as the question (if the question is in French, answer in French; if in English, answer in English).
 
@@ -136,9 +138,10 @@ def answer(
     faiss_results: list[dict],
     dict_results: list[dict],
     api_key: Optional[str] = None,
+    universe_name: str = "Tolkien's Middle-earth and Elvish languages",
 ) -> str:
     """Construit le prompt et appelle le LLM. Retourne la réponse finale en texte."""
-    prompt   = build_prompt(question, faiss_results, dict_results)  # assemble le contexte + question
+    prompt   = build_prompt(question, faiss_results, dict_results, universe_name=universe_name)  # assemble le contexte + question
     response = call_llm(prompt, api_key=api_key)                    # envoie à Groq, reçoit la réponse
     return response
 

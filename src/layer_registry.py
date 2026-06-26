@@ -363,13 +363,14 @@ def _run_L09(input: Any, context: dict) -> LayerResult:
 def _run_L13(input: Any, context: dict) -> LayerResult:
     from src.llm import answer
     question = context["user_input"]
+    universe = context.get("resources", {}).get("universe", "Tolkien's Middle-earth and Elvish languages")
 
     prev_L02 = context["outputs"].get("L02")
     prev_L03 = context["outputs"].get("L03")
     faiss_results = prev_L02.output if (prev_L02 and prev_L02.output_type == "json_chunks") else []
     dict_results  = prev_L03.output if (prev_L03 and prev_L03.output_type == "json_dict") else []
 
-    response = answer(question, faiss_results, dict_results)
+    response = answer(question, faiss_results, dict_results, universe_name=universe)
     return LayerResult(output=response, output_type="text", label="Réponse Groq générée")
 
 
