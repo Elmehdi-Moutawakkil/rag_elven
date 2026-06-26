@@ -35,7 +35,10 @@ Current source modules:
 `src/lore_generator_p4.py`, `src/lore_generator_generic.py`,
 `src/knowledge_graph.py`, `src/layer_registry.py`,
 `src/module_registry.py`, `src/normal_mode.py`, `src/pipeline_executor.py`,
-`src/ingestion/`, `src/settings.py`
+`src/ingestion/`, `src/indexing/`, `src/retrieval_hybrid.py`,
+`src/kg_tools.py`, `src/memory_store.py`, `src/llm_provider.py`,
+`src/output_validation.py`, `src/multimodal.py`, `src/agent/`,
+`src/mcp_tools.py`, `src/settings.py`
 
 Current data:
 `data/lore/`, `data/quenya_course/`, `data/quenya_dictionary/`,
@@ -46,7 +49,9 @@ Current indexes and databases:
 `vector_db/dictionary.sqlite`, `vector_db/knowledge_graph.sqlite`,
 `vector_db/terran_empire/faiss.index`,
 `vector_db/terran_empire/metadata.json`,
-`vector_db/terran_empire/knowledge_graph.sqlite`
+`vector_db/terran_empire/knowledge_graph.sqlite`,
+`storage/processed/terran_empire/documents.jsonl`,
+`indexes/terran_empire/text/chunks.jsonl`
 
 Current validation:
 `scripts/sanity_check.py`, `tests/`, `Makefile`
@@ -250,10 +255,12 @@ and universe ID.
 
 Formats:
 FAISS index files for dense retrieval.
-JSON metadata for index records.
+JSONL chunks and JSON metadata for index records.
 SQLite for dictionaries and structured lookup.
 
 Folders/files to create:
+`indexes/<universe_id>/text/chunks.jsonl`
+`indexes/<universe_id>/text/manifest.json`
 `indexes/<universe_id>/text/faiss.index`
 `indexes/<universe_id>/text/metadata.json`
 Future: `indexes/<universe_id>/image/`, `indexes/<universe_id>/audio/`
@@ -270,6 +277,10 @@ Optional future catalog tables:
 `collections`, `files`, `tags`, `sources`, `access_rights`.
 
 Current modules concerned:
+`src/indexing/chunks.py`
+`src/indexing/build.py`
+`src/retrieval_hybrid.py`
+`scripts/build_retrieval_index.py`
 `src/retrieval.py`
 `src/embeddings.py`
 `src/database.py`
@@ -286,6 +297,10 @@ small corpora, hidden coupling to old `vector_db/` paths.
 Implementation order:
 Keep current `vector_db/` working. Introduce universe manifest fields for index
 paths. Move new indexes to `indexes/` only after adapters are tested.
+
+Current status:
+Manifest-driven text chunking and deterministic lexical retrieval are
+implemented for `terran_empire`. Existing FAISS runtime remains available.
 
 ## Layer 5: Knowledge Graph
 
@@ -324,6 +339,7 @@ Future tables:
 
 Current modules concerned:
 `src/knowledge_graph.py`
+`src/kg_tools.py`
 `scripts/build_kg.py`
 `scripts/build_kg_terran.py`
 `src/lore_generator_p4.py`
@@ -340,6 +356,10 @@ universes, over-trusting generated facts.
 Implementation order:
 Document the current SQLite schema. Add import/export. Then move from hardcoded
 builders to universe-specific graph manifests.
+
+Current status:
+Sourced KG read tools expose entity lookup, relation lookup, source evidence,
+and assertion validation.
 
 ## Layer 6: Validated Memory
 
@@ -383,8 +403,8 @@ Tables:
 `event_id`, `memory_id`, `event_type`, `timestamp`, `payload_json`.
 
 Current modules concerned:
-No complete module yet. Future integration with `src/knowledge_graph.py`,
-`src/lore_generator_generic.py`, and Lab Mode.
+`src/memory_store.py` provides JSONL memory records, review statuses, event
+history, and reusable-only reads for validated memory.
 
 Dependencies:
 SQLite, JSON, human review flow.
@@ -397,6 +417,10 @@ Implementation order:
 Create status model first: `draft`, `pending`, `validated`, `rejected`,
 `superseded`. Require manual approval before retrieval uses memory. Only later
 add automatic candidate extraction.
+
+Current status:
+JSONL memory with controlled status transitions is implemented. It is not yet
+connected to the Streamlit UI.
 
 ## Layer 7: AI Agent
 
@@ -431,6 +455,7 @@ Optional future table `agent_runs`:
 `status`, `trace_json`.
 
 Current modules concerned:
+`src/agent/planner.py`
 `src/router.py`
 `src/query_rewriter.py`
 `src/normal_mode.py`
@@ -454,6 +479,10 @@ First formalize the existing router and Lab Mode pipeline outputs as traces.
 Then add a small planner. Avoid autonomous write actions until validation and
 memory governance exist.
 
+Current status:
+A controlled agent runner can retrieve, optionally generate through an
+`LLMProvider`, validate output, and return an inspectable trace.
+
 ## Layer 8: Tools And MCP
 
 Role:
@@ -476,6 +505,8 @@ JSON schemas for tool inputs and outputs.
 MCP server definitions later.
 
 Folders/files to create:
+`src/mcp_tools.py`
+`mcp/ragelven_server.py`
 `src/tools/__init__.py`
 `src/tools/search.py`
 `src/tools/kg.py`
@@ -492,7 +523,7 @@ Optional `tool_runs` table:
 Current modules concerned:
 Existing layer functions in `src/layer_registry.py` are adapted into
 `src/module_registry.py`, which is the current seed of the shared module
-contract.
+contract. `src/mcp_tools.py` exposes stable read-only/validation tool handlers.
 
 Dependencies:
 No MCP dependency at first. Future MCP SDK/server runtime.
@@ -514,6 +545,11 @@ tool schemas changing too often.
 Implementation order:
 Create internal Python tools. Add tests. Freeze schemas. Then wrap selected
 tools with MCP.
+
+Current status:
+First MCP-ready tools exist for universe listing, document reading, corpus
+search, entity lookup, relation lookup, and assertion validation. The optional
+MCP server is intentionally thin and read-only/validation-only.
 
 ## Layer 9: Generation And Fine-Tuning
 
@@ -552,6 +588,7 @@ Current modules concerned:
 `src/lore_generator.py`
 `src/lore_generator_p4.py`
 `src/lore_generator_generic.py`
+`src/llm_provider.py`
 `src/prompt_templates.py`
 `src/translator.py`
 `src/settings.py`
@@ -570,6 +607,10 @@ long generation and difficult validation, local/small models for routing,
 drafts, reformulation, and simple tasks, and fast low-cost APIs for short
 answers when appropriate. Improve trace capture. Collect validated examples.
 Only then create fine-tuning datasets.
+
+Current status:
+A provider-neutral `LLMProvider` interface exists for Groq, Anthropic,
+OpenAI-compatible local endpoints, and static offline tests.
 
 ## Layer 10: Validation, Safety, And Governance
 
@@ -610,6 +651,7 @@ Current modules concerned:
 `tests/`
 `inspector/`
 `src/knowledge_graph.py`
+`src/output_validation.py`
 `src/settings.py`
 `.env.example`
 `Makefile`
@@ -624,6 +666,10 @@ commits, accepting memory without human review.
 Implementation order:
 Keep `make sanity` and `make test` mandatory. Add validation reports before
 automatic memory writes. Add stronger secret scanning before public releases.
+
+Current status:
+Generated-output validation combines retrieved source coverage, KG checks, and
+validated-memory awareness.
 
 Governance policy:
 Broad read access is acceptable. Write access must be limited by tool,

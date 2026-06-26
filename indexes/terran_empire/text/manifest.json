@@ -1,0 +1,22 @@
+{
+  "chunk_count": 90,
+  "chunk_overlap": 120,
+  "chunk_size": 900,
+  "chunks_path": "indexes/terran_empire/text/chunks.jsonl",
+  "collections": {
+    "lore": 90
+  },
+  "document_count": 7,
+  "documents_path": "storage/processed/terran_empire/documents.jsonl",
+  "schema_version": 1,
+  "sources": {
+    "data/universes/terran_empire/lore/history_and_origins.txt": 10,
+    "data/universes/terran_empire/lore/key_figures.txt": 16,
+    "data/universes/terran_empire/lore/mirror_universe_crossover_events.txt": 14,
+    "data/universes/terran_empire/lore/political_structure.txt": 12,
+    "data/universes/terran_empire/lore/technology_and_fleet.txt": 14,
+    "data/universes/terran_empire/lore/terok_nor_and_rebellion.txt": 13,
+    "data/universes/terran_empire/lore/the_alliance_and_fall.txt": 11
+  },
+  "universe_id": "terran_empire"
+}

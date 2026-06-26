@@ -179,6 +179,45 @@ def _check_processed_documents() -> tuple[int, int, list[str]]:
     return len(paths), document_count, errors
 
 
+def _check_text_indexes() -> tuple[int, int, list[str]]:
+    paths = sorted((PROJECT_ROOT / "indexes").glob("*/text/chunks.jsonl"))
+    errors: list[str] = []
+    chunk_count = 0
+    required_fields = {
+        "schema_version",
+        "chunk_id",
+        "document_id",
+        "universe_id",
+        "source_path",
+        "text",
+        "start_offset",
+        "end_offset",
+    }
+    for path in paths:
+        rel = path.relative_to(PROJECT_ROOT)
+        manifest_path = path.parent / "manifest.json"
+        if not manifest_path.exists():
+            errors.append(f"{rel}: missing sibling manifest.json")
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            if not line.strip():
+                continue
+            chunk_count += 1
+            try:
+                chunk = json.loads(line)
+            except Exception as exc:
+                errors.append(f"{rel}:{line_number}: invalid JSONL record: {exc}")
+                continue
+            if not isinstance(chunk, dict):
+                errors.append(f"{rel}:{line_number}: record is not an object")
+                continue
+            missing = sorted(required_fields - set(chunk))
+            if missing:
+                errors.append(f"{rel}:{line_number}: missing field(s): {', '.join(missing)}")
+            if not str(chunk.get("text", "")).strip():
+                errors.append(f"{rel}:{line_number}: empty chunk text")
+    return len(paths), chunk_count, errors
+
+
 def _dependency_report() -> list[tuple[str, bool]]:
     modules = [
         "streamlit",
@@ -263,6 +302,14 @@ def main() -> int:
     )
     if processed_errors:
         failures.extend(processed_errors)
+
+    text_index_count, text_chunk_count, text_index_errors = _check_text_indexes()
+    print(
+        f"[{_status(not text_index_errors)}] text indexes: "
+        f"{text_chunk_count} chunk(s) in {text_index_count} file(s)"
+    )
+    if text_index_errors:
+        failures.extend(text_index_errors)
 
     print()
     for env_name in (GROQ_API_KEY_ENV, ANTHROPIC_API_KEY_ENV):

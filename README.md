@@ -17,6 +17,11 @@ The app currently includes:
 - lore generation;
 - local Knowledge Graph validation;
 - an experimental Lab Mode with composable layers;
+- manifest-driven ingestion and text chunk indexes;
+- hybrid retrieval over normalized chunks;
+- validated-memory primitives;
+- provider-neutral LLM interface;
+- controlled agent runner and MCP-ready read tools;
 - basic sanity and regression checks.
 
 ## Run Locally
@@ -28,6 +33,8 @@ pip install -r requirements.txt
 
 make sanity
 make test
+make ingest-terran
+make index-terran
 make run
 ```
 
