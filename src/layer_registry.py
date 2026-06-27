@@ -74,11 +74,11 @@ LAYER_META: dict[str, LayerMeta] = {
         confidence="medium",
     ),
     "L02": LayerMeta(
-        id="L02", name="FAISS Semantic Search", emoji="🔍",
-        description="Transforme la requête en vecteur et cherche les 5 passages les plus proches sémantiquement dans les 1 512 chunks du corpus Tolkien.",
+        id="L02", name="Evidence Retrieval", emoji="🔍",
+        description="Interroge l'adapter de retrieval unifié pour retourner des passages sourcés avec scores lexicaux et FAISS quand disponibles.",
         input_types=["text", "json_rewrite"], output_type="json_chunks",
         cost="free", deterministic=True,
-        dependencies=["resources.model", "resources.index", "resources.meta"],
+        dependencies=["indexes/<universe_id>/text/chunks.jsonl", "optional resources.model/index/meta"],
         confidence="high",
     ),
     "L03": LayerMeta(
@@ -191,13 +191,13 @@ def _run_L01(input: Any, context: dict) -> LayerResult:
 
 
 def _run_L02(input: Any, context: dict) -> LayerResult:
+    from src.retrieval_adapter import retrieve_evidence
     from src.retrieval import search_faiss
     resources = context.get("resources", {})
     model = resources.get("model")
     index = resources.get("index")
     meta  = resources.get("meta")
-    if model is None or index is None:
-        return LayerResult(output=[], output_type="json_chunks", label="FAISS non disponible")
+    universe_id = resources.get("universe_id")
 
     # Construire la query : utilise le keyword normalisé si L01 a tourné
     prev_L01 = context["outputs"].get("L01")
@@ -208,8 +208,23 @@ def _run_L02(input: Any, context: dict) -> LayerResult:
     else:
         query = context["user_input"]
 
+    if universe_id:
+        chunks = retrieve_evidence(
+            query,
+            universe_id=universe_id,
+            k=5,
+            model=model,
+            index=index,
+            metadata=meta,
+        )
+        engines = sorted({chunk.get("retrieval_engine", "unknown") for chunk in chunks})
+        engine_label = "+".join(engines) if engines else "aucun moteur"
+        return LayerResult(output=chunks, output_type="json_chunks", label=f"{len(chunks)} chunks trouvés · {engine_label}")
+
+    if model is None or index is None:
+        return LayerResult(output=[], output_type="json_chunks", label="FAISS non disponible")
     chunks = search_faiss(query, model, index, meta, k=5)
-    return LayerResult(output=chunks, output_type="json_chunks", label=f"{len(chunks)} chunks trouvés")
+    return LayerResult(output=chunks, output_type="json_chunks", label=f"{len(chunks)} chunks trouvés · faiss")
 
 
 def _run_L03(input: Any, context: dict) -> LayerResult:

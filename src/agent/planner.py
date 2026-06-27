@@ -7,7 +7,7 @@ from typing import Any
 
 from src.llm_provider import LLMProvider, LLMRequest
 from src.output_validation import validate_generated_output
-from src.retrieval_hybrid import search_corpus
+from src.retrieval_adapter import retrieve_evidence
 
 
 @dataclass(frozen=True)
@@ -74,7 +74,7 @@ def run_controlled_agent(
     plan = plan_request(user_input, mode=mode)
     trace: list[dict[str, Any]] = []
 
-    sources = search_corpus(user_input, universe_id=universe_id, k=k)
+    sources = retrieve_evidence(user_input, universe_id=universe_id, k=k)
     trace.append({"tool": "retrieve", "status": "ok", "result_count": len(sources)})
 
     if provider:

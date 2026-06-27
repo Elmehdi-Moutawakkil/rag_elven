@@ -23,6 +23,7 @@ import streamlit as st
 
 from src.embeddings import load_model
 from src.retrieval   import load_faiss, retrieve, search_faiss
+from src.retrieval_adapter import retrieve_evidence
 from src.llm         import answer
 from src.lore_generator_p4 import generate_lore_p4
 from src.lore_generator_generic import generate_lore_for_universe
@@ -173,9 +174,9 @@ if submit and user_input.strip():
                     for e in dictionary_entries[:5]:
                         st.markdown(f"- **{e.get('word')}** ({e.get('language')}) → {e.get('translation')}")
                 if chunks:
-                    st.markdown("**Passages (FAISS)**")
+                    st.markdown("**Passages sourcés**")
                     for r in chunks:
-                        src = r.get("source", "").split("/")[-1]
+                        src = (r.get("source") or r.get("source_path") or "").split("/")[-1]
                         st.markdown(f"*{src}* — score {r['score']:.3f}")
                         st.caption(r["text"][:300])
 
@@ -273,7 +274,14 @@ with te_tab_qa:
             st.error("❌ GROQ_API_KEY manquante.")
         else:
             with st.spinner("Recherche dans le lore de l'Empire Terran…"):
-                faiss_results = search_faiss(te_input, _te_model, _te_index, _te_meta, k=3)
+                faiss_results = retrieve_evidence(
+                    te_input,
+                    universe_id="terran_empire",
+                    k=3,
+                    model=_te_model,
+                    index=_te_index,
+                    metadata=_te_meta,
+                )
             with st.spinner("Génération de la réponse…"):
                 response = answer(
                     te_input,
@@ -285,7 +293,7 @@ with te_tab_qa:
             st.write(response)
             with st.expander("Sources utilisées"):
                 for r in faiss_results:
-                    src = r.get("source", "").split("/")[-1]
+                    src = (r.get("source") or r.get("source_path") or "").split("/")[-1]
                     st.markdown(f"*{src}* — score {r['score']:.3f}")
                     st.caption(r["text"][:300])
 

@@ -33,6 +33,46 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertEqual(result["final_type"], "error")
         self.assertIn("Module indisponible", result["error"])
 
+    def test_l02_uses_unified_retrieval_adapter_for_universe_chunks(self):
+        result = execute_pipeline(
+            ["L02"],
+            "Mirror Spock reforms",
+            resources={"universe_id": "terran_empire"},
+        )
+
+        self.assertIsNone(result["error"])
+        self.assertEqual(result["final_type"], "json_chunks")
+        self.assertTrue(result["final_output"])
+        self.assertIn("source_path", result["final_output"][0])
+
+    def test_l02_preserves_legacy_faiss_contract_without_universe_id(self):
+        class FakeModel:
+            def encode(self, values, normalize_embeddings=True):
+                import numpy as np
+
+                return np.array([[1.0, 0.0]], dtype="float32")
+
+        class FakeIndex:
+            def search(self, vector, k):
+                import numpy as np
+
+                return np.array([[0.25]], dtype="float32"), np.array([[0]], dtype="int64")
+
+        result = execute_pipeline(
+            ["L02"],
+            "legacy query",
+            resources={
+                "model": FakeModel(),
+                "index": FakeIndex(),
+                "meta": [{"text": "legacy FAISS passage", "source": "legacy.txt", "page": 1}],
+            },
+        )
+
+        self.assertIsNone(result["error"])
+        self.assertEqual(result["final_type"], "json_chunks")
+        self.assertEqual(result["final_output"][0]["source"], "legacy.txt")
+        self.assertIn("faiss", result["trace"][0]["label"])
+
 
 if __name__ == "__main__":
     unittest.main()

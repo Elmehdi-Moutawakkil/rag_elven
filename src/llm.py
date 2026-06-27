@@ -71,7 +71,7 @@ def build_prompt(
     if faiss_results:
         parts.append("\n=== Relevant passages ===")
         for r in faiss_results[:3]:   # on limite à 3 chunks
-            source = r.get("source", "").split("/")[-1]  # garde uniquement le nom du fichier, pas le chemin complet
+            source = (r.get("source") or r.get("source_path") or "").split("/")[-1]  # garde uniquement le nom du fichier
             text   = r.get("text", "").strip()
             parts.append(f"[{source}]\n{text}")
 

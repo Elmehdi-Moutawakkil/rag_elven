@@ -8,7 +8,7 @@ from typing import Any, Callable
 
 from src.ingestion.documents import read_documents_jsonl
 from src.kg_tools import find_entity, list_entities, list_relations, validate_assertion
-from src.retrieval_hybrid import search_corpus
+from src.retrieval_adapter import retrieve_evidence
 from src.settings import PROJECT_ROOT
 
 
@@ -61,8 +61,9 @@ def search_corpus_tool(
     query: str,
     universe_id: str = "terran_empire",
     k: int = 5,
+    filters: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return tool_result(search_corpus(query, universe_id=universe_id, k=k))
+    return tool_result(retrieve_evidence(query, universe_id=universe_id, k=k, filters=filters))
 
 
 def list_entities_tool(*, universe_id: str = "terran_empire", entity_type: str | None = None) -> dict[str, Any]:

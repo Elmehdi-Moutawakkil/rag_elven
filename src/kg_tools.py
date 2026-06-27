@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from src.knowledge_graph import KnowledgeGraph
-from src.retrieval_hybrid import search_corpus
+from src.retrieval_adapter import retrieve_evidence
 from src.settings import PROJECT_ROOT
 
 
@@ -71,7 +71,7 @@ def source_evidence_for_entity(
     k: int = 3,
 ) -> list[dict[str, Any]]:
     """Retrieve source chunks that mention an entity."""
-    return search_corpus(entity_name, universe_id=universe_id, k=k)
+    return retrieve_evidence(entity_name, universe_id=universe_id, k=k)
 
 
 def validate_assertion(assertion: str, *, universe_id: str = "terran_empire") -> dict[str, Any]:
