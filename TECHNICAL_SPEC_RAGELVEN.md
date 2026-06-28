@@ -1,7 +1,7 @@
 # RAGElven Technical Specification
 
 Status: active architecture contract.
-Date: 2026-06-25.
+Date: 2026-06-28.
 
 Older planning files are archived in `docs/archive/`. They are historical
 context, not active instructions.
@@ -41,8 +41,9 @@ Current source modules:
 `src/mcp_tools.py`, `src/settings.py`
 
 Current data:
-`data/lore/`, `data/quenya_course/`, `data/quenya_dictionary/`,
-`data/sindarin/`, `data/universes/terran_empire/`
+`corpus/universes/tolkien/`, `corpus/universes/terran_empire/`,
+`data/quenya_course/`, `data/quenya_dictionary/`, `data/sindarin/`,
+`data/universes/terran_empire/`
 
 Current indexes and databases:
 `vector_db/faiss.index`, `vector_db/metadata.json`,
@@ -300,7 +301,9 @@ paths. Move new indexes to `indexes/` only after adapters are tested.
 
 Current status:
 Manifest-driven text chunking and deterministic lexical retrieval are
-implemented for `terran_empire`. Existing FAISS runtime remains available.
+implemented for `terran_empire`. `src.retrieval_adapter.retrieve_evidence`
+is the unified retrieval facade for manifest-backed corpora. Existing FAISS
+runtime remains available for the Tolkien/Elvish legacy corpus.
 
 ## Layer 5: Knowledge Graph
 
@@ -481,7 +484,10 @@ memory governance exist.
 
 Current status:
 A controlled agent runner can retrieve, optionally generate through an
-`LLMProvider`, validate output, and return an inspectable trace.
+`LLMProvider`, validate output, and return an inspectable trace. Normal Mode
+now resolves the effective universe before execution. Clear Terran/Star Trek
+questions route to `terran_empire`, and non-Tolkien pipelines exclude
+Tolkien-only dictionary, translation, morphology, and syntax modules.
 
 ## Layer 8: Tools And MCP
 

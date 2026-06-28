@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "currency": "USD",
+  "notes": [
+    "Prices are user-configured. Fill provider/model prices from current billing pages before using dollar totals as measured truth.",
+    "When runtime usage metadata is unavailable, the cost accountant must label values as estimated.",
+    "Token estimates are for decision support, not billing records."
+  ],
+  "budgetPolicy": {
+    "enabled": true,
+    "defaultActionOnBreach": "budget_stop",
+    "userCanOverride": true,
+    "thresholds": {
+      "perOperationUsd": null,
+      "perHourUsd": null,
+      "perDayUsd": null,
+      "perOperationTokens": null,
+      "perDayTokens": null
+    }
+  },
+  "estimation": {
+    "charsPerToken": 4,
+    "confidenceLevels": ["measured", "estimated", "unknown"],
+    "finalFooterRequired": true,
+    "footerFormat": "Cost: <measured|estimated|unknown> input=<n/a> output=<n/a> total=<tokens> api=<usd> notes=<short>"
+  },
+  "providers": {
+    "openai": {
+      "pricingSource": "user-configured",
+      "models": {
+        "gpt-5.5": {"inputUsdPerMTok": null, "outputUsdPerMTok": null},
+        "gpt-5.4": {"inputUsdPerMTok": null, "outputUsdPerMTok": null},
+        "gpt-5.4-mini": {"inputUsdPerMTok": null, "outputUsdPerMTok": null}
+      }
+    },
+    "anthropic": {
+      "pricingSource": "user-configured",
+      "models": {}
+    },
+    "local": {
+      "pricingSource": "local-estimate",
+      "models": {},
+      "costBasis": "hardware/electricity/opportunity cost if configured"
+    }
+  }
+}

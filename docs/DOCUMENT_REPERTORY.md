@@ -21,6 +21,11 @@ Runtime artifacts:
 - `vector_db/dictionary.sqlite`
 - `vector_db/knowledge_graph.sqlite`
 
+Corpus contract:
+
+- `corpus/universes/tolkien/manifest.json`
+- `corpus/universes/tolkien/SUMMARY.md`
+
 Observed state:
 
 - `vector_db/metadata.json` contains 1490 chunks.
@@ -37,6 +42,8 @@ Action needed:
 - Document how `dictionary.sqlite` was produced.
 - Decide whether the dictionary PDFs should be ingested, archived, or treated
   as raw source references only.
+- Rebuild the Tolkien index only after deciding whether migrated lore notes are
+  active evidence or historical references.
 
 ### Terran Empire Runtime Corpus
 
@@ -80,15 +87,15 @@ Action needed:
   runtime artifact or be rebuilt from `indexes/terran_empire/text/chunks.jsonl`.
 - Add a small retrieval evaluation set for Terran.
 
-## Present But Not Clearly Active
+## Migrated But Not Active In Retrieval
 
-These files exist but should be reviewed before they are treated as canonical
-inputs:
+These files were moved out of the ambiguous `data/lore/` folder and into the
+Tolkien corpus contract:
 
-- `data/lore/first_age_wars.txt`
-- `data/lore/languages_overview.txt`
-- `data/lore/maiar_sauron.txt`
-- `data/lore/valar_morgoth.txt`
+- `corpus/universes/tolkien/canon/first_age_wars.txt`
+- `corpus/universes/tolkien/canon/languages_overview.txt`
+- `corpus/universes/tolkien/canon/maiar_sauron.txt`
+- `corpus/universes/tolkien/canon/valar_morgoth.txt`
 
 Observed state:
 
@@ -98,9 +105,9 @@ Observed state:
 
 Action needed:
 
-- Decide whether these files are still useful.
-- If useful, migrate them into a proper Tolkien universe manifest.
-- If obsolete, archive them under a clear historical folder.
+- Review quality and provenance.
+- If useful, include them in a future Tolkien ingestion rebuild.
+- If obsolete, move them from `canon/` to an archive folder in a later cleanup.
 
 ## Project Planning Documents
 
@@ -154,7 +161,7 @@ Action needed:
 - Review these after the retrieval and roadmap cleanup.
 - Keep docs short and tied to actual commands or contracts.
 
-## Known Routing Issue
+## Routing Status
 
 Terran-specific retrieval is fixed when callers pass:
 
@@ -166,16 +173,18 @@ Working paths:
 - Lab Mode with Terran selected.
 - MCP/search tools using `terran_empire`.
 - Agent planner using `terran_empire`.
+- Normal Mode auto-detection for clear Terran requests.
+- Normal Mode manual universe selector.
 
-Still at risk:
+Resolved guardrail:
 
-- Main Normal Mode currently hardcodes Tolkien resources and
-  `universe_id="tolkien"`.
-- A Star Trek question entered in the main input can still route through the
-  Tolkien/Elvish pipeline unless universe detection is added.
+- Non-Tolkien Normal Mode requests exclude Tolkien-only modules:
+  `L03`, `L04`, `L05`, `L06`.
+- Constraint generation receives the selected universe name instead of a
+  Tolkien fallback.
 
-Required fix:
+Remaining cleanup:
 
-- Add universe detection or a user-visible universe selector to Normal Mode.
-- Disable Tolkien-only modules (`L03`, `L04`, `L05`, `L06`) when the selected
-  universe is not Tolkien/Elvish.
+- Add a small automated eval set for Star Trek/Terran questions.
+- Keep prompt wording universe-neutral so ambiguous LLM classification does not
+  reintroduce Tolkien bias.

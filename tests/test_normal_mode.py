@@ -1,6 +1,8 @@
 import unittest
 
 from src.layer_registry import MODULE_REGISTRY
+from src.query_rewriter import _SYSTEM_PROMPT
+from src.router import _ROUTER_PROMPT, classify_request
 from src.normal_mode import (
     NORMAL_PIPELINES,
     detect_universe_for_input,
@@ -50,6 +52,21 @@ class NormalModeTests(unittest.TestCase):
         self.assertEqual(resolve_normal_universe("qa", "Who is Mirror Spock?", "Tolkien / Elfique"), "tolkien")
         self.assertEqual(resolve_normal_universe("qa", "What does elda mean?", "Empire Terran"), "terran_empire")
         self.assertEqual(resolve_normal_universe("translate", "Translate: the warrior walks", "Empire Terran"), "tolkien")
+
+    def test_star_trek_question_routes_to_qa_without_tolkien_generation_bias(self):
+        result = classify_request("Who is Mirror Spock?", api_key="")
+
+        self.assertEqual(result["route"], "qa")
+        self.assertEqual(result["method"], "rules")
+
+    def test_llm_prompts_are_universe_neutral_for_ambiguous_routing(self):
+        self.assertIn("multi-universe", _ROUTER_PROMPT)
+        self.assertNotIn("Tolkien Elvish language app", _ROUTER_PROMPT)
+        self.assertNotIn("within Tolkien's universe", _ROUTER_PROMPT)
+
+        self.assertIn("multi-universe RAG system", _SYSTEM_PROMPT)
+        self.assertIn("Mirror Spock", _SYSTEM_PROMPT)
+        self.assertIn("Use \"vocabulary\" only for explicit Quenya/Sindarin/Elvish", _SYSTEM_PROMPT)
 
 
 if __name__ == "__main__":

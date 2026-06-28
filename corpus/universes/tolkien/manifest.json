@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "universe_id": "tolkien",
+  "display_name": "Tolkien / Elvish",
+  "status": "legacy_runtime",
+  "summary_path": "corpus/universes/tolkien/SUMMARY.md",
+  "canon_policy": {
+    "default_status": "reference",
+    "generated_content_requires_review": true,
+    "validated_memory_statuses": [
+      "draft",
+      "pending",
+      "validated",
+      "rejected",
+      "superseded"
+    ]
+  },
+  "collections": [
+    {
+      "collection_id": "course",
+      "label": "Quenya Course",
+      "source_path": "data/quenya_course/Quenya-Elvish-Language-Course-Tolkien.pdf",
+      "modality": "text",
+      "canon_status": "reference",
+      "themes": [
+        "quenya",
+        "grammar",
+        "course"
+      ]
+    },
+    {
+      "collection_id": "dictionary",
+      "label": "Quenya and Sindarin Dictionaries",
+      "source_path": "vector_db/dictionary.sqlite",
+      "modality": "text",
+      "canon_status": "reference",
+      "themes": [
+        "vocabulary",
+        "quenya",
+        "sindarin"
+      ]
+    },
+    {
+      "collection_id": "lore",
+      "label": "Migrated Tolkien Lore Notes",
+      "source_path": "corpus/universes/tolkien/canon",
+      "modality": "text",
+      "canon_status": "review_needed",
+      "themes": [
+        "first age",
+        "valar",
+        "maiar",
+        "languages"
+      ]
+    }
+  ],
+  "source_files": [
+    "data/quenya_course/Quenya-Elvish-Language-Course-Tolkien.pdf",
+    "data/quenya_dictionary/quen-eng.pdf",
+    "data/sindarin/sindarin-english.pdf",
+    "corpus/universes/tolkien/canon/first_age_wars.txt",
+    "corpus/universes/tolkien/canon/languages_overview.txt",
+    "corpus/universes/tolkien/canon/maiar_sauron.txt",
+    "corpus/universes/tolkien/canon/valar_morgoth.txt"
+  ],
+  "indexes": {
+    "text": {
+      "type": "faiss",
+      "index_path": "vector_db/faiss.index",
+      "metadata_path": "vector_db/metadata.json",
+      "embedding_model": "all-MiniLM-L6-v2"
+    },
+    "dictionary": {
+      "type": "sqlite",
+      "path": "vector_db/dictionary.sqlite"
+    }
+  },
+  "knowledge_graph": {
+    "type": "sqlite",
+    "path": "vector_db/knowledge_graph.sqlite"
+  },
+  "memory": {
+    "path": "memory/tolkien",
+    "enabled": false
+  },
+  "notes": [
+    "Legacy runtime corpus. The active FAISS metadata currently points to the Quenya course PDF.",
+    "Migrated lore text files are preserved as review-needed canon notes and are not currently part of the active FAISS index."
+  ]
+}

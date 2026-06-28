@@ -1,4 +1,4 @@
-"""Knowledge Graph for Tolkien lore — Phase 4.
+"""Knowledge Graph for universe lore validation — Phase 4.
 
 Provides deterministic validation of generated stories against canon facts
 extracted from the lore corpus. Replaces the LLM-based validate_coherence()
@@ -74,7 +74,7 @@ CREATE INDEX IF NOT EXISTS idx_relations_type    ON relations(relation_type);
 # ==============================================================================
 
 class KnowledgeGraph:
-    """SQLite-backed Knowledge Graph for Tolkien lore validation."""
+    """SQLite-backed Knowledge Graph for lore validation."""
 
     def __init__(self, db_path: Path = KG_DB_PATH):
         self.db_path = db_path

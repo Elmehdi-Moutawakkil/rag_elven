@@ -115,7 +115,7 @@ LAYER_META: dict[str, LayerMeta] = {
     ),
     "L07": LayerMeta(
         id="L07", name="Constraint Builder", emoji="📐",
-        description="Lit les chunks FAISS récupérés et en extrait les faits établis du canon Tolkien qui devront être respectés lors de la génération de lore.",
+        description="Lit les chunks récupérés et en extrait les faits établis du corpus sélectionné qui devront être respectés lors de la génération de lore.",
         input_types=["json_chunks"], output_type="text_constraints",
         cost="free", deterministic=True,
         dependencies=["L02"],
@@ -123,7 +123,7 @@ LAYER_META: dict[str, LayerMeta] = {
     ),
     "L08": LayerMeta(
         id="L08", name="Story Generation", emoji="✨",
-        description="Envoie à Claude (Anthropic) le contexte et les contraintes canon pour générer une histoire ou un lore inédit mais cohérent avec l'univers Tolkien.",
+        description="Envoie à Claude (Anthropic) le contexte et les contraintes canon pour générer une histoire ou un lore inédit cohérent avec l'univers sélectionné.",
         input_types=["text_constraints", "text"], output_type="json_story",
         cost="claude", deterministic=False,
         dependencies=["ANTHROPIC_API_KEY"],
@@ -139,7 +139,7 @@ LAYER_META: dict[str, LayerMeta] = {
     ),
     "L10": LayerMeta(
         id="L10", name="CLIP Image Search", emoji="🖼️",
-        description="Encode la requête avec CLIP et retrouve les images les plus proches sémantiquement dans un index visuel (illustrations Tolkien).",
+        description="Encode la requête avec CLIP et retrouve les images les plus proches sémantiquement dans l'index visuel de l'univers sélectionné.",
         input_types=["text"], output_type="json_images",
         cost="free", deterministic=True, available=False,
         status="future",
@@ -148,7 +148,7 @@ LAYER_META: dict[str, LayerMeta] = {
     ),
     "L11": LayerMeta(
         id="L11", name="Image Generator", emoji="🎨",
-        description="Génère une illustration de scène ou de personnage elfique via Stable Diffusion à partir d'un prompt textuel.",
+        description="Génère une illustration de scène ou de personnage via un modèle image à partir d'un prompt textuel et d'un univers cible.",
         input_types=["text"], output_type="image",
         cost="gpu", deterministic=False, available=False,
         status="future",

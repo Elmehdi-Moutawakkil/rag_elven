@@ -111,12 +111,12 @@ def _fast_classify(text: str) -> Optional[str]:
 # ==============================================================================
 
 _ROUTER_PROMPT = """\
-You are a request classifier for a Tolkien Elvish language app.
+You are a request classifier for a multi-universe lore and language app.
 
 Classify the user request into ONE category:
-- "qa"        : questions about Tolkien lore, Elvish languages, grammar, vocabulary, history, characters
+- "qa"        : questions about a selected corpus, fictional universe, language, grammar, vocabulary, history, or characters
 - "translate" : requests to translate English words or sentences into Quenya or Sindarin
-- "lore"      : requests to INVENT or GENERATE new stories, tribes, kingdoms, characters within Tolkien's universe
+- "lore"      : requests to INVENT or GENERATE new stories, tribes, kingdoms, characters, or lore within a selected fictional universe
 
 User request: "{request}"
 
