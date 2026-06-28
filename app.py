@@ -30,7 +30,7 @@ from src.lore_generator_generic import generate_lore_for_universe
 from src.router      import classify_request
 from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
 from src.layer_registry import LAYER_META, LAYER_ORDER
-from src.normal_mode import normalize_input_for_route, pipeline_for_route
+from src.normal_mode import normalize_input_for_route, pipeline_for_route, resolve_normal_universe
 from src.pipeline_executor import execute_pipeline, format_final_output
 
 
@@ -99,6 +99,13 @@ user_input = st.text_area(
     key="main_input",
 )
 
+normal_universe_choice = st.selectbox(
+    "Univers",
+    options=["Auto", "Tolkien / Elfique", "Empire Terran"],
+    index=0,
+    key="normal_universe",
+)
+
 submit = st.button("✨ Envoyer", type="primary")
 
 # ==============================================================================
@@ -120,25 +127,31 @@ if submit and user_input.strip():
         unsafe_allow_html=True,
     )
 
-    # Layer trace
-    layers_str = " → ".join(route["layers"])
-    st.caption(f"Layers : {layers_str}")
-    st.divider()
-
     # ── 3. Execute Normal Mode through the shared module engine ──────────────
     route_name = route["route"]
+    normal_universe_id = resolve_normal_universe(route_name, user_input, normal_universe_choice)
     normal_input = normalize_input_for_route(route_name, user_input)
-    normal_layers = pipeline_for_route(route_name)
-    normal_resources = {
-        "model": model,
-        "index": index,
-        "meta": metadata,
-        "universe": "Tolkien's Middle-earth",
-        "universe_id": "tolkien",
-        "kg_db_path": str(KG_DB_PATH),
-    }
+    normal_layers = pipeline_for_route(route_name, universe_id=normal_universe_id)
+    if normal_universe_id == "terran_empire":
+        normal_resources = {
+            "universe": "Terran Empire (Star Trek Mirror Universe)",
+            "universe_id": "terran_empire",
+            "kg_db_path": "vector_db/terran_empire/knowledge_graph.sqlite",
+        }
+    else:
+        normal_resources = {
+            "model": model,
+            "index": index,
+            "meta": metadata,
+            "universe": "Tolkien's Middle-earth",
+            "universe_id": "tolkien",
+            "kg_db_path": str(KG_DB_PATH),
+        }
+    st.caption(f"Univers : {normal_resources['universe']}")
+    st.caption(f"Layers : {' → '.join(normal_layers)}")
+    st.divider()
 
-    if route_name in {"qa", "lore"} and not _qa_available:
+    if normal_universe_id == "tolkien" and route_name in {"qa", "lore"} and not _qa_available:
         st.error("❌ Index FAISS non disponible.")
     elif route_name == "qa" and not _groq_key:
         st.error("❌ GROQ_API_KEY manquante.")

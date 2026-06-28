@@ -135,14 +135,14 @@ def retrieve_context(
     return results
 
 
-def build_constraints_from_chunks(chunks: list[dict]) -> str:
+def build_constraints_from_chunks(chunks: list[dict], *, universe_name: str = "selected universe") -> str:
     """Extract known facts from FAISS chunks to use as constraints.
 
     Simple approach: concatenate key facts from the top chunks.
     (In Phase 2, this becomes a Knowledge Graph query.)
     """
     if not chunks:
-        return "No constraints found. Use standard Tolkien lore."
+        return f"No constraints found. Use established {universe_name} lore only if supported by retrieved sources."
 
     constraints = []
     for chunk in chunks[:3]:  # top 3 chunks
@@ -153,7 +153,7 @@ def build_constraints_from_chunks(chunks: list[dict]) -> str:
             constraint = ".".join(sentences) + "."
             constraints.append(constraint)
 
-    return "\n".join(constraints) if constraints else "Use established Tolkien canon."
+    return "\n".join(constraints) if constraints else f"Use established {universe_name} canon only if supported by retrieved sources."
 
 
 # ==============================================================================

@@ -13,6 +13,7 @@ from inspector.reporter import build_daily_report
 from src.database import search_translation
 from src.ir import Argument, PredicateIR, SemanticIR
 from src.knowledge_graph import KnowledgeGraph
+from src.lore_generator import build_constraints_from_chunks
 from src.morphology import ConfidenceLevel, MorphResult
 from src.pipeline_executor import execute_pipeline, format_final_output
 
@@ -147,6 +148,12 @@ class RegressionTests(unittest.TestCase):
         self.assertEqual(final["validation"]["method"], "knowledge_graph")
         self.assertFalse(final["validation"]["is_valid"])
         self.assertEqual(len(final["validation"]["violations"]), 1)
+
+    def test_empty_constraints_are_universe_specific_not_tolkien_hardcoded(self):
+        constraints = build_constraints_from_chunks([], universe_name="Terran Empire")
+
+        self.assertIn("Terran Empire", constraints)
+        self.assertNotIn("Tolkien", constraints)
 
 
 if __name__ == "__main__":

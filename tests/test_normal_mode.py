@@ -1,7 +1,13 @@
 import unittest
 
 from src.layer_registry import MODULE_REGISTRY
-from src.normal_mode import NORMAL_PIPELINES, normalize_input_for_route, pipeline_for_route
+from src.normal_mode import (
+    NORMAL_PIPELINES,
+    detect_universe_for_input,
+    normalize_input_for_route,
+    pipeline_for_route,
+    resolve_normal_universe,
+)
 
 
 class NormalModeTests(unittest.TestCase):
@@ -26,6 +32,24 @@ class NormalModeTests(unittest.TestCase):
     def test_unknown_route_raises_clear_error(self):
         with self.assertRaisesRegex(ValueError, "Unknown Normal Mode route"):
             pipeline_for_route("missing")
+
+    def test_detect_universe_routes_star_trek_to_terran(self):
+        self.assertEqual(detect_universe_for_input("Who is Mirror Spock?"), "terran_empire")
+        self.assertEqual(detect_universe_for_input("What is the Agony Booth?"), "terran_empire")
+        self.assertEqual(detect_universe_for_input("What does elda mean?"), "tolkien")
+
+    def test_non_tolkien_qa_pipeline_excludes_elvish_dictionary(self):
+        self.assertEqual(pipeline_for_route("qa", universe_id="terran_empire"), ["L01", "L02", "L13"])
+        self.assertEqual(pipeline_for_route("qa", universe_id="tolkien"), ["L01", "L02", "L03", "L13"])
+
+    def test_non_tolkien_lore_pipeline_keeps_universe_agnostic_constraints(self):
+        self.assertEqual(pipeline_for_route("lore", universe_id="terran_empire"), ["L01", "L02", "L07", "L08", "L09"])
+
+    def test_resolve_normal_universe_matches_ui_selection_rules(self):
+        self.assertEqual(resolve_normal_universe("qa", "Who is Mirror Spock?", "Auto"), "terran_empire")
+        self.assertEqual(resolve_normal_universe("qa", "Who is Mirror Spock?", "Tolkien / Elfique"), "tolkien")
+        self.assertEqual(resolve_normal_universe("qa", "What does elda mean?", "Empire Terran"), "terran_empire")
+        self.assertEqual(resolve_normal_universe("translate", "Translate: the warrior walks", "Empire Terran"), "tolkien")
 
 
 if __name__ == "__main__":

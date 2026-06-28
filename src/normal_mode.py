@@ -15,13 +15,57 @@ NORMAL_PIPELINES: dict[str, list[str]] = {
     "lore": ["L01", "L02", "L07", "L08", "L09"],
 }
 
+UNIVERSE_LABELS: dict[str, str] = {
+    "tolkien": "Tolkien / Elvish",
+    "terran_empire": "Terran Empire",
+}
 
-def pipeline_for_route(route: str) -> list[str]:
+TERRAN_KEYWORDS = [
+    "star trek",
+    "terran empire",
+    "terran",
+    "mirror universe",
+    "mirror spock",
+    "spock",
+    "kirk",
+    "terok nor",
+    "cardassian",
+    "klingon-cardassian",
+    "alliance",
+    "agony booth",
+    "iss enterprise",
+    "intendant",
+]
+
+
+def detect_universe_for_input(user_input: str) -> str:
+    """Detect the target universe for Normal Mode."""
+    lowered = user_input.lower()
+    if any(keyword in lowered for keyword in TERRAN_KEYWORDS):
+        return "terran_empire"
+    return "tolkien"
+
+
+def resolve_normal_universe(route: str, user_input: str, selection: str = "Auto") -> str:
+    """Resolve the effective Normal Mode universe from UI selection and input."""
+    if route == "translate":
+        return "tolkien"
+    if selection == "Empire Terran":
+        return "terran_empire"
+    if selection == "Tolkien / Elfique":
+        return "tolkien"
+    return detect_universe_for_input(user_input)
+
+
+def pipeline_for_route(route: str, *, universe_id: str = "tolkien") -> list[str]:
     """Return the official module sequence for a Normal Mode route."""
     try:
-        return NORMAL_PIPELINES[route]
+        modules = NORMAL_PIPELINES[route]
     except KeyError as exc:
         raise ValueError(f"Unknown Normal Mode route: {route}") from exc
+    if universe_id != "tolkien":
+        return [module_id for module_id in modules if module_id not in {"L03", "L04", "L05", "L06"}]
+    return modules
 
 
 def normalize_input_for_route(route: str, user_input: str) -> str:

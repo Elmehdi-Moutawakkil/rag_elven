@@ -274,6 +274,7 @@ def _run_L06(input: Any, context: dict) -> LayerResult:
 
 def _run_L07(input: Any, context: dict) -> LayerResult:
     from src.lore_generator import build_constraints_from_chunks
+    universe = context.get("resources", {}).get("universe", "selected universe")
     prev_L02 = context["outputs"].get("L02")
     if prev_L02 and prev_L02.output_type == "json_chunks":
         chunks = prev_L02.output
@@ -281,7 +282,7 @@ def _run_L07(input: Any, context: dict) -> LayerResult:
         chunks = input
     else:
         chunks = []
-    constraints = build_constraints_from_chunks(chunks)
+    constraints = build_constraints_from_chunks(chunks, universe_name=universe)
     return LayerResult(output=constraints, output_type="text_constraints", label=f"{len(chunks)} chunks → contraintes extraites")
 
 
