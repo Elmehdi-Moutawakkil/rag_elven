@@ -362,7 +362,10 @@ builders to universe-specific graph manifests.
 
 Current status:
 Sourced KG read tools expose entity lookup, relation lookup, source evidence,
-and assertion validation.
+assertion validation, and deterministic JSON export for review. The current
+schema is documented in `docs/KNOWLEDGE_GRAPH.md`. Entity provenance is present
+through `source_file`; relation and canon-rule provenance still need dedicated
+source fields.
 
 ## Layer 6: Validated Memory
 

@@ -1,0 +1,2551 @@
+{
+  "canon_facts": [
+    {
+      "description": "Celebrimbor forged the three Elven rings (Narya, Nenya, Vilya)",
+      "severity": "HARD",
+      "violation_pattern": "\\b(narya|nenya|vilya|elven ring|three rings)\\b"
+    },
+    {
+      "description": "Daeron invented the Cirth runes",
+      "severity": "HARD",
+      "violation_pattern": "\\bcirth\\b"
+    },
+    {
+      "description": "Feanor created the Silmarils",
+      "severity": "HARD",
+      "violation_pattern": "\\b(silmaril|silmarilli)\\b"
+    },
+    {
+      "description": "Feanor invented the Tengwar writing system",
+      "severity": "HARD",
+      "violation_pattern": "\\btengwar\\b"
+    },
+    {
+      "description": "Finrod Felagund founded Nargothrond",
+      "severity": "HARD",
+      "violation_pattern": "\\b(founded|built|established)\\b.{0,40}\\bnargothrond\\b"
+    },
+    {
+      "description": "Melian is the queen of Doriath",
+      "severity": "HARD",
+      "violation_pattern": "\\bqueen\\b.{0,40}\\bdoriath\\b"
+    },
+    {
+      "description": "Sauron forged the One Ring in Mount Doom",
+      "severity": "HARD",
+      "violation_pattern": "\\b(one ring|ruling ring)\\b"
+    },
+    {
+      "description": "Thingol is the king of Doriath — no other character can hold that title",
+      "severity": "HARD",
+      "violation_pattern": "\\b(king|ruler|lord)\\b.{0,40}\\bdoriath\\b"
+    },
+    {
+      "description": "Turgon is the king of Gondolin",
+      "severity": "HARD",
+      "violation_pattern": "\\b(king|ruler|lord)\\b.{0,40}\\bgondolin\\b"
+    },
+    {
+      "description": "Beleriand sank beneath the sea at the end of the First Age",
+      "severity": "SOFT",
+      "violation_pattern": "\\bbeleriand\\b.{0,60}\\b(second age|third age|2nd age|3rd age)\\b"
+    },
+    {
+      "description": "Morgoth was cast into the Void after the War of Wrath — he cannot act in the Second or Third Age",
+      "severity": "SOFT",
+      "violation_pattern": "\\bmorgoth\\b.{0,60}\\b(second age|third age|2nd age|3rd age|rules|commands|leads)\\b"
+    },
+    {
+      "description": "The Two Trees of Valinor were destroyed by Morgoth and Ungoliant — they no longer exist in Middle-earth",
+      "severity": "SOFT",
+      "violation_pattern": "\\btwo trees\\b.{0,60}\\b(exist|grow|stand|bloom)\\b.{0,30}\\b(middle-earth|beleriand|mirkwood)\\b"
+    }
+  ],
+  "entities": [
+    {
+      "aliases": [],
+      "description": "Holy spirits created by Iluvatar before the world; includes both Valar and Maiar",
+      "entity_type": "group",
+      "name": "Ainur",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Swan Haven"
+      ],
+      "description": "City of the Teleri in Valinor, site of the Kinslaying",
+      "entity_type": "place",
+      "name": "Alqualonde",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Morgoth's fortress in northwest Middle-earth beneath the Iron Mountains",
+      "entity_type": "place",
+      "name": "Angband",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Anfauglith"
+      ],
+      "description": "Plains north of Beleriand burned by Morgoth in the Dagor Bragollach",
+      "entity_type": "place",
+      "name": "Ard-galen",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Maia who guides the Sun across the sky",
+      "entity_type": "character",
+      "name": "Arien",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lord of the Earth and Maker, secretly fashioned the Dwarves",
+      "entity_type": "character",
+      "name": "Aule",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "the Unwilling"
+      ],
+      "description": "Elves who refused the Great Journey westward",
+      "entity_type": "group",
+      "name": "Avari",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Valaraukar"
+      ],
+      "description": "Maiar corrupted by Morgoth and clad in fire and shadow",
+      "entity_type": "group",
+      "name": "Balrogs",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Great land in northwest Middle-earth during the First Age; sank at the War of Wrath",
+      "entity_type": "place",
+      "name": "Beleriand",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Mortal Man who cut a Silmaril from Morgoth's crown",
+      "entity_type": "character",
+      "name": "Beren",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Language created by Sauron for his servants",
+      "entity_type": "language",
+      "name": "Black Speech",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lord of Lothlorien, husband of Galadriel, Sindarin",
+      "entity_type": "character",
+      "name": "Celeborn",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Greatest smith of the Second Age, forged the three Elven rings",
+      "entity_type": "character",
+      "name": "Celebrimbor",
+      "period": "second",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Cirdan the Shipwright"
+      ],
+      "description": "Keeper of the Grey Havens, oldest of Elves in Middle-earth",
+      "entity_type": "character",
+      "name": "Cirdan",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Angular runic script invented by Daeron of Doriath; adopted by Dwarves",
+      "entity_type": "artifact",
+      "name": "Cirth",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Bay in the far east of Middle-earth where the Elves first awoke",
+      "entity_type": "place",
+      "name": "Cuivienen",
+      "period": "primeval",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lore-master and minstrel of Doriath, inventor of the Cirth runes",
+      "entity_type": "character",
+      "name": "Daeron",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Glorious Battle"
+      ],
+      "description": "Second battle; established the Siege of Angband",
+      "entity_type": "event",
+      "name": "Dagor Aglareb",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Battle of Sudden Flame"
+      ],
+      "description": "Third battle; Morgoth broke the Siege of Angband with rivers of fire",
+      "entity_type": "event",
+      "name": "Dagor Bragollach",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Battle Under Stars"
+      ],
+      "description": "First battle of the First Age after the Noldor's return",
+      "entity_type": "event",
+      "name": "Dagor-nuin-Giliath",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Destruction of the Two Trees by Morgoth and Ungoliant",
+      "entity_type": "event",
+      "name": "Darkening of Valinor",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Doom of the Noldor"
+      ],
+      "description": "Curse on the Noldor for their rebellion and the Kinslaying",
+      "entity_type": "event",
+      "name": "Doom of Mandos",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "the hidden kingdom",
+        "Forest of Doriath"
+      ],
+      "description": "Realm of Thingol and Melian, protected by the Girdle of Melian",
+      "entity_type": "place",
+      "name": "Doriath",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Khazad"
+      ],
+      "description": "Race fashioned secretly by Aule; speak Khuzdul",
+      "entity_type": "group",
+      "name": "Dwarves",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Half-elven mariner who sailed to Valinor, set as the Evening Star",
+      "entity_type": "character",
+      "name": "Earendil",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Men who allied with the Elves against Morgoth in the First Age",
+      "entity_type": "group",
+      "name": "Edain",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Elves who began the Great Journey, whether or not they reached Valinor",
+      "entity_type": "group",
+      "name": "Eldar",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Half-elven lord of Rivendell",
+      "entity_type": "character",
+      "name": "Elrond",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Herald of Manwe, led the host of Valar in the War of Wrath",
+      "entity_type": "character",
+      "name": "Eonwe",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Destruction of Thingol's realm following his death",
+      "entity_type": "event",
+      "name": "Fall of Doriath",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Destruction of Turgon's hidden city by Morgoth's forces",
+      "entity_type": "event",
+      "name": "Fall of Gondolin",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Destruction of Finrod's underground kingdom by Glaurung",
+      "entity_type": "event",
+      "name": "Fall of Nargothrond",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Curufinwe",
+        "Feanaro"
+      ],
+      "description": "Greatest craftsman of the Noldor, creator of Silmarils and Tengwar",
+      "entity_type": "character",
+      "name": "Feanor",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "High King of the Noldor, wounded Morgoth seven times in single combat",
+      "entity_type": "character",
+      "name": "Fingolfin",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Finrod Felagund"
+      ],
+      "description": "Noldorin lord, founder of Nargothrond",
+      "entity_type": "character",
+      "name": "Finrod",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "King of the Noldor in Valinor, father of Feanor",
+      "entity_type": "character",
+      "name": "Finwe",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "One of the greatest Noldor, later Lady of Lothlorien",
+      "entity_type": "character",
+      "name": "Galadriel",
+      "period": "first,second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Olorin",
+        "Mithrandir",
+        "the Grey",
+        "the White"
+      ],
+      "description": "Maia, wisest of the Istari, carried Narya the Ring of Fire",
+      "entity_type": "character",
+      "name": "Gandalf",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Last High King of the Noldor in Middle-earth",
+      "entity_type": "character",
+      "name": "Gil-galad",
+      "period": "second",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Magical barrier cast by Melian around Doriath",
+      "entity_type": "artifact",
+      "name": "Girdle of Melian",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "First of the dragons, slain by Turin Turambar",
+      "entity_type": "character",
+      "name": "Glaurung",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lord of Gondolin who slew a Balrog; later re-embodied and returned",
+      "entity_type": "character",
+      "name": "Glorfindel",
+      "period": "first,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "the hidden city",
+        "Ondolinde"
+      ],
+      "description": "Hidden city of Turgon in Beleriand",
+      "entity_type": "place",
+      "name": "Gondolin",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Westward journey of the Elves from Cuivienen to Valinor, led by Orome",
+      "entity_type": "event",
+      "name": "Great Journey",
+      "period": "primeval",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Mithlond"
+      ],
+      "description": "Haven maintained by Cirdan the Shipwright on the Gulf of Lune",
+      "entity_type": "place",
+      "name": "Grey Havens",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Anglachel"
+      ],
+      "description": "Black sword forged from a meteorite, wielded by Turin Turambar",
+      "entity_type": "artifact",
+      "name": "Gurthang",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Region of Beleriand ruled by Fingolfin and his sons",
+      "entity_type": "place",
+      "name": "Hithlum",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Hound of Valinor"
+      ],
+      "description": "Hound of the Valar who helped Beren and Luthien, defeated Sauron",
+      "entity_type": "character",
+      "name": "Huan",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Father of Turin, captured by Morgoth and set to watch his family's doom",
+      "entity_type": "character",
+      "name": "Hurin",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Elf of Gondolin, wife of Tuor, mother of Earendil",
+      "entity_type": "character",
+      "name": "Idril",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "First Elf to awake at Cuivienen",
+      "entity_type": "character",
+      "name": "Imin",
+      "period": "primeval",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "High King of all Elves, leader of the Vanyar",
+      "entity_type": "character",
+      "name": "Ingwe",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Orthanc"
+      ],
+      "description": "Stronghold of Saruman in the Third Age",
+      "entity_type": "place",
+      "name": "Isengard",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Wizards"
+      ],
+      "description": "Five Maiar sent to Middle-earth by the Valar at the start of the Third Age",
+      "entity_type": "group",
+      "name": "Istari",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Secret language of the Dwarves, modeled on Semitic patterns",
+      "entity_type": "language",
+      "name": "Khuzdul",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Kinslaying at Alqualonde"
+      ],
+      "description": "Slaying of Teleri by the Noldor to steal their ships",
+      "entity_type": "event",
+      "name": "Kinslaying",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Sindarin Elf of the Woodland Realm, member of the Fellowship",
+      "entity_type": "character",
+      "name": "Legolas",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Lorien",
+        "Laurelindorenan",
+        "the Golden Wood"
+      ],
+      "description": "Realm of Galadriel and Celeborn, populated by Silvan Elves",
+      "entity_type": "place",
+      "name": "Lothlorien",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Luthien Tinuviel"
+      ],
+      "description": "Daughter of Thingol and Melian, most beautiful of all Elves",
+      "entity_type": "character",
+      "name": "Luthien",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Eldest son of Feanor, great leader of the Noldor",
+      "entity_type": "character",
+      "name": "Maedhros",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Son of Feanor, greatest singer of the Noldor",
+      "entity_type": "character",
+      "name": "Maglor",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Angelic beings lesser than the Valar; servants of the Valar; some came to Middle-earth",
+      "entity_type": "group",
+      "name": "Maiar",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Namo"
+      ],
+      "description": "Keeper of the Dead, his halls receive fallen Elves",
+      "entity_type": "character",
+      "name": "Mandos",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lord of the Winds and King of Arda, highest of the Valar",
+      "entity_type": "character",
+      "name": "Manwe",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Maia queen of Doriath, mother of Luthien",
+      "entity_type": "character",
+      "name": "Melian",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Eryn Lasgalen",
+        "Greenwood the Great"
+      ],
+      "description": "Woodland realm of Thranduil in the Third Age",
+      "entity_type": "place",
+      "name": "Mirkwood",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "the Black Land"
+      ],
+      "description": "Land of Sauron in southeast Middle-earth, site of Mount Doom",
+      "entity_type": "place",
+      "name": "Mordor",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Melkor",
+        "Moringotto",
+        "Black Enemy"
+      ],
+      "description": "Greatest of the Valar, source of all evil, stole the Silmarils, cast into the Void",
+      "entity_type": "character",
+      "name": "Morgoth",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Khazad-dum",
+        "the Dwarrowdelf"
+      ],
+      "description": "Great underground Dwarf-realm beneath the Misty Mountains",
+      "entity_type": "place",
+      "name": "Moria",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Orodruin"
+      ],
+      "description": "Volcanic mountain in Mordor where Sauron forged the One Ring",
+      "entity_type": "place",
+      "name": "Mount Doom",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Dark forest in Beleriand where Thingol encountered Melian",
+      "entity_type": "place",
+      "name": "Nan Elmoth",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Elves who turned back at the Misty Mountains during the Great Journey",
+      "entity_type": "group",
+      "name": "Nandor",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Silvan Elvish"
+      ],
+      "description": "Language of the Wood-Elves",
+      "entity_type": "language",
+      "name": "Nandorin",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Underground Noldorin kingdom founded by Finrod Felagund",
+      "entity_type": "place",
+      "name": "Nargothrond",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Ring of Fire",
+        "the Red Ring"
+      ],
+      "description": "One of the three Elven rings; carried by Gandalf",
+      "entity_type": "artifact",
+      "name": "Narya",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Ring of Water",
+        "Ring of Adamant"
+      ],
+      "description": "One of the three Elven rings; carried by Galadriel",
+      "entity_type": "artifact",
+      "name": "Nenya",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lady of Mercy and Grief, teacher of Gandalf",
+      "entity_type": "character",
+      "name": "Nienna",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Battle of Unnumbered Tears"
+      ],
+      "description": "Fourth battle; catastrophic defeat of the Elves and their allies",
+      "entity_type": "event",
+      "name": "Nirnaeth Arnoediad",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Tatyar",
+        "Deep Elves"
+      ],
+      "description": "Second clan; greatest craftsmen and scholars of Elves",
+      "entity_type": "group",
+      "name": "Noldor",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Elenna"
+      ],
+      "description": "Island given to the Edain after the War of Wrath; drowned by the Valar",
+      "entity_type": "place",
+      "name": "Numenor",
+      "period": "second",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Descendants of the Edain given the island of Numenor",
+      "entity_type": "group",
+      "name": "Numenoreans",
+      "period": "second",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "King of the Teleri in Valinor, brother of Thingol",
+      "entity_type": "character",
+      "name": "Olwe",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "the Ruling Ring",
+        "the Ring of Power",
+        "the One"
+      ],
+      "description": "Ring forged by Sauron in Mount Doom, containing much of his power",
+      "entity_type": "artifact",
+      "name": "One Ring",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Yrch"
+      ],
+      "description": "Corrupted creatures bred by Morgoth, armies of darkness",
+      "entity_type": "group",
+      "name": "Orcs",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lord of Forests, first Vala to discover the Elves at Cuivienen",
+      "entity_type": "character",
+      "name": "Orome",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Maia serving Ulmo, delights in storms and the seas of Middle-earth",
+      "entity_type": "character",
+      "name": "Osse",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Seeing Stones"
+      ],
+      "description": "Seven crystal spheres for far-seeing, made by Feanor and later used by Sauron",
+      "entity_type": "artifact",
+      "name": "Palantiri",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Common Eldarin"
+      ],
+      "description": "Ancestral tongue of all Elves, from which all Elvish languages descend",
+      "entity_type": "language",
+      "name": "Primitive Quendian",
+      "period": "primeval",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Original name for all Elves: those who speak with voices",
+      "entity_type": "group",
+      "name": "Quendi",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "High Elvish",
+        "Elven-latin"
+      ],
+      "description": "Ancient tongue of the Vanyar and Noldor in Valinor; language of lore and ceremony",
+      "entity_type": "language",
+      "name": "Quenya",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Aiwendil"
+      ],
+      "description": "Maia of Yavanna, lover of animals, dwelt at Rhosgobel",
+      "entity_type": "character",
+      "name": "Radagast",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Dwelling of Radagast on the edge of Mirkwood",
+      "entity_type": "place",
+      "name": "Rhosgobel",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Imladris"
+      ],
+      "description": "Refuge founded by Elrond in the Second Age",
+      "entity_type": "place",
+      "name": "Rivendell",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Curunir",
+        "the White"
+      ],
+      "description": "Maia of Aule, head of the Istari, corrupted by desire for the One Ring",
+      "entity_type": "character",
+      "name": "Saruman",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Annatar",
+        "Mairon",
+        "the Dark Lord"
+      ],
+      "description": "Maia, Morgoth's lieutenant, Lord of Mordor in the Second and Third Age",
+      "entity_type": "character",
+      "name": "Sauron",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "the Jewels of Feanor"
+      ],
+      "description": "Three jewels capturing the light of the Two Trees, created by Feanor",
+      "entity_type": "artifact",
+      "name": "Silmarils",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Wood-Elves"
+      ],
+      "description": "Elves of Mirkwood and Lorien, of Nandor origin",
+      "entity_type": "group",
+      "name": "Silvan Elves",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Grey Elves"
+      ],
+      "description": "Elves of Beleriand who did not complete the Great Journey to Valinor",
+      "entity_type": "group",
+      "name": "Sindar",
+      "period": "first,second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Grey Elvish"
+      ],
+      "description": "Language of the Sindar; most widely spoken Elvish tongue in Middle-earth",
+      "entity_type": "language",
+      "name": "Sindarin",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Nelyar"
+      ],
+      "description": "Third and largest clan of Eldar; expert mariners",
+      "entity_type": "group",
+      "name": "Teleri",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Language of the Teleri in Valinor",
+      "entity_type": "language",
+      "name": "Telerin",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Flowing writing system invented by Feanor of the Noldor",
+      "entity_type": "artifact",
+      "name": "Tengwar",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Three volcanic peaks above Angband, crown of Morgoth's realm",
+      "entity_type": "place",
+      "name": "Thangorodrim",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Elwe",
+        "Elu Thingol"
+      ],
+      "description": "High King of the Sindar, lord of Doriath",
+      "entity_type": "character",
+      "name": "Thingol",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Sindarin king of Mirkwood, father of Legolas",
+      "entity_type": "character",
+      "name": "Thranduil",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Maia who steers the Moon",
+      "entity_type": "character",
+      "name": "Tilion",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "City of the Noldor in Valinor, built upon the hill of Tuna",
+      "entity_type": "place",
+      "name": "Tirion",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Tol-in-Gaurhoth"
+      ],
+      "description": "Isle in Beleriand held by Sauron; later called Isle of Werewolves",
+      "entity_type": "place",
+      "name": "Tol Sirion",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Champion of the Valar, last to descend into Arda",
+      "entity_type": "character",
+      "name": "Tulkas",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Noldorin lord, king of Gondolin",
+      "entity_type": "character",
+      "name": "Turgon",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Turin Turambar"
+      ],
+      "description": "Son of Hurin, cursed by Morgoth, slew Glaurung with Gurthang",
+      "entity_type": "character",
+      "name": "Turin",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Telperion",
+        "Laurelin"
+      ],
+      "description": "Two trees of Valinor whose light illuminated the Blessed Realm; destroyed by Morgoth and Ungoliant",
+      "entity_type": "artifact",
+      "name": "Two Trees",
+      "period": "primeval",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lady of the Seas, consort of Osse, calms storms",
+      "entity_type": "character",
+      "name": "Uinen",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Lord of Waters, dwells in the deep seas",
+      "entity_type": "character",
+      "name": "Ulmo",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Great spirit of darkness in spider form who helped Morgoth destroy the Two Trees",
+      "entity_type": "character",
+      "name": "Ungoliant",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Morgoth's first fortress, destroyed by the Valar in ancient times",
+      "entity_type": "place",
+      "name": "Utumno",
+      "period": "primeval",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "the Powers"
+      ],
+      "description": "Fourteen great Ainur who descended into Arda to shape and govern it",
+      "entity_type": "group",
+      "name": "Valar",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Language of the Valar; oldest language in existence",
+      "entity_type": "language",
+      "name": "Valarin",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Aman",
+        "the Blessed Realm",
+        "the Undying Lands",
+        "the West"
+      ],
+      "description": "Land of the Valar across the sea in the West",
+      "entity_type": "place",
+      "name": "Valinor",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "City of the Valar in Valinor, where the Vanyar dwelt",
+      "entity_type": "place",
+      "name": "Valmar",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Minyar"
+      ],
+      "description": "First and smallest clan of Eldar; faithful to the Valar; golden-haired",
+      "entity_type": "group",
+      "name": "Vanyar",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Elbereth"
+      ],
+      "description": "Lady of the Stars, beloved above all Valar by the Elves",
+      "entity_type": "character",
+      "name": "Varda",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Ring of Air",
+        "Ring of Sapphire"
+      ],
+      "description": "One of the three Elven rings; carried by Gil-galad, later Elrond",
+      "entity_type": "artifact",
+      "name": "Vilya",
+      "period": "second,third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Great Battle"
+      ],
+      "description": "Final war of the Valar against Morgoth; ended the First Age",
+      "entity_type": "event",
+      "name": "War of Wrath",
+      "period": "first",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [
+        "Common Speech",
+        "Common Tongue"
+      ],
+      "description": "Lingua franca of Middle-earth in the Third Age, descended from Adunaic",
+      "entity_type": "language",
+      "name": "Westron",
+      "period": "third",
+      "raw_period_field": "age",
+      "source_file": ""
+    },
+    {
+      "aliases": [],
+      "description": "Giver of Fruits, created the Two Trees and the Ents",
+      "entity_type": "character",
+      "name": "Yavanna",
+      "period": "all",
+      "raw_period_field": "age",
+      "source_file": ""
+    }
+  ],
+  "provenance": {
+    "canon_fact_source_file": "not structured yet",
+    "entity_source_file": "available",
+    "period_field": "normalized to period; source DB uses age or era depending on universe",
+    "relation_source_file": "derived from relation endpoints and relation note"
+  },
+  "relations": [
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Alqualonde",
+      "source_file": "",
+      "target": "Valinor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "far northwest",
+      "relation_type": "located_in",
+      "source": "Angband",
+      "source_file": "",
+      "target": "Beleriand",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Ard-galen",
+      "source_file": "",
+      "target": "Beleriand",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "guides the Sun",
+      "relation_type": "served",
+      "source": "Arien",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "fashioned secretly before the Elves awoke",
+      "relation_type": "created",
+      "source": "Aule",
+      "source_file": "",
+      "target": "Dwarves",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Aule",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "sank beneath the sea",
+      "relation_type": "destroyed_in",
+      "source": "Beleriand",
+      "source_file": "",
+      "target": "War of Wrath",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spouse_of",
+      "source": "Beren",
+      "source_file": "",
+      "target": "Luthien",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spoken_by",
+      "source": "Black Speech",
+      "source_file": "",
+      "target": "Orcs",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "lord_of",
+      "source": "Celeborn",
+      "source_file": "",
+      "target": "Lothlorien",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spouse_of",
+      "source": "Celeborn",
+      "source_file": "",
+      "target": "Galadriel",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "one of the three Elven rings",
+      "relation_type": "forged",
+      "source": "Celebrimbor",
+      "source_file": "",
+      "target": "Narya",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "forged",
+      "source": "Celebrimbor",
+      "source_file": "",
+      "target": "Nenya",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "forged",
+      "source": "Celebrimbor",
+      "source_file": "",
+      "target": "Vilya",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Celebrimbor",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "keeper_of",
+      "source": "Cirdan",
+      "source_file": "",
+      "target": "Grey Havens",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "of Telerin origin",
+      "relation_type": "member_of",
+      "source": "Cirdan",
+      "source_file": "",
+      "target": "Sindar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "Dwarves extended and adopted Cirth",
+      "relation_type": "used_to_write",
+      "source": "Cirth",
+      "source_file": "",
+      "target": "Khuzdul",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "original use",
+      "relation_type": "used_to_write",
+      "source": "Cirth",
+      "source_file": "",
+      "target": "Sindarin",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "runic script later adopted by Dwarves",
+      "relation_type": "invented",
+      "source": "Daeron",
+      "source_file": "",
+      "target": "Cirth",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Doriath",
+      "source_file": "",
+      "target": "Beleriand",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "son_of",
+      "source": "Earendil",
+      "source_file": "",
+      "target": "Idril",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "carries",
+      "source": "Elrond",
+      "source_file": "",
+      "target": "Vilya",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "lord_of",
+      "source": "Elrond",
+      "source_file": "",
+      "target": "Rivendell",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "son_of",
+      "source": "Elrond",
+      "source_file": "",
+      "target": "Earendil",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "herald of Manwe",
+      "relation_type": "served",
+      "source": "Eonwe",
+      "source_file": "",
+      "target": "Manwe",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 0.8,
+      "note": "attributed to Feanor in some texts",
+      "relation_type": "created",
+      "source": "Feanor",
+      "source_file": "",
+      "target": "Palantiri",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "three jewels capturing light of the Two Trees",
+      "relation_type": "created",
+      "source": "Feanor",
+      "source_file": "",
+      "target": "Silmarils",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "finest writing system in Middle-earth",
+      "relation_type": "invented",
+      "source": "Feanor",
+      "source_file": "",
+      "target": "Tengwar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Feanor",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "son_of",
+      "source": "Feanor",
+      "source_file": "",
+      "target": "Finwe",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "High King of the Noldor in Middle-earth",
+      "relation_type": "high_king_of",
+      "source": "Fingolfin",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Fingolfin",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "founder and king",
+      "relation_type": "king_of",
+      "source": "Finrod",
+      "source_file": "",
+      "target": "Nargothrond",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "in Valinor",
+      "relation_type": "king_of",
+      "source": "Finwe",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "carries",
+      "source": "Galadriel",
+      "source_file": "",
+      "target": "Nenya",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "lady_of",
+      "source": "Galadriel",
+      "source_file": "",
+      "target": "Lothlorien",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Galadriel",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spouse_of",
+      "source": "Galadriel",
+      "source_file": "",
+      "target": "Celeborn",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "given by Cirdan the Shipwright",
+      "relation_type": "carries",
+      "source": "Gandalf",
+      "source_file": "",
+      "target": "Narya",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Gandalf",
+      "source_file": "",
+      "target": "Istari",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Gandalf",
+      "source_file": "",
+      "target": "Maiar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "Maia of Manwe and Varda",
+      "relation_type": "served",
+      "source": "Gandalf",
+      "source_file": "",
+      "target": "Manwe",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "before passing it to Elrond",
+      "relation_type": "carried",
+      "source": "Gil-galad",
+      "source_file": "",
+      "target": "Vilya",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "last High King",
+      "relation_type": "high_king_of",
+      "source": "Gil-galad",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "protects",
+      "source": "Girdle of Melian",
+      "source_file": "",
+      "target": "Doriath",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Gondolin",
+      "source_file": "",
+      "target": "Beleriand",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Hithlum",
+      "source_file": "",
+      "target": "Beleriand",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "High King of all Elves",
+      "relation_type": "high_king_of",
+      "source": "Ingwe",
+      "source_file": "",
+      "target": "Quendi",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "high_king_of",
+      "source": "Ingwe",
+      "source_file": "",
+      "target": "Vanyar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Ingwe",
+      "source_file": "",
+      "target": "Vanyar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "secret, never taught to outsiders",
+      "relation_type": "spoken_by",
+      "source": "Khuzdul",
+      "source_file": "",
+      "target": "Dwarves",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Legolas",
+      "source_file": "",
+      "target": "Sindar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "son_of",
+      "source": "Legolas",
+      "source_file": "",
+      "target": "Thranduil",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "daughter_of",
+      "source": "Luthien",
+      "source_file": "",
+      "target": "Melian",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "daughter_of",
+      "source": "Luthien",
+      "source_file": "",
+      "target": "Thingol",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spouse_of",
+      "source": "Luthien",
+      "source_file": "",
+      "target": "Beren",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Maedhros",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "eldest son",
+      "relation_type": "son_of",
+      "source": "Maedhros",
+      "source_file": "",
+      "target": "Feanor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Maglor",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "son_of",
+      "source": "Maglor",
+      "source_file": "",
+      "target": "Feanor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Mandos",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "King of Arda",
+      "relation_type": "king_of",
+      "source": "Manwe",
+      "source_file": "",
+      "target": "Valinor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Manwe",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "magical barrier protecting Doriath",
+      "relation_type": "cast",
+      "source": "Melian",
+      "source_file": "",
+      "target": "Girdle of Melian",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Melian",
+      "source_file": "",
+      "target": "Maiar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "queen_of",
+      "source": "Melian",
+      "source_file": "",
+      "target": "Doriath",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spouse_of",
+      "source": "Melian",
+      "source_file": "",
+      "target": "Thingol",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "cast into the Void",
+      "relation_type": "defeated_in",
+      "source": "Morgoth",
+      "source_file": "",
+      "target": "War of Wrath",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "with help of Ungoliant",
+      "relation_type": "destroyed",
+      "source": "Morgoth",
+      "source_file": "",
+      "target": "Two Trees",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "originally; later corrupted",
+      "relation_type": "member_of",
+      "source": "Morgoth",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "ruler_of",
+      "source": "Morgoth",
+      "source_file": "",
+      "target": "Angband",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "from Finwe's vault after killing him",
+      "relation_type": "stole",
+      "source": "Morgoth",
+      "source_file": "",
+      "target": "Silmarils",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Mount Doom",
+      "source_file": "",
+      "target": "Mordor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Nan Elmoth",
+      "source_file": "",
+      "target": "Beleriand",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "descends_from",
+      "source": "Nandorin",
+      "source_file": "",
+      "target": "Primitive Quendian",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spoken_by",
+      "source": "Nandorin",
+      "source_file": "",
+      "target": "Nandor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spoken_by",
+      "source": "Nandorin",
+      "source_file": "",
+      "target": "Silvan Elves",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Nargothrond",
+      "source_file": "",
+      "target": "Beleriand",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "at Alqualonde",
+      "relation_type": "committed",
+      "source": "Noldor",
+      "source_file": "",
+      "target": "Kinslaying",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "curse for rebellion and kinslaying",
+      "relation_type": "suffered",
+      "source": "Noldor",
+      "source_file": "",
+      "target": "Doom of Mandos",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "brother_of",
+      "source": "Olwe",
+      "source_file": "",
+      "target": "Thingol",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "in Valinor",
+      "relation_type": "king_of",
+      "source": "Olwe",
+      "source_file": "",
+      "target": "Teleri",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Olwe",
+      "source_file": "",
+      "target": "Teleri",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "forged_in",
+      "source": "One Ring",
+      "source_file": "",
+      "target": "Mount Doom",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "first Vala to find the Elves",
+      "relation_type": "discovered",
+      "source": "Orome",
+      "source_file": "",
+      "target": "Cuivienen",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Orome",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "served",
+      "source": "Osse",
+      "source_file": "",
+      "target": "Ulmo",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "descends_from",
+      "source": "Quenya",
+      "source_file": "",
+      "target": "Primitive Quendian",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "in Valinor; later as lore language",
+      "relation_type": "spoken_by",
+      "source": "Quenya",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spoken_by",
+      "source": "Quenya",
+      "source_file": "",
+      "target": "Vanyar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Radagast",
+      "source_file": "",
+      "target": "Istari",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Radagast",
+      "source_file": "",
+      "target": "Maiar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "Maia of Yavanna",
+      "relation_type": "served",
+      "source": "Radagast",
+      "source_file": "",
+      "target": "Yavanna",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "on the edge of Mirkwood",
+      "relation_type": "located_near",
+      "source": "Rhosgobel",
+      "source_file": "",
+      "target": "Mirkwood",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Saruman",
+      "source_file": "",
+      "target": "Istari",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Saruman",
+      "source_file": "",
+      "target": "Maiar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "Maia of Aule originally",
+      "relation_type": "served",
+      "source": "Saruman",
+      "source_file": "",
+      "target": "Aule",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "in the fires of Mount Doom",
+      "relation_type": "forged",
+      "source": "Sauron",
+      "source_file": "",
+      "target": "One Ring",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Sauron",
+      "source_file": "",
+      "target": "Maiar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "ruler_of",
+      "source": "Sauron",
+      "source_file": "",
+      "target": "Mordor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "chief lieutenant",
+      "relation_type": "served",
+      "source": "Sauron",
+      "source_file": "",
+      "target": "Morgoth",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "captured their light before destruction",
+      "relation_type": "contains",
+      "source": "Silmarils",
+      "source_file": "",
+      "target": "Two Trees",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "descends_from",
+      "source": "Sindarin",
+      "source_file": "",
+      "target": "Primitive Quendian",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "adopted after arrival in Beleriand",
+      "relation_type": "spoken_by",
+      "source": "Sindarin",
+      "source_file": "",
+      "target": "Noldor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spoken_by",
+      "source": "Sindarin",
+      "source_file": "",
+      "target": "Sindar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "descends_from",
+      "source": "Telerin",
+      "source_file": "",
+      "target": "Primitive Quendian",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spoken_by",
+      "source": "Telerin",
+      "source_file": "",
+      "target": "Teleri",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "Ring inscription",
+      "relation_type": "used_to_write",
+      "source": "Tengwar",
+      "source_file": "",
+      "target": "Black Speech",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "used_to_write",
+      "source": "Tengwar",
+      "source_file": "",
+      "target": "Quenya",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "used_to_write",
+      "source": "Tengwar",
+      "source_file": "",
+      "target": "Sindarin",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "three volcanic peaks",
+      "relation_type": "located_above",
+      "source": "Thangorodrim",
+      "source_file": "",
+      "target": "Angband",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "brother_of",
+      "source": "Thingol",
+      "source_file": "",
+      "target": "Olwe",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "king_of",
+      "source": "Thingol",
+      "source_file": "",
+      "target": "Doriath",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Thingol",
+      "source_file": "",
+      "target": "Sindar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spouse_of",
+      "source": "Thingol",
+      "source_file": "",
+      "target": "Melian",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "king_of",
+      "source": "Thranduil",
+      "source_file": "",
+      "target": "Mirkwood",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Thranduil",
+      "source_file": "",
+      "target": "Sindar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Tirion",
+      "source_file": "",
+      "target": "Valinor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Tol Sirion",
+      "source_file": "",
+      "target": "Beleriand",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Tulkas",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "king_of",
+      "source": "Turgon",
+      "source_file": "",
+      "target": "Gondolin",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "son_of",
+      "source": "Turin",
+      "source_file": "",
+      "target": "Hurin",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "served",
+      "source": "Uinen",
+      "source_file": "",
+      "target": "Ulmo",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Ulmo",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "helped_destroy",
+      "source": "Ungoliant",
+      "source_file": "",
+      "target": "Two Trees",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "located_in",
+      "source": "Valmar",
+      "source_file": "",
+      "target": "Valinor",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Varda",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "spoken_by",
+      "source": "Westron",
+      "source_file": "",
+      "target": "Edain",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "Telperion and Laurelin",
+      "relation_type": "created",
+      "source": "Yavanna",
+      "source_file": "",
+      "target": "Two Trees",
+      "target_source_file": ""
+    },
+    {
+      "confidence": 1.0,
+      "note": "",
+      "relation_type": "member_of",
+      "source": "Yavanna",
+      "source_file": "",
+      "target": "Valar",
+      "target_source_file": ""
+    }
+  ],
+  "runtime_db_path": "vector_db/knowledge_graph.sqlite",
+  "schema_version": 1,
+  "stats": {
+    "by_type": {
+      "artifact": 11,
+      "character": 50,
+      "event": 12,
+      "group": 18,
+      "language": 9,
+      "place": 26
+    },
+    "canon_facts": 12,
+    "entities": 126,
+    "relations": 131
+  },
+  "universe_id": "tolkien"
+}

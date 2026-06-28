@@ -64,6 +64,68 @@ def list_relations(
         return kg.get_relations(entity_name, relation_type=relation_type)
 
 
+def export_knowledge_graph(universe_id: str = "terran_empire") -> dict[str, Any]:
+    """Export the current KG as deterministic JSON-compatible data."""
+    with get_kg(universe_id) as kg:
+        entity_rows = kg.conn.execute("SELECT * FROM entities ORDER BY name").fetchall()
+        entities = []
+        for row in entity_rows:
+            entity = _decode_aliases(dict(row))
+            period = entity.get("era", entity.get("age", ""))
+            entities.append(
+                {
+                    "name": entity["name"],
+                    "aliases": entity["aliases"],
+                    "entity_type": entity["entity_type"],
+                    "description": entity.get("description", ""),
+                    "period": period,
+                    "source_file": entity.get("source_file", ""),
+                    "raw_period_field": "era" if "era" in entity else "age",
+                }
+            )
+
+        relation_rows = kg.conn.execute(
+            """
+            SELECT
+                e1.name AS source,
+                e1.source_file AS source_file,
+                r.relation_type,
+                e2.name AS target,
+                e2.source_file AS target_source_file,
+                r.confidence,
+                r.note
+            FROM relations r
+            JOIN entities e1 ON e1.id = r.entity1_id
+            JOIN entities e2 ON e2.id = r.entity2_id
+            ORDER BY e1.name, r.relation_type, e2.name
+            """
+        ).fetchall()
+        relations = [dict(row) for row in relation_rows]
+
+        fact_rows = kg.conn.execute(
+            "SELECT description, violation_pattern, severity FROM canon_facts ORDER BY severity, description"
+        ).fetchall()
+        canon_facts = [dict(row) for row in fact_rows]
+
+        stats = kg.get_stats()
+
+    return {
+        "schema_version": 1,
+        "universe_id": universe_id,
+        "runtime_db_path": kg_path_for_universe(universe_id).relative_to(PROJECT_ROOT).as_posix(),
+        "stats": stats,
+        "provenance": {
+            "entity_source_file": "available",
+            "relation_source_file": "derived from relation endpoints and relation note",
+            "canon_fact_source_file": "not structured yet",
+            "period_field": "normalized to period; source DB uses age or era depending on universe",
+        },
+        "entities": entities,
+        "relations": relations,
+        "canon_facts": canon_facts,
+    }
+
+
 def source_evidence_for_entity(
     entity_name: str,
     *,

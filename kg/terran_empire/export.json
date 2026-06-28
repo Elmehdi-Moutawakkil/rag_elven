@@ -1,0 +1,834 @@
+{
+  "canon_facts": [
+    {
+      "description": "ISS vessels belong to the Terran Empire, USS vessels to the Federation — do not mix",
+      "severity": "HARD",
+      "violation_pattern": "(?i)uss enterprise.{0,20}mirror universe|mirror.{0,20}uss enterprise(?! prime)"
+    },
+    {
+      "description": "In Mirror Universe, the Alliance defeated the Empire — not the Federation",
+      "severity": "HARD",
+      "violation_pattern": "(?i)federation.{0,30}(defeated|conquered|overthrew).{0,30}(terran empire|empire)"
+    },
+    {
+      "description": "Mirror Spock is a Vulcan, not human",
+      "severity": "HARD",
+      "violation_pattern": "(?i)mirror spock.{0,20}(human|terran|man|earthling)"
+    },
+    {
+      "description": "Promotion in the Terran Empire is achieved through assassination, not merit exams",
+      "severity": "HARD",
+      "violation_pattern": "(?i)(exam|test|evaluation|merit review).{0,30}promotion.{0,30}(terran empire|iss enterprise)"
+    },
+    {
+      "description": "Terok Nor is a space station, not a planet or ship",
+      "severity": "HARD",
+      "violation_pattern": "(?i)terok nor.{0,20}(planet|ship|vessel|colony)"
+    },
+    {
+      "description": "The Agony Booth is a torture device, not a medical or relaxation device",
+      "severity": "HARD",
+      "violation_pattern": "(?i)agony booth.{0,30}(meditation|healing|relaxation|comfort|pleasure)"
+    },
+    {
+      "description": "The Tantalus Field is a weapon/kill device, not a transporter or medical device",
+      "severity": "HARD",
+      "violation_pattern": "(?i)tantalus field.{0,30}(transport|heal|cure|medical)"
+    },
+    {
+      "description": "The Terran Empire is an autocracy, not a democracy, republic, or representative system",
+      "severity": "HARD",
+      "violation_pattern": "(?i)\\bterran empire\\b.{0,80}\\b(democracy|republic|representative system)\\b"
+    },
+    {
+      "description": "The Terran Empire is from the Mirror Universe, not the Prime Star Trek universe",
+      "severity": "HARD",
+      "violation_pattern": "(?i)(prime universe|federation universe).{0,30}terran empire|terran empire.{0,30}(prime universe|star fleet command(?! mirror))"
+    },
+    {
+      "description": "Cochrane's first contact in Mirror Universe ended in violence, not peace",
+      "severity": "SOFT",
+      "violation_pattern": "(?i)cochrane.{0,30}(peaceful|friendly|welcomed).{0,30}(vulcan|first contact)"
+    },
+    {
+      "description": "Mirror Bashir and O'Brien are rebel fighters, not Alliance loyalists",
+      "severity": "SOFT",
+      "violation_pattern": "(?i)(mirror bashir|mirror o.brien|smiley).{0,30}(alliance officer|cardassian agent|loyal to the alliance)"
+    },
+    {
+      "description": "The Klingon-Cardassian Alliance enslaved Terrans, not exterminated them",
+      "severity": "SOFT",
+      "violation_pattern": "(?i)(klingon.cardassian alliance|the alliance).{0,40}(exterminated|wiped out|genocide).{0,20}terran"
+    }
+  ],
+  "entities": [
+    {
+      "aliases": [
+        "Personal agonizer"
+      ],
+      "description": "Personal pain-delivery device carried by Terran Empire officers",
+      "entity_type": "artifact",
+      "name": "Agonizer",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "political_structure.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Full-body torture device used as standard punishment aboard Terran Empire vessels and stations",
+      "entity_type": "artifact",
+      "name": "Agony Booth",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "political_structure.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Bajoran homeworld under Alliance occupation",
+      "entity_type": "place",
+      "name": "Bajor (Mirror)",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Zefram Cochrane fired on and killed the Vulcan first contact delegation, founding the Terran Empire's expansionist ideology",
+      "entity_type": "event",
+      "name": "Cochrane's Attack",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "history_and_origins.txt"
+    },
+    {
+      "aliases": [
+        "Terra"
+      ],
+      "description": "Homeworld of the Terran Empire",
+      "entity_type": "place",
+      "name": "Earth (Mirror)",
+      "period": "TOS,ENT",
+      "raw_period_field": "era",
+      "source_file": "history_and_origins.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Hoshi Sato seized the ISS Defiant (NX-01 era) and declared herself Empress of the Terran Empire",
+      "entity_type": "event",
+      "name": "Empress Hoshi Seizure",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "mirror_universe_crossover_events.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Klingon-Cardassian Alliance conquered the weakened Terran Empire, enslaving Terrans and Bajorans",
+      "entity_type": "event",
+      "name": "Fall of the Terran Empire",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "aliases": [
+        "Empress Hoshi Sato"
+      ],
+      "description": "Communications officer turned Empress after seizing the ISS Defiant (NX-01 era)",
+      "entity_type": "character",
+      "name": "Hoshi Sato",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Defiant NX-74205 (Mirror)"
+      ],
+      "description": "Federation starship from the Prime Universe, brought to Mirror Universe by Mirror O'Brien; became key rebel weapon",
+      "entity_type": "place",
+      "name": "ISS Defiant",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "technology_and_fleet.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Mirror O'Brien brought plans of the Prime Universe Defiant; rebels built a copy that shifted the war",
+      "entity_type": "event",
+      "name": "ISS Defiant Heist",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "technology_and_fleet.txt"
+    },
+    {
+      "aliases": [
+        "ISS Enterprise"
+      ],
+      "description": "Flagship of the Terran Empire during the TOS era",
+      "entity_type": "place",
+      "name": "ISS Enterprise NCC-1701",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "technology_and_fleet.txt"
+    },
+    {
+      "aliases": [
+        "NX-01 Mirror"
+      ],
+      "description": "First warp-capable ISS vessel; later seized by Hoshi Sato",
+      "entity_type": "place",
+      "name": "ISS Enterprise NX-01",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "technology_and_fleet.txt"
+    },
+    {
+      "aliases": [
+        "Kira Nerys (Mirror)",
+        "The Intendant"
+      ],
+      "description": "Bajoran Intendant of Terok Nor under the Klingon-Cardassian Alliance, sadistic and vain",
+      "entity_type": "character",
+      "name": "Intendant Kira",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "The Alliance"
+      ],
+      "description": "Coalition that overthrew the Terran Empire after Spock's reforms weakened it",
+      "entity_type": "faction",
+      "name": "Klingon-Cardassian Alliance",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "aliases": [
+        "Jonathan Archer (Mirror)"
+      ],
+      "description": "Captain of ISS Enterprise NX-01, brutal commander of the Terran Empire",
+      "entity_type": "character",
+      "name": "Mirror Archer",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Julian Bashir (Mirror)"
+      ],
+      "description": "Terran rebel, works with Mirror Sisko's cell",
+      "entity_type": "character",
+      "name": "Mirror Bashir",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Ezri Tigan (Mirror)"
+      ],
+      "description": "Mercenary and resistance fighter in the Mirror Universe",
+      "entity_type": "character",
+      "name": "Mirror Ezri",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Elim Garak (Mirror)"
+      ],
+      "description": "Cardassian regent's enforcer, brutal and calculating",
+      "entity_type": "character",
+      "name": "Mirror Garak",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Captain Kirk",
+        "James T. Kirk (Mirror)"
+      ],
+      "description": "Ruthless captain of the ISS Enterprise, possessor of the Tantalus Field",
+      "entity_type": "character",
+      "name": "Mirror Kirk",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Marlena Moreau"
+      ],
+      "description": "Captain's woman on ISS Enterprise, helped Prime Kirk return home",
+      "entity_type": "character",
+      "name": "Mirror Marlena",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Leonard McCoy (Mirror)",
+        "Bones (Mirror)"
+      ],
+      "description": "Chief medical officer of ISS Enterprise",
+      "entity_type": "character",
+      "name": "Mirror McCoy",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Nog (Mirror)"
+      ],
+      "description": "Son of Mirror Rom, rebel fighter",
+      "entity_type": "character",
+      "name": "Mirror Nog",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Miles OBrien (Mirror)",
+        "Smiley"
+      ],
+      "description": "Terran slave engineer on Terok Nor, later key rebel figure who stole the ISS Defiant plans",
+      "entity_type": "character",
+      "name": "Mirror O'Brien",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Quark (Mirror)"
+      ],
+      "description": "Ferengi arms dealer operating on Terok Nor",
+      "entity_type": "character",
+      "name": "Mirror Quark",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Montgomery Scott (Mirror)"
+      ],
+      "description": "Chief engineer of ISS Enterprise",
+      "entity_type": "character",
+      "name": "Mirror Scotty",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Benjamin Sisko (Mirror)"
+      ],
+      "description": "Terran rebel leader who worked with Prime Sisko; later became a freedom fighter",
+      "entity_type": "character",
+      "name": "Mirror Sisko",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Commander Spock (Mirror)",
+        "Emperor Spock"
+      ],
+      "description": "Vulcan first officer of ISS Enterprise; later reformed the Empire, leading to its downfall",
+      "entity_type": "character",
+      "name": "Mirror Spock",
+      "period": "TOS,DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Hikaru Sulu (Mirror)"
+      ],
+      "description": "Helmsman of ISS Enterprise, opportunistic and dangerous",
+      "entity_type": "character",
+      "name": "Mirror Sulu",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "TPol (Mirror)"
+      ],
+      "description": "Vulcan first officer on ISS Enterprise NX-01",
+      "entity_type": "character",
+      "name": "Mirror T'Pol",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Charles Tucker (Mirror)",
+        "Trip (Mirror)"
+      ],
+      "description": "Chief engineer of ISS Enterprise NX-01, conspirator against Archer",
+      "entity_type": "character",
+      "name": "Mirror Tucker",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Nyota Uhura (Mirror)"
+      ],
+      "description": "Communications officer of ISS Enterprise, conspired against Kirk",
+      "entity_type": "character",
+      "name": "Mirror Uhura",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [
+        "Mirror Mirror"
+      ],
+      "description": "Ion storm transporter accident swapped Prime Kirk's crew with Mirror counterparts aboard ISS Enterprise",
+      "entity_type": "event",
+      "name": "Mirror Universe Crossover (TOS)",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "mirror_universe_crossover_events.txt"
+    },
+    {
+      "aliases": [
+        "Worf (Mirror)",
+        "Regent Worf"
+      ],
+      "description": "Klingon regent of the Alliance after Kira's fall from power",
+      "entity_type": "character",
+      "name": "Mirror Worf",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Denobulan doctor on ISS Enterprise NX-01, performed experiments on alien prisoners",
+      "entity_type": "character",
+      "name": "Phlox (Mirror)",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "key_figures.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Mirror Spock implemented humanitarian reforms after Kirk's report; weakened the Empire, enabling Alliance conquest",
+      "entity_type": "event",
+      "name": "Spock's Reforms",
+      "period": "TOS,DS9",
+      "raw_period_field": "era",
+      "source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Device used by Mirror Kirk to remotely disintegrate enemies; origin unknown",
+      "entity_type": "artifact",
+      "name": "Tantalus Field",
+      "period": "TOS",
+      "raw_period_field": "era",
+      "source_file": "technology_and_fleet.txt"
+    },
+    {
+      "aliases": [
+        "Mirror Deep Space 9"
+      ],
+      "description": "Cardassian ore-processing station in the Bajoran sector; hub of Alliance power and Terran slave labor",
+      "entity_type": "place",
+      "name": "Terok Nor",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "aliases": [
+        "The Empire"
+      ],
+      "description": "Brutal human-dominated interstellar empire that ruled through fear and slavery",
+      "entity_type": "faction",
+      "name": "Terran Empire",
+      "period": "TOS,ENT",
+      "raw_period_field": "era",
+      "source_file": "political_structure.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Globe-and-sword insignia of the Terran Empire",
+      "entity_type": "artifact",
+      "name": "Terran Empire emblem",
+      "period": "TOS,ENT",
+      "raw_period_field": "era",
+      "source_file": "political_structure.txt"
+    },
+    {
+      "aliases": [
+        "The Rebellion",
+        "Terran resistance"
+      ],
+      "description": "Underground resistance of enslaved Terrans fighting the Alliance",
+      "entity_type": "faction",
+      "name": "Terran Rebellion",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "aliases": [],
+      "description": "Vulcan cells that sometimes cooperated with the Terran Rebellion",
+      "entity_type": "faction",
+      "name": "Vulcan Resistance",
+      "period": "DS9",
+      "raw_period_field": "era",
+      "source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "aliases": [
+        "Cochrane (Mirror)"
+      ],
+      "description": "First human to achieve warp — in Mirror Universe, fired on the Vulcan ship and killed the crew",
+      "entity_type": "character",
+      "name": "Zefram Cochrane",
+      "period": "ENT",
+      "raw_period_field": "era",
+      "source_file": "history_and_origins.txt"
+    }
+  ],
+  "provenance": {
+    "canon_fact_source_file": "not structured yet",
+    "entity_source_file": "available",
+    "period_field": "normalized to period; source DB uses age or era depending on universe",
+    "relation_source_file": "derived from relation endpoints and relation note"
+  },
+  "relations": [
+    {
+      "confidence": 1.0,
+      "note": "Personal device",
+      "relation_type": "used_by",
+      "source": "Agonizer",
+      "source_file": "political_structure.txt",
+      "target": "Terran Empire",
+      "target_source_file": "political_structure.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "Standard punishment",
+      "relation_type": "used_by",
+      "source": "Agony Booth",
+      "source_file": "political_structure.txt",
+      "target": "Terran Empire",
+      "target_source_file": "political_structure.txt"
+    },
+    {
+      "confidence": 0.9,
+      "note": "Ideological origin",
+      "relation_type": "founded",
+      "source": "Cochrane's Attack",
+      "source_file": "history_and_origins.txt",
+      "target": "Terran Empire",
+      "target_source_file": "political_structure.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "caused_by",
+      "source": "Fall of the Terran Empire",
+      "source_file": "the_alliance_and_fall.txt",
+      "target": "Spock's Reforms",
+      "target_source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "Became Empress",
+      "relation_type": "seized",
+      "source": "Hoshi Sato",
+      "source_file": "key_figures.txt",
+      "target": "ISS Enterprise NX-01",
+      "target_source_file": "technology_and_fleet.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "part_of",
+      "source": "ISS Defiant Heist",
+      "source_file": "technology_and_fleet.txt",
+      "target": "Terran Rebellion",
+      "target_source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "DS9 Mirror episodes",
+      "relation_type": "controls",
+      "source": "Intendant Kira",
+      "source_file": "key_figures.txt",
+      "target": "Terok Nor",
+      "target_source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "enemy_of",
+      "source": "Intendant Kira",
+      "source_file": "key_figures.txt",
+      "target": "Terran Rebellion",
+      "target_source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "member_of",
+      "source": "Intendant Kira",
+      "source_file": "key_figures.txt",
+      "target": "Klingon-Cardassian Alliance",
+      "target_source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "DS9 backstory",
+      "relation_type": "conquered",
+      "source": "Klingon-Cardassian Alliance",
+      "source_file": "the_alliance_and_fall.txt",
+      "target": "Terran Empire",
+      "target_source_file": "political_structure.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "ENT In a Mirror Darkly",
+      "relation_type": "commands",
+      "source": "Mirror Archer",
+      "source_file": "key_figures.txt",
+      "target": "ISS Enterprise NX-01",
+      "target_source_file": "technology_and_fleet.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "member_of",
+      "source": "Mirror Bashir",
+      "source_file": "key_figures.txt",
+      "target": "Terran Rebellion",
+      "target_source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "confidence": 0.9,
+      "note": null,
+      "relation_type": "enforcer_for",
+      "source": "Mirror Garak",
+      "source_file": "key_figures.txt",
+      "target": "Mirror Worf",
+      "target_source_file": "key_figures.txt"
+    },
+    {
+      "confidence": 0.9,
+      "note": "Captain's Woman",
+      "relation_type": "ally_of",
+      "source": "Mirror Kirk",
+      "source_file": "key_figures.txt",
+      "target": "Mirror Marlena",
+      "target_source_file": "key_figures.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "TOS canon",
+      "relation_type": "commands",
+      "source": "Mirror Kirk",
+      "source_file": "key_figures.txt",
+      "target": "ISS Enterprise NCC-1701",
+      "target_source_file": "technology_and_fleet.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "member_of",
+      "source": "Mirror Kirk",
+      "source_file": "key_figures.txt",
+      "target": "Terran Empire",
+      "target_source_file": "political_structure.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "Mirror Mirror episode",
+      "relation_type": "possesses",
+      "source": "Mirror Kirk",
+      "source_file": "key_figures.txt",
+      "target": "Tantalus Field",
+      "target_source_file": "technology_and_fleet.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "member_of",
+      "source": "Mirror O'Brien",
+      "source_file": "key_figures.txt",
+      "target": "Terran Rebellion",
+      "target_source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "ISS Defiant Heist",
+      "relation_type": "stole_plans_of",
+      "source": "Mirror O'Brien",
+      "source_file": "key_figures.txt",
+      "target": "ISS Defiant",
+      "target_source_file": "technology_and_fleet.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "enemy_of",
+      "source": "Mirror Sisko",
+      "source_file": "key_figures.txt",
+      "target": "Klingon-Cardassian Alliance",
+      "target_source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "confidence": 0.9,
+      "note": "DS9 Mirror episodes",
+      "relation_type": "leads",
+      "source": "Mirror Sisko",
+      "source_file": "key_figures.txt",
+      "target": "Terran Rebellion",
+      "target_source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "first_officer_of",
+      "source": "Mirror Spock",
+      "source_file": "key_figures.txt",
+      "target": "ISS Enterprise NCC-1701",
+      "target_source_file": "technology_and_fleet.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "After Prime Kirk's advice",
+      "relation_type": "initiated",
+      "source": "Mirror Spock",
+      "source_file": "key_figures.txt",
+      "target": "Spock's Reforms",
+      "target_source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "member_of",
+      "source": "Mirror Spock",
+      "source_file": "key_figures.txt",
+      "target": "Terran Empire",
+      "target_source_file": "political_structure.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "Mirror Mirror TOS",
+      "relation_type": "involved",
+      "source": "Mirror Universe Crossover (TOS)",
+      "source_file": "mirror_universe_crossover_events.txt",
+      "target": "Mirror Kirk",
+      "target_source_file": "key_figures.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "involved",
+      "source": "Mirror Universe Crossover (TOS)",
+      "source_file": "mirror_universe_crossover_events.txt",
+      "target": "Mirror Spock",
+      "target_source_file": "key_figures.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "member_of",
+      "source": "Mirror Worf",
+      "source_file": "key_figures.txt",
+      "target": "Klingon-Cardassian Alliance",
+      "target_source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "confidence": 0.9,
+      "note": "Late DS9 Mirror episodes",
+      "relation_type": "regent_of",
+      "source": "Mirror Worf",
+      "source_file": "key_figures.txt",
+      "target": "Klingon-Cardassian Alliance",
+      "target_source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "Weakened Empire",
+      "relation_type": "caused",
+      "source": "Spock's Reforms",
+      "source_file": "the_alliance_and_fall.txt",
+      "target": "Fall of the Terran Empire",
+      "target_source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "owned_by",
+      "source": "Tantalus Field",
+      "source_file": "technology_and_fleet.txt",
+      "target": "Mirror Kirk",
+      "target_source_file": "key_figures.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "controlled_by",
+      "source": "Terok Nor",
+      "source_file": "terok_nor_and_rebellion.txt",
+      "target": "Klingon-Cardassian Alliance",
+      "target_source_file": "the_alliance_and_fall.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": "Bajoran sector",
+      "relation_type": "located_in",
+      "source": "Terok Nor",
+      "source_file": "terok_nor_and_rebellion.txt",
+      "target": "Bajor (Mirror)",
+      "target_source_file": "terok_nor_and_rebellion.txt"
+    },
+    {
+      "confidence": 1.0,
+      "note": null,
+      "relation_type": "triggered",
+      "source": "Zefram Cochrane",
+      "source_file": "history_and_origins.txt",
+      "target": "Cochrane's Attack",
+      "target_source_file": "history_and_origins.txt"
+    }
+  ],
+  "runtime_db_path": "vector_db/terran_empire/knowledge_graph.sqlite",
+  "schema_version": 1,
+  "stats": {
+    "by_type": {
+      "artifact": 4,
+      "character": 22,
+      "event": 6,
+      "faction": 4,
+      "place": 6
+    },
+    "canon_facts": 12,
+    "entities": 42,
+    "relations": 33
+  },
+  "universe_id": "terran_empire"
+}

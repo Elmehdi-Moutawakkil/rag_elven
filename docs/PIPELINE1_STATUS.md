@@ -28,7 +28,7 @@ Reason:
 | 6 | Normal/Lab modes | Partial | `src/normal_mode.py`, shared registry | Improve UI trace consistency |
 | 7 | Document ingestion | Done for text/Markdown | `src/ingestion/`, `storage/processed/terran_empire/` | Add PDF ingestion later |
 | 8 | Indexing/retrieval | Active | `src/retrieval_adapter.py`, `indexes/terran_empire/` | Add eval set and regression tests |
-| 9 | Knowledge Graph | Partial | `src/knowledge_graph.py`, `src/kg_tools.py` | Document schema and source provenance |
+| 9 | Knowledge Graph | Active hardening | `src/knowledge_graph.py`, `src/kg_tools.py`, `docs/KNOWLEDGE_GRAPH.md` | Add relation/rule source fields |
 | 10 | Validated memory | Partial | `src/memory_store.py`, tests | Connect to UI and agent flow |
 | 11 | AI generation | Partial | `src/llm_provider.py`, lore generators | Improve cost/log traces |
 | 12 | Output validation | Partial | `src/output_validation.py`, tests | Add source-coverage thresholds |
@@ -42,6 +42,6 @@ Reason:
 ## Immediate Roadmap
 
 1. Finish Step 8 with a retrieval eval set.
-2. Continue Step 9 with KG schema/source documentation.
+2. Continue Step 9 by adding relation/rule source fields.
 3. Then harden Step 10 memory integration.
 4. Delay multimodal, broad agents, MCP expansion, and fine-tuning until retrieval/KG/memory are stronger.
