@@ -71,7 +71,7 @@ def export_knowledge_graph(universe_id: str = "terran_empire") -> dict[str, Any]
         entities = []
         for row in entity_rows:
             entity = _decode_aliases(dict(row))
-            period = entity.get("era", entity.get("age", ""))
+            period = entity.get("period", entity.get("era", entity.get("age", "")))
             entities.append(
                 {
                     "name": entity["name"],
@@ -80,7 +80,7 @@ def export_knowledge_graph(universe_id: str = "terran_empire") -> dict[str, Any]
                     "description": entity.get("description", ""),
                     "period": period,
                     "source_file": entity.get("source_file", ""),
-                    "raw_period_field": "era" if "era" in entity else "age",
+                    "raw_period_field": "period",
                 }
             )
 
@@ -88,7 +88,8 @@ def export_knowledge_graph(universe_id: str = "terran_empire") -> dict[str, Any]
             """
             SELECT
                 e1.name AS source,
-                e1.source_file AS source_file,
+                r.source_file AS source_file,
+                e1.source_file AS source_entity_file,
                 r.relation_type,
                 e2.name AS target,
                 e2.source_file AS target_source_file,
@@ -103,7 +104,7 @@ def export_knowledge_graph(universe_id: str = "terran_empire") -> dict[str, Any]
         relations = [dict(row) for row in relation_rows]
 
         fact_rows = kg.conn.execute(
-            "SELECT description, violation_pattern, severity FROM canon_facts ORDER BY severity, description"
+            "SELECT description, violation_pattern, severity, source_file FROM canon_facts ORDER BY severity, description"
         ).fetchall()
         canon_facts = [dict(row) for row in fact_rows]
 
@@ -116,9 +117,9 @@ def export_knowledge_graph(universe_id: str = "terran_empire") -> dict[str, Any]
         "stats": stats,
         "provenance": {
             "entity_source_file": "available",
-            "relation_source_file": "derived from relation endpoints and relation note",
-            "canon_fact_source_file": "not structured yet",
-            "period_field": "normalized to period; source DB uses age or era depending on universe",
+            "relation_source_file": "available",
+            "canon_fact_source_file": "available",
+            "period_field": "standardized as period",
         },
         "entities": entities,
         "relations": relations,

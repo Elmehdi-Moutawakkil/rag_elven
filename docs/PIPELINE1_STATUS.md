@@ -6,13 +6,13 @@ Source roadmap: `PIPELINE1.md`.
 
 ## Current Position
 
-Active position: Step 8 consolidation, entering Step 9.
+Active position: Step 10 next.
 
 Reason:
 
 - Steps 1 to 7 have usable project artifacts.
-- Step 8 retrieval exists and is wired, but still needs evaluation coverage.
-- Step 9 KG exists as a minimal validator, but schema/source documentation is still thin.
+- Step 8 retrieval exists, is wired, and has a Terran evaluation set.
+- Step 9 KG exists, has schema documentation, source-file provenance, exports, and regression tests.
 - Steps 10 to 16 exist as prototypes or backend slices, not finished product layers.
 - Steps 17 and 18 are not mature enough to call done.
 
@@ -27,8 +27,8 @@ Reason:
 | 5 | Modular core | Done enough | `src/module_registry.py`, `src/pipeline_executor.py` | Harden error contracts |
 | 6 | Normal/Lab modes | Partial | `src/normal_mode.py`, shared registry | Improve UI trace consistency |
 | 7 | Document ingestion | Done for text/Markdown | `src/ingestion/`, `storage/processed/terran_empire/` | Add PDF ingestion later |
-| 8 | Indexing/retrieval | Active | `src/retrieval_adapter.py`, `indexes/terran_empire/` | Add eval set and regression tests |
-| 9 | Knowledge Graph | Active hardening | `src/knowledge_graph.py`, `src/kg_tools.py`, `docs/KNOWLEDGE_GRAPH.md` | Add relation/rule source fields |
+| 8 | Indexing/retrieval | Done for current scope | `src/retrieval_adapter.py`, `indexes/terran_empire/`, `evals/retrieval/terran_empire.jsonl` | Add larger evals later |
+| 9 | Knowledge Graph | Done for current scope | `src/knowledge_graph.py`, `src/kg_tools.py`, `docs/KNOWLEDGE_GRAPH.md`, `kg/*/export.json` | Add source spans later |
 | 10 | Validated memory | Partial | `src/memory_store.py`, tests | Connect to UI and agent flow |
 | 11 | AI generation | Partial | `src/llm_provider.py`, lore generators | Improve cost/log traces |
 | 12 | Output validation | Partial | `src/output_validation.py`, tests | Add source-coverage thresholds |
@@ -41,7 +41,5 @@ Reason:
 
 ## Immediate Roadmap
 
-1. Finish Step 8 with a retrieval eval set.
-2. Continue Step 9 by adding relation/rule source fields.
-3. Then harden Step 10 memory integration.
-4. Delay multimodal, broad agents, MCP expansion, and fine-tuning until retrieval/KG/memory are stronger.
+1. Harden Step 10 memory integration.
+2. Delay multimodal, broad agents, MCP expansion, and fine-tuning until retrieval/KG/memory are stronger.

@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS entities (
     aliases     TEXT    DEFAULT '[]',
     entity_type TEXT    NOT NULL,
     description TEXT,
-    era         TEXT,
+    period      TEXT,
     source_file TEXT
 );
 
@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS relations (
     entity2_id    INTEGER NOT NULL,
     confidence    REAL    DEFAULT 1.0,
     note          TEXT,
+    source_file   TEXT,
     FOREIGN KEY (entity1_id) REFERENCES entities(id),
     FOREIGN KEY (entity2_id) REFERENCES entities(id)
 );
@@ -45,7 +46,8 @@ CREATE TABLE IF NOT EXISTS canon_facts (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
     description       TEXT NOT NULL,
     violation_pattern TEXT,
-    severity          TEXT NOT NULL
+    severity          TEXT NOT NULL,
+    source_file       TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_entities_name  ON entities(name);
@@ -55,7 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_relations_e2   ON relations(entity2_id);
 """
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ENTITIES  (name, aliases_json, entity_type, description, era, source_file)
+# ENTITIES  (name, aliases_json, entity_type, description, period, source_file)
 # ─────────────────────────────────────────────────────────────────────────────
 ENTITIES = [
 
@@ -273,11 +275,11 @@ def build():
 
     # Insert entities
     name_to_id = {}
-    for name, aliases, etype, desc, era, src in ENTITIES:
+    for name, aliases, etype, desc, period, src in ENTITIES:
         cur = conn.execute(
-            "INSERT OR REPLACE INTO entities (name, aliases, entity_type, description, era, source_file) "
+            "INSERT OR REPLACE INTO entities (name, aliases, entity_type, description, period, source_file) "
             "VALUES (?,?,?,?,?,?)",
-            (name, aliases, etype, desc, era, src)
+            (name, aliases, etype, desc, period, src)
         )
         name_to_id[name] = cur.lastrowid
 
@@ -294,17 +296,18 @@ def build():
             print(f"  ⚠️  skipping relation ({e1} → {e2}): entity not found")
             skipped += 1
             continue
+        source_file = conn.execute("SELECT source_file FROM entities WHERE id = ?", (id1,)).fetchone()[0]
         conn.execute(
-            "INSERT INTO relations (entity1_id, relation_type, entity2_id, confidence, note) "
-            "VALUES (?,?,?,?,?)",
-            (id1, rtype, id2, conf, note)
+            "INSERT INTO relations (entity1_id, relation_type, entity2_id, confidence, note, source_file) "
+            "VALUES (?,?,?,?,?,?)",
+            (id1, rtype, id2, conf, note, source_file)
         )
 
     # Insert canon facts
     for desc, pattern, severity in CANON_FACTS:
         conn.execute(
-            "INSERT INTO canon_facts (description, violation_pattern, severity) VALUES (?,?,?)",
-            (desc, pattern, severity)
+            "INSERT INTO canon_facts (description, violation_pattern, severity, source_file) VALUES (?,?,?,?)",
+            (desc, pattern, severity, "scripts/build_kg_terran.py")
         )
 
     conn.commit()

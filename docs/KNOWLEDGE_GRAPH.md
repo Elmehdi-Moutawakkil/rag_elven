@@ -24,7 +24,7 @@ Both databases use three core tables.
 - `aliases`
 - `entity_type`
 - `description`
-- `age` or `era`
+- `period`
 - `source_file`
 
 `relations`:
@@ -35,6 +35,7 @@ Both databases use three core tables.
 - `entity2_id`
 - `confidence`
 - `note`
+- `source_file`
 
 `canon_facts`:
 
@@ -42,19 +43,21 @@ Both databases use three core tables.
 - `description`
 - `violation_pattern`
 - `severity`
+- `source_file`
 
 ## Provenance Status
 
-Current provenance is useful but incomplete.
+Current provenance is structured but not equally granular everywhere.
 
 - Entities have `source_file`.
-- Relations have endpoint entities and `note`, but no dedicated source field.
-- Canon facts have descriptions and regex rules, but no dedicated source field.
-- Tolkien stores period-like data as `age`.
-- Terran stores period-like data as `era`.
+- Relations have `source_file`.
+- Canon facts have `source_file`.
+- Period-like data is standardized as `period`.
 
-The export normalizes `age` and `era` to `period`, but the source databases are
-not yet schema-identical.
+For Tolkien, some graph records still point to the manual seed script rather
+than a precise text excerpt. For Terran, entities and relations generally point
+to source lore files, while canon rules point to the build script until rule
+source spans are curated.
 
 ## Export
 
@@ -92,14 +95,12 @@ It does not yet check:
 
 - full timeline consistency;
 - all relation contradictions;
-- relation source spans;
-- canon-fact source spans;
+- precise relation source spans;
+- precise canon-fact source spans;
 - multi-hop contradictions.
 
 ## Next Hardening
 
-1. Add `source_file` or `source_id` to relations.
-2. Add `source_file` or `source_id` to canon facts.
-3. Standardize `age` and `era` into one `period` field.
-4. Add JSON import/export for reviewable graph diffs.
-5. Add more contradiction tests for relation logic and false positives.
+1. Add precise source spans to relations and canon facts.
+2. Add JSON import for reviewable graph diffs.
+3. Add more contradiction tests for relation logic and false positives.

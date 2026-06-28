@@ -401,6 +401,8 @@ CANON_FACTS: list[tuple] = [
 
 def build(verbose: bool = True) -> KnowledgeGraph:
     kg = KnowledgeGraph()
+    if kg.db_path.exists():
+        kg.db_path.unlink()
     kg.connect()
 
     if verbose:
@@ -415,7 +417,8 @@ def build(verbose: bool = True) -> KnowledgeGraph:
             entity_type=etype,
             aliases=aliases,
             description=desc,
-            age=age,
+            period=age,
+            source_file="scripts/build_kg.py",
         )
 
     if verbose:
@@ -426,7 +429,14 @@ def build(verbose: bool = True) -> KnowledgeGraph:
     for row in RELATIONS:
         e1, rel, e2, conf, note = row
         try:
-            kg.upsert_relation(e1, rel, e2, confidence=conf, note=note)
+            kg.upsert_relation(
+                e1,
+                rel,
+                e2,
+                confidence=conf,
+                note=note,
+                source_file="scripts/build_kg.py",
+            )
         except ValueError as exc:
             errors.append(str(exc))
 
@@ -440,7 +450,7 @@ def build(verbose: bool = True) -> KnowledgeGraph:
 
     # Insert canon facts
     for desc, pattern, severity in CANON_FACTS:
-        kg.add_canon_fact(desc, pattern, severity)
+        kg.add_canon_fact(desc, pattern, severity, source_file="scripts/build_kg.py")
 
     stats = kg.get_stats()
     if verbose:

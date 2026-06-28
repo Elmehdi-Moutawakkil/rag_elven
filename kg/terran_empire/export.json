@@ -3,61 +3,73 @@
     {
       "description": "ISS vessels belong to the Terran Empire, USS vessels to the Federation — do not mix",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)uss enterprise.{0,20}mirror universe|mirror.{0,20}uss enterprise(?! prime)"
     },
     {
       "description": "In Mirror Universe, the Alliance defeated the Empire — not the Federation",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)federation.{0,30}(defeated|conquered|overthrew).{0,30}(terran empire|empire)"
     },
     {
       "description": "Mirror Spock is a Vulcan, not human",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)mirror spock.{0,20}(human|terran|man|earthling)"
     },
     {
       "description": "Promotion in the Terran Empire is achieved through assassination, not merit exams",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)(exam|test|evaluation|merit review).{0,30}promotion.{0,30}(terran empire|iss enterprise)"
     },
     {
       "description": "Terok Nor is a space station, not a planet or ship",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)terok nor.{0,20}(planet|ship|vessel|colony)"
     },
     {
       "description": "The Agony Booth is a torture device, not a medical or relaxation device",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)agony booth.{0,30}(meditation|healing|relaxation|comfort|pleasure)"
     },
     {
       "description": "The Tantalus Field is a weapon/kill device, not a transporter or medical device",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)tantalus field.{0,30}(transport|heal|cure|medical)"
     },
     {
       "description": "The Terran Empire is an autocracy, not a democracy, republic, or representative system",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)\\bterran empire\\b.{0,80}\\b(democracy|republic|representative system)\\b"
     },
     {
       "description": "The Terran Empire is from the Mirror Universe, not the Prime Star Trek universe",
       "severity": "HARD",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)(prime universe|federation universe).{0,30}terran empire|terran empire.{0,30}(prime universe|star fleet command(?! mirror))"
     },
     {
       "description": "Cochrane's first contact in Mirror Universe ended in violence, not peace",
       "severity": "SOFT",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)cochrane.{0,30}(peaceful|friendly|welcomed).{0,30}(vulcan|first contact)"
     },
     {
       "description": "Mirror Bashir and O'Brien are rebel fighters, not Alliance loyalists",
       "severity": "SOFT",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)(mirror bashir|mirror o.brien|smiley).{0,30}(alliance officer|cardassian agent|loyal to the alliance)"
     },
     {
       "description": "The Klingon-Cardassian Alliance enslaved Terrans, not exterminated them",
       "severity": "SOFT",
+      "source_file": "scripts/build_kg_terran.py",
       "violation_pattern": "(?i)(klingon.cardassian alliance|the alliance).{0,40}(exterminated|wiped out|genocide).{0,20}terran"
     }
   ],
@@ -70,7 +82,7 @@
       "entity_type": "artifact",
       "name": "Agonizer",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "political_structure.txt"
     },
     {
@@ -79,7 +91,7 @@
       "entity_type": "artifact",
       "name": "Agony Booth",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "political_structure.txt"
     },
     {
@@ -88,7 +100,7 @@
       "entity_type": "place",
       "name": "Bajor (Mirror)",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "terok_nor_and_rebellion.txt"
     },
     {
@@ -97,7 +109,7 @@
       "entity_type": "event",
       "name": "Cochrane's Attack",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "history_and_origins.txt"
     },
     {
@@ -108,7 +120,7 @@
       "entity_type": "place",
       "name": "Earth (Mirror)",
       "period": "TOS,ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "history_and_origins.txt"
     },
     {
@@ -117,7 +129,7 @@
       "entity_type": "event",
       "name": "Empress Hoshi Seizure",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "mirror_universe_crossover_events.txt"
     },
     {
@@ -126,7 +138,7 @@
       "entity_type": "event",
       "name": "Fall of the Terran Empire",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "the_alliance_and_fall.txt"
     },
     {
@@ -137,7 +149,7 @@
       "entity_type": "character",
       "name": "Hoshi Sato",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -148,7 +160,7 @@
       "entity_type": "place",
       "name": "ISS Defiant",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "technology_and_fleet.txt"
     },
     {
@@ -157,7 +169,7 @@
       "entity_type": "event",
       "name": "ISS Defiant Heist",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "technology_and_fleet.txt"
     },
     {
@@ -168,7 +180,7 @@
       "entity_type": "place",
       "name": "ISS Enterprise NCC-1701",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "technology_and_fleet.txt"
     },
     {
@@ -179,7 +191,7 @@
       "entity_type": "place",
       "name": "ISS Enterprise NX-01",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "technology_and_fleet.txt"
     },
     {
@@ -191,7 +203,7 @@
       "entity_type": "character",
       "name": "Intendant Kira",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -202,7 +214,7 @@
       "entity_type": "faction",
       "name": "Klingon-Cardassian Alliance",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "the_alliance_and_fall.txt"
     },
     {
@@ -213,7 +225,7 @@
       "entity_type": "character",
       "name": "Mirror Archer",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -224,7 +236,7 @@
       "entity_type": "character",
       "name": "Mirror Bashir",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -235,7 +247,7 @@
       "entity_type": "character",
       "name": "Mirror Ezri",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -246,7 +258,7 @@
       "entity_type": "character",
       "name": "Mirror Garak",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -258,7 +270,7 @@
       "entity_type": "character",
       "name": "Mirror Kirk",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -269,7 +281,7 @@
       "entity_type": "character",
       "name": "Mirror Marlena",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -281,7 +293,7 @@
       "entity_type": "character",
       "name": "Mirror McCoy",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -292,7 +304,7 @@
       "entity_type": "character",
       "name": "Mirror Nog",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -304,7 +316,7 @@
       "entity_type": "character",
       "name": "Mirror O'Brien",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -315,7 +327,7 @@
       "entity_type": "character",
       "name": "Mirror Quark",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -326,7 +338,7 @@
       "entity_type": "character",
       "name": "Mirror Scotty",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -337,7 +349,7 @@
       "entity_type": "character",
       "name": "Mirror Sisko",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -349,7 +361,7 @@
       "entity_type": "character",
       "name": "Mirror Spock",
       "period": "TOS,DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -360,7 +372,7 @@
       "entity_type": "character",
       "name": "Mirror Sulu",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -371,7 +383,7 @@
       "entity_type": "character",
       "name": "Mirror T'Pol",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -383,7 +395,7 @@
       "entity_type": "character",
       "name": "Mirror Tucker",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -394,7 +406,7 @@
       "entity_type": "character",
       "name": "Mirror Uhura",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -405,7 +417,7 @@
       "entity_type": "event",
       "name": "Mirror Universe Crossover (TOS)",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "mirror_universe_crossover_events.txt"
     },
     {
@@ -417,7 +429,7 @@
       "entity_type": "character",
       "name": "Mirror Worf",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -426,7 +438,7 @@
       "entity_type": "character",
       "name": "Phlox (Mirror)",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "key_figures.txt"
     },
     {
@@ -435,7 +447,7 @@
       "entity_type": "event",
       "name": "Spock's Reforms",
       "period": "TOS,DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "the_alliance_and_fall.txt"
     },
     {
@@ -444,7 +456,7 @@
       "entity_type": "artifact",
       "name": "Tantalus Field",
       "period": "TOS",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "technology_and_fleet.txt"
     },
     {
@@ -455,7 +467,7 @@
       "entity_type": "place",
       "name": "Terok Nor",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "terok_nor_and_rebellion.txt"
     },
     {
@@ -466,7 +478,7 @@
       "entity_type": "faction",
       "name": "Terran Empire",
       "period": "TOS,ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "political_structure.txt"
     },
     {
@@ -475,7 +487,7 @@
       "entity_type": "artifact",
       "name": "Terran Empire emblem",
       "period": "TOS,ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "political_structure.txt"
     },
     {
@@ -487,7 +499,7 @@
       "entity_type": "faction",
       "name": "Terran Rebellion",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "terok_nor_and_rebellion.txt"
     },
     {
@@ -496,7 +508,7 @@
       "entity_type": "faction",
       "name": "Vulcan Resistance",
       "period": "DS9",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "terok_nor_and_rebellion.txt"
     },
     {
@@ -507,15 +519,15 @@
       "entity_type": "character",
       "name": "Zefram Cochrane",
       "period": "ENT",
-      "raw_period_field": "era",
+      "raw_period_field": "period",
       "source_file": "history_and_origins.txt"
     }
   ],
   "provenance": {
-    "canon_fact_source_file": "not structured yet",
+    "canon_fact_source_file": "available",
     "entity_source_file": "available",
-    "period_field": "normalized to period; source DB uses age or era depending on universe",
-    "relation_source_file": "derived from relation endpoints and relation note"
+    "period_field": "standardized as period",
+    "relation_source_file": "available"
   },
   "relations": [
     {
@@ -523,6 +535,7 @@
       "note": "Personal device",
       "relation_type": "used_by",
       "source": "Agonizer",
+      "source_entity_file": "political_structure.txt",
       "source_file": "political_structure.txt",
       "target": "Terran Empire",
       "target_source_file": "political_structure.txt"
@@ -532,6 +545,7 @@
       "note": "Standard punishment",
       "relation_type": "used_by",
       "source": "Agony Booth",
+      "source_entity_file": "political_structure.txt",
       "source_file": "political_structure.txt",
       "target": "Terran Empire",
       "target_source_file": "political_structure.txt"
@@ -541,6 +555,7 @@
       "note": "Ideological origin",
       "relation_type": "founded",
       "source": "Cochrane's Attack",
+      "source_entity_file": "history_and_origins.txt",
       "source_file": "history_and_origins.txt",
       "target": "Terran Empire",
       "target_source_file": "political_structure.txt"
@@ -550,6 +565,7 @@
       "note": null,
       "relation_type": "caused_by",
       "source": "Fall of the Terran Empire",
+      "source_entity_file": "the_alliance_and_fall.txt",
       "source_file": "the_alliance_and_fall.txt",
       "target": "Spock's Reforms",
       "target_source_file": "the_alliance_and_fall.txt"
@@ -559,6 +575,7 @@
       "note": "Became Empress",
       "relation_type": "seized",
       "source": "Hoshi Sato",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "ISS Enterprise NX-01",
       "target_source_file": "technology_and_fleet.txt"
@@ -568,6 +585,7 @@
       "note": null,
       "relation_type": "part_of",
       "source": "ISS Defiant Heist",
+      "source_entity_file": "technology_and_fleet.txt",
       "source_file": "technology_and_fleet.txt",
       "target": "Terran Rebellion",
       "target_source_file": "terok_nor_and_rebellion.txt"
@@ -577,6 +595,7 @@
       "note": "DS9 Mirror episodes",
       "relation_type": "controls",
       "source": "Intendant Kira",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Terok Nor",
       "target_source_file": "terok_nor_and_rebellion.txt"
@@ -586,6 +605,7 @@
       "note": null,
       "relation_type": "enemy_of",
       "source": "Intendant Kira",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Terran Rebellion",
       "target_source_file": "terok_nor_and_rebellion.txt"
@@ -595,6 +615,7 @@
       "note": null,
       "relation_type": "member_of",
       "source": "Intendant Kira",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Klingon-Cardassian Alliance",
       "target_source_file": "the_alliance_and_fall.txt"
@@ -604,6 +625,7 @@
       "note": "DS9 backstory",
       "relation_type": "conquered",
       "source": "Klingon-Cardassian Alliance",
+      "source_entity_file": "the_alliance_and_fall.txt",
       "source_file": "the_alliance_and_fall.txt",
       "target": "Terran Empire",
       "target_source_file": "political_structure.txt"
@@ -613,6 +635,7 @@
       "note": "ENT In a Mirror Darkly",
       "relation_type": "commands",
       "source": "Mirror Archer",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "ISS Enterprise NX-01",
       "target_source_file": "technology_and_fleet.txt"
@@ -622,6 +645,7 @@
       "note": null,
       "relation_type": "member_of",
       "source": "Mirror Bashir",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Terran Rebellion",
       "target_source_file": "terok_nor_and_rebellion.txt"
@@ -631,6 +655,7 @@
       "note": null,
       "relation_type": "enforcer_for",
       "source": "Mirror Garak",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Mirror Worf",
       "target_source_file": "key_figures.txt"
@@ -640,6 +665,7 @@
       "note": "Captain's Woman",
       "relation_type": "ally_of",
       "source": "Mirror Kirk",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Mirror Marlena",
       "target_source_file": "key_figures.txt"
@@ -649,6 +675,7 @@
       "note": "TOS canon",
       "relation_type": "commands",
       "source": "Mirror Kirk",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "ISS Enterprise NCC-1701",
       "target_source_file": "technology_and_fleet.txt"
@@ -658,6 +685,7 @@
       "note": null,
       "relation_type": "member_of",
       "source": "Mirror Kirk",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Terran Empire",
       "target_source_file": "political_structure.txt"
@@ -667,6 +695,7 @@
       "note": "Mirror Mirror episode",
       "relation_type": "possesses",
       "source": "Mirror Kirk",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Tantalus Field",
       "target_source_file": "technology_and_fleet.txt"
@@ -676,6 +705,7 @@
       "note": null,
       "relation_type": "member_of",
       "source": "Mirror O'Brien",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Terran Rebellion",
       "target_source_file": "terok_nor_and_rebellion.txt"
@@ -685,6 +715,7 @@
       "note": "ISS Defiant Heist",
       "relation_type": "stole_plans_of",
       "source": "Mirror O'Brien",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "ISS Defiant",
       "target_source_file": "technology_and_fleet.txt"
@@ -694,6 +725,7 @@
       "note": null,
       "relation_type": "enemy_of",
       "source": "Mirror Sisko",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Klingon-Cardassian Alliance",
       "target_source_file": "the_alliance_and_fall.txt"
@@ -703,6 +735,7 @@
       "note": "DS9 Mirror episodes",
       "relation_type": "leads",
       "source": "Mirror Sisko",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Terran Rebellion",
       "target_source_file": "terok_nor_and_rebellion.txt"
@@ -712,6 +745,7 @@
       "note": null,
       "relation_type": "first_officer_of",
       "source": "Mirror Spock",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "ISS Enterprise NCC-1701",
       "target_source_file": "technology_and_fleet.txt"
@@ -721,6 +755,7 @@
       "note": "After Prime Kirk's advice",
       "relation_type": "initiated",
       "source": "Mirror Spock",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Spock's Reforms",
       "target_source_file": "the_alliance_and_fall.txt"
@@ -730,6 +765,7 @@
       "note": null,
       "relation_type": "member_of",
       "source": "Mirror Spock",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Terran Empire",
       "target_source_file": "political_structure.txt"
@@ -739,6 +775,7 @@
       "note": "Mirror Mirror TOS",
       "relation_type": "involved",
       "source": "Mirror Universe Crossover (TOS)",
+      "source_entity_file": "mirror_universe_crossover_events.txt",
       "source_file": "mirror_universe_crossover_events.txt",
       "target": "Mirror Kirk",
       "target_source_file": "key_figures.txt"
@@ -748,6 +785,7 @@
       "note": null,
       "relation_type": "involved",
       "source": "Mirror Universe Crossover (TOS)",
+      "source_entity_file": "mirror_universe_crossover_events.txt",
       "source_file": "mirror_universe_crossover_events.txt",
       "target": "Mirror Spock",
       "target_source_file": "key_figures.txt"
@@ -757,6 +795,7 @@
       "note": null,
       "relation_type": "member_of",
       "source": "Mirror Worf",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Klingon-Cardassian Alliance",
       "target_source_file": "the_alliance_and_fall.txt"
@@ -766,6 +805,7 @@
       "note": "Late DS9 Mirror episodes",
       "relation_type": "regent_of",
       "source": "Mirror Worf",
+      "source_entity_file": "key_figures.txt",
       "source_file": "key_figures.txt",
       "target": "Klingon-Cardassian Alliance",
       "target_source_file": "the_alliance_and_fall.txt"
@@ -775,6 +815,7 @@
       "note": "Weakened Empire",
       "relation_type": "caused",
       "source": "Spock's Reforms",
+      "source_entity_file": "the_alliance_and_fall.txt",
       "source_file": "the_alliance_and_fall.txt",
       "target": "Fall of the Terran Empire",
       "target_source_file": "the_alliance_and_fall.txt"
@@ -784,6 +825,7 @@
       "note": null,
       "relation_type": "owned_by",
       "source": "Tantalus Field",
+      "source_entity_file": "technology_and_fleet.txt",
       "source_file": "technology_and_fleet.txt",
       "target": "Mirror Kirk",
       "target_source_file": "key_figures.txt"
@@ -793,6 +835,7 @@
       "note": null,
       "relation_type": "controlled_by",
       "source": "Terok Nor",
+      "source_entity_file": "terok_nor_and_rebellion.txt",
       "source_file": "terok_nor_and_rebellion.txt",
       "target": "Klingon-Cardassian Alliance",
       "target_source_file": "the_alliance_and_fall.txt"
@@ -802,6 +845,7 @@
       "note": "Bajoran sector",
       "relation_type": "located_in",
       "source": "Terok Nor",
+      "source_entity_file": "terok_nor_and_rebellion.txt",
       "source_file": "terok_nor_and_rebellion.txt",
       "target": "Bajor (Mirror)",
       "target_source_file": "terok_nor_and_rebellion.txt"
@@ -811,6 +855,7 @@
       "note": null,
       "relation_type": "triggered",
       "source": "Zefram Cochrane",
+      "source_entity_file": "history_and_origins.txt",
       "source_file": "history_and_origins.txt",
       "target": "Cochrane's Attack",
       "target_source_file": "history_and_origins.txt"

@@ -61,9 +61,30 @@ class KGToolsTests(unittest.TestCase):
         self.assertEqual(export["stats"]["relations"], 33)
         self.assertEqual(export["stats"]["canon_facts"], 12)
         self.assertEqual(export["provenance"]["entity_source_file"], "available")
-        self.assertEqual(export["provenance"]["canon_fact_source_file"], "not structured yet")
+        self.assertEqual(export["provenance"]["relation_source_file"], "available")
+        self.assertEqual(export["provenance"]["canon_fact_source_file"], "available")
         self.assertTrue(any(entity["name"] == "Mirror Spock" for entity in export["entities"]))
         self.assertTrue(any(relation["relation_type"] == "initiated" for relation in export["relations"]))
+
+    def test_kg_export_standardizes_period_and_source_fields(self):
+        export = export_knowledge_graph("terran_empire")
+
+        mirror_spock = next(entity for entity in export["entities"] if entity["name"] == "Mirror Spock")
+        self.assertEqual(mirror_spock["period"], "TOS,DS9")
+        self.assertEqual(mirror_spock["raw_period_field"], "period")
+        self.assertEqual(mirror_spock["source_file"], "key_figures.txt")
+
+        initiated = next(
+            relation for relation in export["relations"]
+            if relation["source"] == "Mirror Spock" and relation["relation_type"] == "initiated"
+        )
+        self.assertEqual(initiated["source_file"], "key_figures.txt")
+
+        canon_fact = next(
+            fact for fact in export["canon_facts"]
+            if fact["description"].startswith("Mirror Spock is a Vulcan")
+        )
+        self.assertEqual(canon_fact["source_file"], "scripts/build_kg_terran.py")
 
 
 if __name__ == "__main__":

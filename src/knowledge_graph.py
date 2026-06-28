@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS entities (
     aliases     TEXT    DEFAULT '[]',   -- JSON array of alternate names
     entity_type TEXT    NOT NULL,       -- character|place|artifact|group|event|language
     description TEXT,
-    age         TEXT,                   -- first|second|third|all|primeval  (comma-sep)
+    period      TEXT,                   -- first|second|third|all|primeval or universe-specific era
     source_file TEXT
 );
 
@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS relations (
     entity2_id    INTEGER NOT NULL,
     confidence    REAL    DEFAULT 1.0,
     note          TEXT,
+    source_file   TEXT,
     FOREIGN KEY (entity1_id) REFERENCES entities(id),
     FOREIGN KEY (entity2_id) REFERENCES entities(id)
 );
@@ -58,7 +59,8 @@ CREATE TABLE IF NOT EXISTS canon_facts (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
     description       TEXT NOT NULL,  -- human-readable rule
     violation_pattern TEXT,           -- regex that flags a potential violation in story text
-    severity          TEXT NOT NULL   -- HARD|SOFT
+    severity          TEXT NOT NULL,  -- HARD|SOFT
+    source_file       TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_entities_name     ON entities(name);
@@ -120,22 +122,25 @@ class KnowledgeGraph:
         entity_type: str,
         aliases: list[str] = None,
         description: str = "",
-        age: str = "all",
+        period: str = "all",
         source_file: str = "",
+        age: str | None = None,
     ) -> int:
         """Insert or replace an entity, return its id."""
+        period = age if age is not None else period
         aliases_json = json.dumps(aliases or [])
         cur = self.conn.execute(
             """
-            INSERT INTO entities (name, aliases, entity_type, description, age, source_file)
+            INSERT INTO entities (name, aliases, entity_type, description, period, source_file)
             VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(name) DO UPDATE SET
                 aliases     = excluded.aliases,
                 entity_type = excluded.entity_type,
                 description = excluded.description,
-                age         = excluded.age
+                period      = excluded.period,
+                source_file = excluded.source_file
             """,
-            (name, aliases_json, entity_type, description, age, source_file),
+            (name, aliases_json, entity_type, description, period, source_file),
         )
         self.conn.commit()
         row = self.conn.execute("SELECT id FROM entities WHERE name = ?", (name,)).fetchone()
@@ -148,6 +153,7 @@ class KnowledgeGraph:
         entity2_name: str,
         confidence: float = 1.0,
         note: str = "",
+        source_file: str = "",
     ):
         """Add a relation between two named entities (must already exist)."""
         e1 = self.conn.execute(
@@ -172,18 +178,24 @@ class KnowledgeGraph:
             return
 
         self.conn.execute(
-            """INSERT INTO relations (entity1_id, relation_type, entity2_id, confidence, note)
-               VALUES (?, ?, ?, ?, ?)""",
-            (e1["id"], relation_type, e2["id"], confidence, note),
+            """INSERT INTO relations (entity1_id, relation_type, entity2_id, confidence, note, source_file)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (e1["id"], relation_type, e2["id"], confidence, note, source_file),
         )
         self.conn.commit()
 
-    def add_canon_fact(self, description: str, violation_pattern: str, severity: str):
+    def add_canon_fact(
+        self,
+        description: str,
+        violation_pattern: str,
+        severity: str,
+        source_file: str = "",
+    ):
         """Add a canon rule (HARD or SOFT)."""
         self.conn.execute(
-            """INSERT INTO canon_facts (description, violation_pattern, severity)
-               VALUES (?, ?, ?)""",
-            (description, violation_pattern, severity),
+            """INSERT INTO canon_facts (description, violation_pattern, severity, source_file)
+               VALUES (?, ?, ?, ?)""",
+            (description, violation_pattern, severity, source_file),
         )
         self.conn.commit()
 

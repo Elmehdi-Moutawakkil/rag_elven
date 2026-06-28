@@ -3,61 +3,73 @@
     {
       "description": "Celebrimbor forged the three Elven rings (Narya, Nenya, Vilya)",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\b(narya|nenya|vilya|elven ring|three rings)\\b"
     },
     {
       "description": "Daeron invented the Cirth runes",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\bcirth\\b"
     },
     {
       "description": "Feanor created the Silmarils",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\b(silmaril|silmarilli)\\b"
     },
     {
       "description": "Feanor invented the Tengwar writing system",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\btengwar\\b"
     },
     {
       "description": "Finrod Felagund founded Nargothrond",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\b(founded|built|established)\\b.{0,40}\\bnargothrond\\b"
     },
     {
       "description": "Melian is the queen of Doriath",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\bqueen\\b.{0,40}\\bdoriath\\b"
     },
     {
       "description": "Sauron forged the One Ring in Mount Doom",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\b(one ring|ruling ring)\\b"
     },
     {
       "description": "Thingol is the king of Doriath — no other character can hold that title",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\b(king|ruler|lord)\\b.{0,40}\\bdoriath\\b"
     },
     {
       "description": "Turgon is the king of Gondolin",
       "severity": "HARD",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\b(king|ruler|lord)\\b.{0,40}\\bgondolin\\b"
     },
     {
       "description": "Beleriand sank beneath the sea at the end of the First Age",
       "severity": "SOFT",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\bbeleriand\\b.{0,60}\\b(second age|third age|2nd age|3rd age)\\b"
     },
     {
       "description": "Morgoth was cast into the Void after the War of Wrath — he cannot act in the Second or Third Age",
       "severity": "SOFT",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\bmorgoth\\b.{0,60}\\b(second age|third age|2nd age|3rd age|rules|commands|leads)\\b"
     },
     {
       "description": "The Two Trees of Valinor were destroyed by Morgoth and Ungoliant — they no longer exist in Middle-earth",
       "severity": "SOFT",
+      "source_file": "scripts/build_kg.py",
       "violation_pattern": "\\btwo trees\\b.{0,60}\\b(exist|grow|stand|bloom)\\b.{0,30}\\b(middle-earth|beleriand|mirkwood)\\b"
     }
   ],
@@ -68,8 +80,8 @@
       "entity_type": "group",
       "name": "Ainur",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -79,8 +91,8 @@
       "entity_type": "place",
       "name": "Alqualonde",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -88,8 +100,8 @@
       "entity_type": "place",
       "name": "Angband",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -99,8 +111,8 @@
       "entity_type": "place",
       "name": "Ard-galen",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -108,8 +120,8 @@
       "entity_type": "character",
       "name": "Arien",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -117,8 +129,8 @@
       "entity_type": "character",
       "name": "Aule",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -128,8 +140,8 @@
       "entity_type": "group",
       "name": "Avari",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -139,8 +151,8 @@
       "entity_type": "group",
       "name": "Balrogs",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -148,8 +160,8 @@
       "entity_type": "place",
       "name": "Beleriand",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -157,8 +169,8 @@
       "entity_type": "character",
       "name": "Beren",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -166,8 +178,8 @@
       "entity_type": "language",
       "name": "Black Speech",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -175,8 +187,8 @@
       "entity_type": "character",
       "name": "Celeborn",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -184,8 +196,8 @@
       "entity_type": "character",
       "name": "Celebrimbor",
       "period": "second",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -195,8 +207,8 @@
       "entity_type": "character",
       "name": "Cirdan",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -204,8 +216,8 @@
       "entity_type": "artifact",
       "name": "Cirth",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -213,8 +225,8 @@
       "entity_type": "place",
       "name": "Cuivienen",
       "period": "primeval",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -222,8 +234,8 @@
       "entity_type": "character",
       "name": "Daeron",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -233,8 +245,8 @@
       "entity_type": "event",
       "name": "Dagor Aglareb",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -244,8 +256,8 @@
       "entity_type": "event",
       "name": "Dagor Bragollach",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -255,8 +267,8 @@
       "entity_type": "event",
       "name": "Dagor-nuin-Giliath",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -264,8 +276,8 @@
       "entity_type": "event",
       "name": "Darkening of Valinor",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -275,8 +287,8 @@
       "entity_type": "event",
       "name": "Doom of Mandos",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -287,8 +299,8 @@
       "entity_type": "place",
       "name": "Doriath",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -298,8 +310,8 @@
       "entity_type": "group",
       "name": "Dwarves",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -307,8 +319,8 @@
       "entity_type": "character",
       "name": "Earendil",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -316,8 +328,8 @@
       "entity_type": "group",
       "name": "Edain",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -325,8 +337,8 @@
       "entity_type": "group",
       "name": "Eldar",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -334,8 +346,8 @@
       "entity_type": "character",
       "name": "Elrond",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -343,8 +355,8 @@
       "entity_type": "character",
       "name": "Eonwe",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -352,8 +364,8 @@
       "entity_type": "event",
       "name": "Fall of Doriath",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -361,8 +373,8 @@
       "entity_type": "event",
       "name": "Fall of Gondolin",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -370,8 +382,8 @@
       "entity_type": "event",
       "name": "Fall of Nargothrond",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -382,8 +394,8 @@
       "entity_type": "character",
       "name": "Feanor",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -391,8 +403,8 @@
       "entity_type": "character",
       "name": "Fingolfin",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -402,8 +414,8 @@
       "entity_type": "character",
       "name": "Finrod",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -411,8 +423,8 @@
       "entity_type": "character",
       "name": "Finwe",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -420,8 +432,8 @@
       "entity_type": "character",
       "name": "Galadriel",
       "period": "first,second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -434,8 +446,8 @@
       "entity_type": "character",
       "name": "Gandalf",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -443,8 +455,8 @@
       "entity_type": "character",
       "name": "Gil-galad",
       "period": "second",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -452,8 +464,8 @@
       "entity_type": "artifact",
       "name": "Girdle of Melian",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -461,8 +473,8 @@
       "entity_type": "character",
       "name": "Glaurung",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -470,8 +482,8 @@
       "entity_type": "character",
       "name": "Glorfindel",
       "period": "first,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -482,8 +494,8 @@
       "entity_type": "place",
       "name": "Gondolin",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -491,8 +503,8 @@
       "entity_type": "event",
       "name": "Great Journey",
       "period": "primeval",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -502,8 +514,8 @@
       "entity_type": "place",
       "name": "Grey Havens",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -513,8 +525,8 @@
       "entity_type": "artifact",
       "name": "Gurthang",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -522,8 +534,8 @@
       "entity_type": "place",
       "name": "Hithlum",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -533,8 +545,8 @@
       "entity_type": "character",
       "name": "Huan",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -542,8 +554,8 @@
       "entity_type": "character",
       "name": "Hurin",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -551,8 +563,8 @@
       "entity_type": "character",
       "name": "Idril",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -560,8 +572,8 @@
       "entity_type": "character",
       "name": "Imin",
       "period": "primeval",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -569,8 +581,8 @@
       "entity_type": "character",
       "name": "Ingwe",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -580,8 +592,8 @@
       "entity_type": "place",
       "name": "Isengard",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -591,8 +603,8 @@
       "entity_type": "group",
       "name": "Istari",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -600,8 +612,8 @@
       "entity_type": "language",
       "name": "Khuzdul",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -611,8 +623,8 @@
       "entity_type": "event",
       "name": "Kinslaying",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -620,8 +632,8 @@
       "entity_type": "character",
       "name": "Legolas",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -633,8 +645,8 @@
       "entity_type": "place",
       "name": "Lothlorien",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -644,8 +656,8 @@
       "entity_type": "character",
       "name": "Luthien",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -653,8 +665,8 @@
       "entity_type": "character",
       "name": "Maedhros",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -662,8 +674,8 @@
       "entity_type": "character",
       "name": "Maglor",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -671,8 +683,8 @@
       "entity_type": "group",
       "name": "Maiar",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -682,8 +694,8 @@
       "entity_type": "character",
       "name": "Mandos",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -691,8 +703,8 @@
       "entity_type": "character",
       "name": "Manwe",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -700,8 +712,8 @@
       "entity_type": "character",
       "name": "Melian",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -712,8 +724,8 @@
       "entity_type": "place",
       "name": "Mirkwood",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -723,8 +735,8 @@
       "entity_type": "place",
       "name": "Mordor",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -736,8 +748,8 @@
       "entity_type": "character",
       "name": "Morgoth",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -748,8 +760,8 @@
       "entity_type": "place",
       "name": "Moria",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -759,8 +771,8 @@
       "entity_type": "place",
       "name": "Mount Doom",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -768,8 +780,8 @@
       "entity_type": "place",
       "name": "Nan Elmoth",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -777,8 +789,8 @@
       "entity_type": "group",
       "name": "Nandor",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -788,8 +800,8 @@
       "entity_type": "language",
       "name": "Nandorin",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -797,8 +809,8 @@
       "entity_type": "place",
       "name": "Nargothrond",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -809,8 +821,8 @@
       "entity_type": "artifact",
       "name": "Narya",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -821,8 +833,8 @@
       "entity_type": "artifact",
       "name": "Nenya",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -830,8 +842,8 @@
       "entity_type": "character",
       "name": "Nienna",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -841,8 +853,8 @@
       "entity_type": "event",
       "name": "Nirnaeth Arnoediad",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -853,8 +865,8 @@
       "entity_type": "group",
       "name": "Noldor",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -864,8 +876,8 @@
       "entity_type": "place",
       "name": "Numenor",
       "period": "second",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -873,8 +885,8 @@
       "entity_type": "group",
       "name": "Numenoreans",
       "period": "second",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -882,8 +894,8 @@
       "entity_type": "character",
       "name": "Olwe",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -895,8 +907,8 @@
       "entity_type": "artifact",
       "name": "One Ring",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -906,8 +918,8 @@
       "entity_type": "group",
       "name": "Orcs",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -915,8 +927,8 @@
       "entity_type": "character",
       "name": "Orome",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -924,8 +936,8 @@
       "entity_type": "character",
       "name": "Osse",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -935,8 +947,8 @@
       "entity_type": "artifact",
       "name": "Palantiri",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -946,8 +958,8 @@
       "entity_type": "language",
       "name": "Primitive Quendian",
       "period": "primeval",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -955,8 +967,8 @@
       "entity_type": "group",
       "name": "Quendi",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -967,8 +979,8 @@
       "entity_type": "language",
       "name": "Quenya",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -978,8 +990,8 @@
       "entity_type": "character",
       "name": "Radagast",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -987,8 +999,8 @@
       "entity_type": "place",
       "name": "Rhosgobel",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -998,8 +1010,8 @@
       "entity_type": "place",
       "name": "Rivendell",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1010,8 +1022,8 @@
       "entity_type": "character",
       "name": "Saruman",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1023,8 +1035,8 @@
       "entity_type": "character",
       "name": "Sauron",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1034,8 +1046,8 @@
       "entity_type": "artifact",
       "name": "Silmarils",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1045,8 +1057,8 @@
       "entity_type": "group",
       "name": "Silvan Elves",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1056,8 +1068,8 @@
       "entity_type": "group",
       "name": "Sindar",
       "period": "first,second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1067,8 +1079,8 @@
       "entity_type": "language",
       "name": "Sindarin",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1078,8 +1090,8 @@
       "entity_type": "group",
       "name": "Teleri",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1087,8 +1099,8 @@
       "entity_type": "language",
       "name": "Telerin",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1096,8 +1108,8 @@
       "entity_type": "artifact",
       "name": "Tengwar",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1105,8 +1117,8 @@
       "entity_type": "place",
       "name": "Thangorodrim",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1117,8 +1129,8 @@
       "entity_type": "character",
       "name": "Thingol",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1126,8 +1138,8 @@
       "entity_type": "character",
       "name": "Thranduil",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1135,8 +1147,8 @@
       "entity_type": "character",
       "name": "Tilion",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1144,8 +1156,8 @@
       "entity_type": "place",
       "name": "Tirion",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1155,8 +1167,8 @@
       "entity_type": "place",
       "name": "Tol Sirion",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1164,8 +1176,8 @@
       "entity_type": "character",
       "name": "Tulkas",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1173,8 +1185,8 @@
       "entity_type": "character",
       "name": "Turgon",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1184,8 +1196,8 @@
       "entity_type": "character",
       "name": "Turin",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1196,8 +1208,8 @@
       "entity_type": "artifact",
       "name": "Two Trees",
       "period": "primeval",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1205,8 +1217,8 @@
       "entity_type": "character",
       "name": "Uinen",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1214,8 +1226,8 @@
       "entity_type": "character",
       "name": "Ulmo",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1223,8 +1235,8 @@
       "entity_type": "character",
       "name": "Ungoliant",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1232,8 +1244,8 @@
       "entity_type": "place",
       "name": "Utumno",
       "period": "primeval",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1243,8 +1255,8 @@
       "entity_type": "group",
       "name": "Valar",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1252,8 +1264,8 @@
       "entity_type": "language",
       "name": "Valarin",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1266,8 +1278,8 @@
       "entity_type": "place",
       "name": "Valinor",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1275,8 +1287,8 @@
       "entity_type": "place",
       "name": "Valmar",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1286,8 +1298,8 @@
       "entity_type": "group",
       "name": "Vanyar",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1297,8 +1309,8 @@
       "entity_type": "character",
       "name": "Varda",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1309,8 +1321,8 @@
       "entity_type": "artifact",
       "name": "Vilya",
       "period": "second,third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1320,8 +1332,8 @@
       "entity_type": "event",
       "name": "War of Wrath",
       "period": "first",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [
@@ -1332,8 +1344,8 @@
       "entity_type": "language",
       "name": "Westron",
       "period": "third",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     },
     {
       "aliases": [],
@@ -1341,15 +1353,15 @@
       "entity_type": "character",
       "name": "Yavanna",
       "period": "all",
-      "raw_period_field": "age",
-      "source_file": ""
+      "raw_period_field": "period",
+      "source_file": "scripts/build_kg.py"
     }
   ],
   "provenance": {
-    "canon_fact_source_file": "not structured yet",
+    "canon_fact_source_file": "available",
     "entity_source_file": "available",
-    "period_field": "normalized to period; source DB uses age or era depending on universe",
-    "relation_source_file": "derived from relation endpoints and relation note"
+    "period_field": "standardized as period",
+    "relation_source_file": "available"
   },
   "relations": [
     {
@@ -1357,1179 +1369,1310 @@
       "note": "",
       "relation_type": "located_in",
       "source": "Alqualonde",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valinor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "far northwest",
       "relation_type": "located_in",
       "source": "Angband",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beleriand",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Ard-galen",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beleriand",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "guides the Sun",
       "relation_type": "served",
       "source": "Arien",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "fashioned secretly before the Elves awoke",
       "relation_type": "created",
       "source": "Aule",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Dwarves",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Aule",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "sank beneath the sea",
       "relation_type": "destroyed_in",
       "source": "Beleriand",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "War of Wrath",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spouse_of",
       "source": "Beren",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Luthien",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spoken_by",
       "source": "Black Speech",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Orcs",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "lord_of",
       "source": "Celeborn",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Lothlorien",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spouse_of",
       "source": "Celeborn",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Galadriel",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "one of the three Elven rings",
       "relation_type": "forged",
       "source": "Celebrimbor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Narya",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "forged",
       "source": "Celebrimbor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Nenya",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "forged",
       "source": "Celebrimbor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Vilya",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Celebrimbor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "keeper_of",
       "source": "Cirdan",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Grey Havens",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "of Telerin origin",
       "relation_type": "member_of",
       "source": "Cirdan",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Sindar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "Dwarves extended and adopted Cirth",
       "relation_type": "used_to_write",
       "source": "Cirth",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Khuzdul",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "original use",
       "relation_type": "used_to_write",
       "source": "Cirth",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Sindarin",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "runic script later adopted by Dwarves",
       "relation_type": "invented",
       "source": "Daeron",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Cirth",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Doriath",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beleriand",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "son_of",
       "source": "Earendil",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Idril",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "carries",
       "source": "Elrond",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Vilya",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "lord_of",
       "source": "Elrond",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Rivendell",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "son_of",
       "source": "Elrond",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Earendil",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "herald of Manwe",
       "relation_type": "served",
       "source": "Eonwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Manwe",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 0.8,
       "note": "attributed to Feanor in some texts",
       "relation_type": "created",
       "source": "Feanor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Palantiri",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "three jewels capturing light of the Two Trees",
       "relation_type": "created",
       "source": "Feanor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Silmarils",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "finest writing system in Middle-earth",
       "relation_type": "invented",
       "source": "Feanor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Tengwar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Feanor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "son_of",
       "source": "Feanor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Finwe",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "High King of the Noldor in Middle-earth",
       "relation_type": "high_king_of",
       "source": "Fingolfin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Fingolfin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "founder and king",
       "relation_type": "king_of",
       "source": "Finrod",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Nargothrond",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "in Valinor",
       "relation_type": "king_of",
       "source": "Finwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "carries",
       "source": "Galadriel",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Nenya",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "lady_of",
       "source": "Galadriel",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Lothlorien",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Galadriel",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spouse_of",
       "source": "Galadriel",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Celeborn",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "given by Cirdan the Shipwright",
       "relation_type": "carries",
       "source": "Gandalf",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Narya",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Gandalf",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Istari",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Gandalf",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Maiar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "Maia of Manwe and Varda",
       "relation_type": "served",
       "source": "Gandalf",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Manwe",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "before passing it to Elrond",
       "relation_type": "carried",
       "source": "Gil-galad",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Vilya",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "last High King",
       "relation_type": "high_king_of",
       "source": "Gil-galad",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "protects",
       "source": "Girdle of Melian",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Doriath",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Gondolin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beleriand",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Hithlum",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beleriand",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "High King of all Elves",
       "relation_type": "high_king_of",
       "source": "Ingwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Quendi",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "high_king_of",
       "source": "Ingwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Vanyar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Ingwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Vanyar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "secret, never taught to outsiders",
       "relation_type": "spoken_by",
       "source": "Khuzdul",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Dwarves",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Legolas",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Sindar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "son_of",
       "source": "Legolas",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Thranduil",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "daughter_of",
       "source": "Luthien",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Melian",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "daughter_of",
       "source": "Luthien",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Thingol",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spouse_of",
       "source": "Luthien",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beren",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Maedhros",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "eldest son",
       "relation_type": "son_of",
       "source": "Maedhros",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Feanor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Maglor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "son_of",
       "source": "Maglor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Feanor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Mandos",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "King of Arda",
       "relation_type": "king_of",
       "source": "Manwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valinor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Manwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "magical barrier protecting Doriath",
       "relation_type": "cast",
       "source": "Melian",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Girdle of Melian",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Melian",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Maiar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "queen_of",
       "source": "Melian",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Doriath",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spouse_of",
       "source": "Melian",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Thingol",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "cast into the Void",
       "relation_type": "defeated_in",
       "source": "Morgoth",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "War of Wrath",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "with help of Ungoliant",
       "relation_type": "destroyed",
       "source": "Morgoth",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Two Trees",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "originally; later corrupted",
       "relation_type": "member_of",
       "source": "Morgoth",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "ruler_of",
       "source": "Morgoth",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Angband",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "from Finwe's vault after killing him",
       "relation_type": "stole",
       "source": "Morgoth",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Silmarils",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Mount Doom",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Mordor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Nan Elmoth",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beleriand",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "descends_from",
       "source": "Nandorin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Primitive Quendian",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spoken_by",
       "source": "Nandorin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Nandor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spoken_by",
       "source": "Nandorin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Silvan Elves",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Nargothrond",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beleriand",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "at Alqualonde",
       "relation_type": "committed",
       "source": "Noldor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Kinslaying",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "curse for rebellion and kinslaying",
       "relation_type": "suffered",
       "source": "Noldor",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Doom of Mandos",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "brother_of",
       "source": "Olwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Thingol",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "in Valinor",
       "relation_type": "king_of",
       "source": "Olwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Teleri",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Olwe",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Teleri",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "forged_in",
       "source": "One Ring",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Mount Doom",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "first Vala to find the Elves",
       "relation_type": "discovered",
       "source": "Orome",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Cuivienen",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Orome",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "served",
       "source": "Osse",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Ulmo",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "descends_from",
       "source": "Quenya",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Primitive Quendian",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "in Valinor; later as lore language",
       "relation_type": "spoken_by",
       "source": "Quenya",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spoken_by",
       "source": "Quenya",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Vanyar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Radagast",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Istari",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Radagast",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Maiar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "Maia of Yavanna",
       "relation_type": "served",
       "source": "Radagast",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Yavanna",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "on the edge of Mirkwood",
       "relation_type": "located_near",
       "source": "Rhosgobel",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Mirkwood",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Saruman",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Istari",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Saruman",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Maiar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "Maia of Aule originally",
       "relation_type": "served",
       "source": "Saruman",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Aule",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "in the fires of Mount Doom",
       "relation_type": "forged",
       "source": "Sauron",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "One Ring",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Sauron",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Maiar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "ruler_of",
       "source": "Sauron",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Mordor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "chief lieutenant",
       "relation_type": "served",
       "source": "Sauron",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Morgoth",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "captured their light before destruction",
       "relation_type": "contains",
       "source": "Silmarils",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Two Trees",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "descends_from",
       "source": "Sindarin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Primitive Quendian",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "adopted after arrival in Beleriand",
       "relation_type": "spoken_by",
       "source": "Sindarin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Noldor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spoken_by",
       "source": "Sindarin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Sindar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "descends_from",
       "source": "Telerin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Primitive Quendian",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spoken_by",
       "source": "Telerin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Teleri",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "Ring inscription",
       "relation_type": "used_to_write",
       "source": "Tengwar",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Black Speech",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "used_to_write",
       "source": "Tengwar",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Quenya",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "used_to_write",
       "source": "Tengwar",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Sindarin",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "three volcanic peaks",
       "relation_type": "located_above",
       "source": "Thangorodrim",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Angband",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "brother_of",
       "source": "Thingol",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Olwe",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "king_of",
       "source": "Thingol",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Doriath",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Thingol",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Sindar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spouse_of",
       "source": "Thingol",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Melian",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "king_of",
       "source": "Thranduil",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Mirkwood",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Thranduil",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Sindar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Tirion",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valinor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Tol Sirion",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Beleriand",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Tulkas",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "king_of",
       "source": "Turgon",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Gondolin",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "son_of",
       "source": "Turin",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Hurin",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "served",
       "source": "Uinen",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Ulmo",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Ulmo",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "helped_destroy",
       "source": "Ungoliant",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Two Trees",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "located_in",
       "source": "Valmar",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valinor",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Varda",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "spoken_by",
       "source": "Westron",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Edain",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "Telperion and Laurelin",
       "relation_type": "created",
       "source": "Yavanna",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Two Trees",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     },
     {
       "confidence": 1.0,
       "note": "",
       "relation_type": "member_of",
       "source": "Yavanna",
-      "source_file": "",
+      "source_entity_file": "scripts/build_kg.py",
+      "source_file": "scripts/build_kg.py",
       "target": "Valar",
-      "target_source_file": ""
+      "target_source_file": "scripts/build_kg.py"
     }
   ],
   "runtime_db_path": "vector_db/knowledge_graph.sqlite",
