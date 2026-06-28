@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+import json
 
 from src.indexing.build import build_text_index
 from src.indexing.chunks import chunk_text, read_chunks_jsonl
@@ -9,6 +10,11 @@ from src.retrieval_hybrid import search_chunks
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+TERRAN_RETRIEVAL_EVAL = PROJECT_ROOT / "evals" / "retrieval" / "terran_empire.jsonl"
+
+
+def read_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
 class IndexingRetrievalTests(unittest.TestCase):
@@ -122,6 +128,28 @@ class IndexingRetrievalTests(unittest.TestCase):
         self.assertEqual(len(hits), 1)
         self.assertEqual(hits[0]["retrieval_engine"], "faiss")
         self.assertGreater(hits[0]["semantic_score"], 0)
+
+    def test_terran_retrieval_eval_queries_find_expected_sources_and_terms(self):
+        cases = read_jsonl(TERRAN_RETRIEVAL_EVAL)
+
+        self.assertGreaterEqual(len(cases), 5)
+        for case in cases:
+            with self.subTest(case=case["id"]):
+                hits = retrieve_evidence(
+                    case["query"],
+                    universe_id=case["universe_id"],
+                    k=case["k"],
+                )
+                self.assertTrue(hits)
+                source_names = {hit["source_name"] for hit in hits}
+                text = "\n".join(hit["text"] for hit in hits).lower()
+
+                self.assertTrue(
+                    source_names.intersection(case["expected_sources"]),
+                    f"{case['id']} returned sources {source_names}",
+                )
+                for term in case["expected_terms"]:
+                    self.assertIn(term.lower(), text)
 
 
 if __name__ == "__main__":
