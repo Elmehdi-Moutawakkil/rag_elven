@@ -6,7 +6,7 @@ Source roadmap: `PIPELINE1.md`.
 
 ## Current Position
 
-Active position: Step 16 complete for current scope.
+Active position: Step 17 complete for current scope.
 
 Reason:
 
@@ -28,6 +28,8 @@ Reason:
   infrastructure.
 - Step 16 MCP exposes thin read-only/validation tool wrappers over stable
   internal modules, with tool contract discovery.
+- Step 17 fine-tuning is deliberately deferred, with dataset strategy and
+  validated-memory-only export foundations in place.
 - Steps 10 to 16 exist as prototypes or backend slices, not finished product layers.
 - Steps 17 and 18 are not mature enough to call done.
 
@@ -51,10 +53,10 @@ Reason:
 | 14 | AI agents | Done for current scope | `src/agent/planner.py`, `.codex/agents.json`, `prompts/agent_profiles.json`, tests, `docs/AGENT_ORCHESTRATION.md` | Add durable agent run logs later |
 | 15 | Template integration | Done for current scope | `reports/template_integration.md`, `prompts/workflow_templates.json`, `prompts/agent_profiles.json`, `.codex/` | Revisit only when contributors or PR workflow grow |
 | 16 | MCP | Done for current scope | `src/mcp_tools.py`, `mcp/ragelven_server.py`, `mcp/README.md`, tests | Keep write tools disabled until permissions/UI review exist |
-| 17 | Fine-tuning/LoRA | Not started | No dataset baseline | Wait for validated memory |
+| 17 | Fine-tuning/LoRA | Done for foundation scope | `docs/FINE_TUNING_STRATEGY.md`, `src/training_datasets.py`, tests | Do not train until enough validated examples exist |
 | 18 | Open source/governance | Partial | README, `.env.example`, governance docs | Add CI, license check, contribution docs |
 
 ## Immediate Roadmap
 
-1. Start Step 17 only when validated examples exist.
-2. Keep MCP write tools disabled until auth, review, and rollback are explicit.
+1. Start Step 18 open-source/governance cleanup.
+2. Keep LoRA/fine-tuning deferred until validated datasets and baselines exist.

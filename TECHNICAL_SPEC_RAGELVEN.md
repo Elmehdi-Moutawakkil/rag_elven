@@ -602,6 +602,7 @@ Current modules concerned:
 `src/lore_generator_generic.py`
 `src/llm_provider.py`
 `src/prompt_templates.py`
+`src/training_datasets.py`
 `src/translator.py`
 `src/settings.py`
 
@@ -623,6 +624,9 @@ Only then create fine-tuning datasets.
 Current status:
 A provider-neutral `LLMProvider` interface exists for Groq, Anthropic, OpenAI,
 OpenAI-compatible local endpoints, Ollama aliases, and static offline tests.
+Fine-tuning is explicitly deferred. `src/training_datasets.py` can export
+versioned dataset manifests from validated reusable memory only; when no
+validated examples exist, dataset status is `blocked_no_validated_examples`.
 Generation can be wrapped with a trace object containing provider, model,
 duration, usage, estimated cost when price data is known, and clean error text.
 
