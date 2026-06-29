@@ -22,7 +22,17 @@
     "charsPerToken": 4,
     "confidenceLevels": ["measured", "estimated", "unknown"],
     "finalFooterRequired": true,
-    "footerFormat": "Cost: <measured|estimated|unknown> input=<n/a> output=<n/a> total=<tokens> api=<usd> notes=<short>"
+    "inputCategories": [
+      "user_prompt",
+      "memory_context",
+      "docs_specs_read",
+      "code_loaded",
+      "tool_outputs",
+      "subagent_responses",
+      "assistant_output",
+      "unknown_overhead"
+    ],
+    "footerFormat": "Cost Analyzer: mode=<measured|estimated|unknown> input_exact=<available|unavailable> input_estimated=<tokens> output_estimated=<tokens> total_estimated=<tokens> api=<usd|unknown> confidence=<high|medium|low> budget=<ok|warning|stop>"
   },
   "providers": {
     "openai": {
