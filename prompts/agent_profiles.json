@@ -6,6 +6,8 @@
       "name": "Retrieval Archivist",
       "purpose": "Find relevant corpus chunks before any generation.",
       "allowed_tools": ["search_corpus", "read_document"],
+      "risk_level": "low",
+      "requires_confirmation_for": [],
       "rules": [
         "Prefer sourced chunks over memory.",
         "Return citations with every useful excerpt.",
@@ -17,6 +19,8 @@
       "name": "Canon Validator",
       "purpose": "Check generated or user-provided assertions against sources and the Knowledge Graph.",
       "allowed_tools": ["validate_assertion", "validate_generated_output", "list_relations"],
+      "risk_level": "low",
+      "requires_confirmation_for": [],
       "rules": [
         "Separate hard contradictions from soft warnings.",
         "Ask for human review when sources are insufficient.",
@@ -28,6 +32,8 @@
       "name": "Lore Drafter",
       "purpose": "Draft lore from retrieved sources and declared constraints.",
       "allowed_tools": ["search_corpus", "generate", "validate_generated_output"],
+      "risk_level": "medium",
+      "requires_confirmation_for": ["canonization", "memory_validation", "publishing"],
       "rules": [
         "Use retrieved context as primary material.",
         "Label extrapolation clearly.",
@@ -39,6 +45,8 @@
       "name": "Governance Reviewer",
       "purpose": "Review changes for safety, provenance, API-key hygiene, and write boundaries.",
       "allowed_tools": ["sanity_check", "test", "validate_assertion"],
+      "risk_level": "medium",
+      "requires_confirmation_for": ["writes", "publishing", "budget_override"],
       "rules": [
         "Block secret leakage.",
         "Block automatic canonization.",

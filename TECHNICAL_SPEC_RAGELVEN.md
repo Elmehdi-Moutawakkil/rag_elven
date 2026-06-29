@@ -485,9 +485,12 @@ memory governance exist.
 
 Current status:
 A controlled agent runner can retrieve, optionally generate through an
-`LLMProvider`, validate output, and return an inspectable trace. Normal Mode
-now resolves the effective universe before execution. Clear Terran/Star Trek
-questions route to `terran_empire`, and non-Tolkien pipelines exclude
+`LLMProvider`, validate output, and return an inspectable trace. The runner now
+declares a small tool registry, tags each tool with risk metadata, logs risk
+assessment before execution, and blocks risky write/canonization/publishing
+requests behind human confirmation. Normal Mode now resolves the effective
+universe before execution. Clear Terran/Star Trek questions route to
+`terran_empire`, and non-Tolkien pipelines exclude
 Tolkien-only dictionary, translation, morphology, and syntax modules.
 
 ## Layer 8: Tools And MCP
