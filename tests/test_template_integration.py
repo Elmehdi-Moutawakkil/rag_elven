@@ -21,8 +21,23 @@ class TemplateIntegrationTests(unittest.TestCase):
         report = (PROJECT_ROOT / "reports" / "template_integration.md").read_text(encoding="utf-8")
 
         self.assertIn("Integrate Now", report)
+        self.assertIn("Adapt Later", report)
         self.assertIn("Ignore", report)
         self.assertIn("MCP", report)
+        self.assertIn("Full `.aip` bootstrap", report)
+
+    def test_workflow_templates_are_ragelven_specific(self):
+        data = json.loads((PROJECT_ROOT / "prompts" / "workflow_templates.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(data["schema_version"], 1)
+        self.assertEqual(data["source"], "adapted_from_ai_project_template")
+        template_ids = {template["id"] for template in data["templates"]}
+        self.assertIn("ragelven_cross_review", template_ids)
+        self.assertIn("ragelven_task_verification", template_ids)
+        for template in data["templates"]:
+            self.assertTrue(template["rules"])
+            self.assertTrue(template["sections"])
+            self.assertIn("RAGElven", template["name"])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "source": "adapted_from_ai_project_template",
+  "templates": [
+    {
+      "id": "ragelven_cross_review",
+      "name": "RAGElven Cross Review",
+      "purpose": "Review a change against RAGElven's retrieval, KG, memory, validation, and documentation contracts.",
+      "stance": "Constructively skeptical. Treat every unsupported claim, hidden dependency, and missing test as a risk until evidence proves otherwise.",
+      "sections": [
+        "scope",
+        "evidence_checked",
+        "findings",
+        "missing_tests",
+        "doc_gaps",
+        "verdict"
+      ],
+      "rules": [
+        "Prioritize bugs, provenance gaps, validation gaps, and missing tests.",
+        "Cite file paths or commands for every finding.",
+        "Do not approve generated lore as canon.",
+        "Flag any tool or agent action that writes without explicit confirmation."
+      ]
+    },
+    {
+      "id": "ragelven_task_verification",
+      "name": "RAGElven Task Verification",
+      "purpose": "Verify that a pipeline step meets its stated deliverables before commit.",
+      "stance": "Default verdict is fail until all deliverables have evidence.",
+      "sections": [
+        "deliverables",
+        "tests",
+        "runtime_checks",
+        "docs_updated",
+        "risks",
+        "verdict"
+      ],
+      "rules": [
+        "Check the relevant PIPELINE1 step against code and docs.",
+        "Require passing targeted tests and either full pytest or a stated reason.",
+        "Require source, KG, memory, and validation boundaries when affected.",
+        "Do not treat planned/future placeholders as implemented behavior."
+      ]
+    },
+    {
+      "id": "ragelven_context_refresh",
+      "name": "RAGElven Context Refresh",
+      "purpose": "Reload only the minimal project context needed for the next task.",
+      "stance": "Prevent both context starvation and context bloat.",
+      "sections": [
+        "current_step",
+        "must_read",
+        "do_not_read",
+        "open_risks",
+        "next_action"
+      ],
+      "rules": [
+        "Prefer docs/PIPELINE1_STATUS.md before broad searches.",
+        "Read TECHNICAL_SPEC_RAGELVEN.md only around the relevant layer.",
+        "Avoid loading archived docs unless history is explicitly needed.",
+        "Summarize what was loaded and why."
+      ]
+    }
+  ]
+}

@@ -1,46 +1,62 @@
 # AI Template Integration Report
 
-Status: selective integration for RAGElven.
+Status: Step 15 selective integration.
 
-The template should not be copied wholesale into RAGElven. Its `.aip`
-infrastructure is a development workflow framework, while RAGElven is an
-application for lore retrieval, validation, memory, generation, and future MCP
-tools.
+Source template: `/Volumes/ssd1/ai-project-template`.
+
+Decision: do not import `.aip` as infrastructure. RAGElven is an application
+with its own RAG, KG, memory, validation, multimodal, and future MCP layers.
+The template is useful as a workflow reference, not as runtime architecture.
 
 ## Integrate Now
 
-- Contract-first task style: every new layer should expose inputs, outputs,
-  status, errors, and tests.
-- Quality gate habit: `make sanity`, `make test`, and `git diff --check` remain
-  the local baseline.
-- Review personas: adapt only the useful roles as app-level agent profiles:
-  retrieval, validation, generation, security, and architecture.
-- Progressive disclosure: keep `README.md` and `TECHNICAL_SPEC_RAGELVEN.md` as
-  the active map; avoid many competing planning documents.
-- MCP-after-contracts principle: MCP tools wrap stable Python functions; they
-  do not replace internal modules.
+| Template idea | RAGElven adaptation | Reason |
+|---|---|---|
+| Contract-first tasks | Keep layer inputs, outputs, status, errors, tests, and docs explicit | Fits the current modular pipeline |
+| Quality gate habit | Keep `scripts/sanity_check.py`, full pytest, and `git diff --check` before commits | Useful without adding dependencies |
+| Review personas | Keep app-level profiles in `prompts/agent_profiles.json` | Useful only when tied to real tools |
+| Verification prompt | Add RAGElven-specific verification templates in `prompts/workflow_templates.json` | Improves review quality without importing `.aip` |
+| Cross-review stance | Adapt skeptical review prompts for retrieval, KG, memory, validation, and docs | Catches hallucination and provenance gaps |
+| Progressive disclosure | Keep `README.md`, `TECHNICAL_SPEC_RAGELVEN.md`, and `docs/PIPELINE1_STATUS.md` as the active map | Avoids context bloat |
+| MCP-after-contracts | MCP tools wrap stable Python functions only | Prevents tool sprawl |
 
 ## Adapt Later
 
-- Event bus and task tracking: useful for a future contributor workflow, but too
-  heavy for the runtime app right now.
-- Memory database ideas: useful inspiration, but RAGElven memory must stay
-  lore-domain specific with canon/review statuses.
-- Multi-agent coordination: useful for open-source maintainers later, not
-  needed in the app runtime yet.
-- Skills library: useful as prompt/workflow examples, but should not be imported
-  as runtime code.
+| Template idea | Later adaptation | Condition |
+|---|---|---|
+| Task tracking | Lightweight issue/task docs or GitHub issues | Only when contributors appear |
+| Event bus | Runtime audit/event log for agent runs | Only after `agent_runs` exists |
+| Memory database | Keep ideas for indexing and health checks | Must preserve lore statuses and canon gates |
+| Multi-agent coordination | Reviewer/implementer split for complex PRs | Only after logs and UI confirmation exist |
+| Session-per-task | Useful for large refactors | Not needed for current solo pipeline |
+| ADR catalog | Add only for major architecture decisions | Avoid docs noise |
 
 ## Ignore
 
-- Full `.aip` bootstrap system.
-- Shell-first task database.
-- Generated Claude/Codex config mirrors.
-- Template-specific project state machine.
-- Decorative agent personalities that do not map to real tools or validation.
+| Template idea | Reason |
+|---|---|
+| Full `.aip` bootstrap | Too heavy for an app repo |
+| Shell-first metadata DB | Would duplicate RAGElven's own stores |
+| Generated Claude/Codex mirrors | Risk of config drift |
+| Template state machine | Not aligned with RAGElven runtime |
+| n8n webhook notifications | Operational overhead now |
+| Decorative agents | Agents must map to real tools and validation |
+| Broad script framework | Too much maintenance surface |
 
-## RAGElven-Specific Transfer
+## Applied Transfers
 
-The useful transfer is a small set of operational profiles, stored in
-`prompts/agent_profiles.json`. They describe how an agent should behave when
-calling RAGElven tools, without importing the template infrastructure.
+- `prompts/agent_profiles.json` keeps only tool-scoped profiles:
+  retrieval archivist, canon validator, lore drafter, governance reviewer.
+- `prompts/workflow_templates.json` adds adapted review and verification
+  templates.
+- `.codex/` keeps specialist configuration, but does not import `.aip`.
+- `docs/PIPELINE1_STATUS.md` tracks the selective integration decision.
+
+## Boundary Rules
+
+- RAGElven identity remains primary.
+- User/persona identity stays outside the runtime app.
+- Generated lore remains draft until validated.
+- Template content is an inspiration source, not executable dependency.
+- No new abstraction is accepted unless it improves retrieval, validation,
+  memory, governance, or documentation.

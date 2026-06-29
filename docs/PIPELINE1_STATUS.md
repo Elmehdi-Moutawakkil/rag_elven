@@ -6,7 +6,7 @@ Source roadmap: `PIPELINE1.md`.
 
 ## Current Position
 
-Active position: Step 14 complete for current scope.
+Active position: Step 15 complete for current scope.
 
 Reason:
 
@@ -23,6 +23,9 @@ Reason:
 - Step 14 AI agents have a controlled tool registry, inspectable plans, risk
   assessment, validation traces, and human-confirmation blocking for risky
   actions.
+- Step 15 template integration is selective: useful review/verification/context
+  prompt contracts were adapted without importing `.aip` runtime
+  infrastructure.
 - Steps 10 to 16 exist as prototypes or backend slices, not finished product layers.
 - Steps 17 and 18 are not mature enough to call done.
 
@@ -44,12 +47,12 @@ Reason:
 | 12 | Output validation | Done for current scope | `src/output_validation.py`, tests | Add stronger semantic checks later |
 | 13 | Multimodal | Done for current scope | `src/multimodal.py`, `src/ingestion/loaders.py`, `src/output_validation.py`, tests, `docs/MULTIMODAL.md` | Add real OCR/caption/transcription later |
 | 14 | AI agents | Done for current scope | `src/agent/planner.py`, `.codex/agents.json`, `prompts/agent_profiles.json`, tests, `docs/AGENT_ORCHESTRATION.md` | Add durable agent run logs later |
-| 15 | Template integration | Partial | `reports/template_integration.md`, `.codex/` | Import only useful workflow pieces |
+| 15 | Template integration | Done for current scope | `reports/template_integration.md`, `prompts/workflow_templates.json`, `prompts/agent_profiles.json`, `.codex/` | Revisit only when contributors or PR workflow grow |
 | 16 | MCP | Prototype | `mcp/ragelven_server.py`, `src/mcp_tools.py` | Keep read-only until contracts harden |
 | 17 | Fine-tuning/LoRA | Not started | No dataset baseline | Wait for validated memory |
 | 18 | Open source/governance | Partial | README, `.env.example`, governance docs | Add CI, license check, contribution docs |
 
 ## Immediate Roadmap
 
-1. Start Step 15 template integration cleanup.
-2. Keep agent autonomy limited until durable run logs and UI confirmation flows exist.
+1. Start Step 16 MCP with thin read-only wrappers only.
+2. Keep `.aip` template infrastructure out of the app runtime.
