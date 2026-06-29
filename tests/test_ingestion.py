@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from src.ingestion.documents import read_documents_jsonl, write_documents_jsonl
-from src.ingestion.loaders import UnsupportedFormatError, load_document, load_text_document
+from src.ingestion.loaders import UnsupportedFormatError, load_document, load_media_document, load_text_document
 from src.ingestion.manifests import ingest_universe_manifest
 
 
@@ -37,11 +37,50 @@ class IngestionTests(unittest.TestCase):
         self.assertIn("Line with spaces.", document.clean_content)
         self.assertEqual(document.metadata["canon_status"], "draft")
 
-    def test_loader_rejects_unsupported_format(self):
+    def test_load_media_document_stores_metadata_without_ai_processing(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source = root / "image.png"
             source.write_bytes(b"not really an image")
+
+            document = load_media_document(
+                source,
+                project_root=root,
+                universe_id="demo",
+                collection_id="assets",
+                metadata={"canon_status": "draft"},
+            )
+
+        self.assertEqual(document.modality, "image")
+        self.assertEqual(document.raw_content, "")
+        self.assertEqual(document.clean_content, "")
+        self.assertEqual(document.metadata["processing_mode"], "metadata_only")
+        self.assertEqual(document.metadata["ai_models_used"], [])
+        self.assertEqual(
+            [item["kind"] for item in document.media["planned_derivatives"]],
+            ["ocr_text", "image_description", "image_embedding"],
+        )
+
+    def test_loader_dispatches_media_documents(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "voice.wav"
+            source.write_bytes(b"not really audio")
+
+            document = load_document(
+                source,
+                project_root=root,
+                universe_id="demo",
+                collection_id=None,
+            )
+
+        self.assertEqual(document.modality, "audio")
+
+    def test_loader_rejects_unsupported_format(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "asset.bin"
+            source.write_bytes(b"unknown")
 
             with self.assertRaises(UnsupportedFormatError):
                 load_document(

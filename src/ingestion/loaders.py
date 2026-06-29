@@ -13,10 +13,12 @@ from src.ingestion.documents import (
     stable_document_id,
     version_from_hash,
 )
+from src.multimodal import build_asset_record, detect_modality, plan_asset_processing
 from src.text_splitter import clean_text
 
 
 TEXT_EXTENSIONS = {".md", ".markdown", ".txt"}
+MEDIA_DOCUMENT_MODALITIES = {"image", "audio"}
 
 
 class IngestionError(RuntimeError):
@@ -30,6 +32,11 @@ class UnsupportedFormatError(IngestionError):
 def is_text_document(path: Path) -> bool:
     """Return whether the file extension is supported by the text loader."""
     return path.suffix.lower() in TEXT_EXTENSIONS
+
+
+def is_media_document(path: Path) -> bool:
+    """Return whether the file can be stored as an unprocessed media document."""
+    return detect_modality(path) in MEDIA_DOCUMENT_MODALITIES
 
 
 def relative_source_path(path: Path, project_root: Path) -> str:
@@ -90,6 +97,58 @@ def load_text_document(
     )
 
 
+def load_media_document(
+    path: Path,
+    *,
+    project_root: Path,
+    universe_id: str,
+    collection_id: str | None,
+    metadata: dict[str, Any] | None = None,
+) -> DocumentRecord:
+    """Create a normalized media document without OCR, captioning, or transcription."""
+    if not is_media_document(path):
+        raise UnsupportedFormatError(f"Unsupported media ingestion format: {path.suffix or '<none>'}")
+    if not path.exists():
+        raise IngestionError(f"Source file does not exist: {path}")
+
+    asset = build_asset_record(
+        path,
+        universe_id=universe_id,
+        project_root=project_root,
+        metadata=metadata,
+    )
+    planned_derivatives = [derivative.to_dict() for derivative in plan_asset_processing(asset)]
+    media_metadata: dict[str, Any] = {
+        "extension": path.suffix.lower(),
+        "file_name": path.name,
+        "size_bytes": asset.size_bytes,
+        "processing_mode": "metadata_only",
+        "ai_models_used": [],
+    }
+    if metadata:
+        media_metadata.update(metadata)
+
+    return DocumentRecord(
+        schema_version=DOCUMENT_SCHEMA_VERSION,
+        document_id=stable_document_id(universe_id, asset.source_path),
+        universe_id=universe_id,
+        collection_id=collection_id,
+        source_path=asset.source_path,
+        source_name=asset.source_name,
+        modality=asset.modality,
+        media_type=asset.media_type,
+        raw_content="",
+        clean_content="",
+        metadata=media_metadata,
+        sha256=asset.sha256,
+        version=version_from_hash(asset.sha256),
+        media={
+            "asset": asset.to_dict(),
+            "planned_derivatives": planned_derivatives,
+        },
+    )
+
+
 def load_document(
     path: Path,
     *,
@@ -101,6 +160,14 @@ def load_document(
     """Dispatch a source file to the supported loader."""
     if is_text_document(path):
         return load_text_document(
+            path,
+            project_root=project_root,
+            universe_id=universe_id,
+            collection_id=collection_id,
+            metadata=metadata,
+        )
+    if is_media_document(path):
+        return load_media_document(
             path,
             project_root=project_root,
             universe_id=universe_id,

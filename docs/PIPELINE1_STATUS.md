@@ -6,7 +6,7 @@ Source roadmap: `PIPELINE1.md`.
 
 ## Current Position
 
-Active position: Step 12 hardening.
+Active position: Step 13 complete for current scope.
 
 Reason:
 
@@ -17,6 +17,9 @@ Reason:
 - Step 11 LLM generation has a provider-neutral interface.
 - Step 12 output validation checks source support, citations, KG continuity,
   validated-memory awareness, constraints, and style warnings.
+- Step 13 multimodal has metadata-only image/audio document support, planned
+  OCR/description/transcription/embedding derivatives, and multimodal source
+  visibility in output validation.
 - Steps 10 to 16 exist as prototypes or backend slices, not finished product layers.
 - Steps 17 and 18 are not mature enough to call done.
 
@@ -36,7 +39,7 @@ Reason:
 | 10 | Validated memory | Done for current scope | `src/memory_store.py`, tests, `memory/README.md` | Connect to UI later |
 | 11 | AI generation | Done for current scope | `src/llm_provider.py`, tests | Route legacy direct calls later |
 | 12 | Output validation | Done for current scope | `src/output_validation.py`, tests | Add stronger semantic checks later |
-| 13 | Multimodal | Scaffold only | `src/multimodal.py`, docs | Do not expand before text is solid |
+| 13 | Multimodal | Done for current scope | `src/multimodal.py`, `src/ingestion/loaders.py`, `src/output_validation.py`, tests, `docs/MULTIMODAL.md` | Add real OCR/caption/transcription later |
 | 14 | AI agents | Prototype | `src/agent/planner.py`, `.codex/agents.json` | Keep controlled, tool-limited |
 | 15 | Template integration | Partial | `reports/template_integration.md`, `.codex/` | Import only useful workflow pieces |
 | 16 | MCP | Prototype | `mcp/ragelven_server.py`, `src/mcp_tools.py` | Keep read-only until contracts harden |
@@ -45,5 +48,5 @@ Reason:
 
 ## Immediate Roadmap
 
-1. Add larger validation eval sets and semantic source checks later.
-2. Delay multimodal, broad agents, MCP expansion, and fine-tuning until retrieval/KG/memory/generation are stronger.
+1. Start Step 14 agents only with controlled, tool-limited behavior.
+2. Keep real multimodal model calls, corpus changes, and embeddings deferred until the user supplies media/models.

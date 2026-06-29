@@ -163,11 +163,13 @@ Optional future table `asset_derivatives`:
 `metadata_json`.
 
 Current modules concerned:
-No direct current module. Future `src/storage/` should provide path and manifest
-helpers.
+`src/multimodal.py` defines asset records, media derivatives, modality
+detection, and processing plans. Future `src/storage/` can provide path and
+manifest helpers if JSONL storage becomes too small.
 
 Dependencies:
-`pypdf` for PDFs, future image/audio/video processing libraries as needed.
+Current: Python standard library only for media metadata.
+Future: `pypdf`, OCR, image, audio, and video processing libraries as needed.
 
 Risks:
 Asset licensing, oversized repo, duplicate files, unclear provenance, slow
@@ -233,7 +235,11 @@ First normalize text and Markdown. Then PDF extraction. Then images/audio/video.
 
 Current status:
 Text and Markdown ingestion are implemented for manifest-backed universes.
-PDF, image, and audio ingestion remain future extensions.
+Image and audio can now be represented as normalized metadata-only documents
+with planned derivatives for OCR, image description, image embedding, audio
+transcription, and audio embedding. No OCR, transcription, description,
+embedding, model call, or corpus mutation is performed by this layer.
+PDF and video ingestion remain future extensions.
 
 ## Layer 4: Indexing And Retrieval
 
@@ -747,7 +753,9 @@ Phase 3E: Validated memory.
 Add memory statuses and manual approval. Do not auto-promote generated lore.
 
 Phase 3F: Multimodal ingestion.
-Add image/audio/video only after text corpus and tool contracts are stable.
+Add image/audio/video progressively. Current scope supports image/audio
+metadata contracts and planned derivatives only. Model-backed OCR, image
+captioning, audio transcription, and multimodal embeddings are deferred.
 
 Phase 3G: MCP.
 Wrap stable internal tools as MCP servers.

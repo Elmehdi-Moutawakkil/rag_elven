@@ -99,6 +99,28 @@ class OutputValidationTests(unittest.TestCase):
         self.assertEqual(result["status"], "style_warning")
         self.assertTrue(result["failed_style"])
 
+    def test_validate_generated_output_reports_multimodal_sources(self):
+        result = validate_generated_output(
+            "A source image is available for later review.",
+            universe_id="terran_empire",
+            retrieval_hits=[
+                {
+                    "document_id": "doc_image",
+                    "asset_id": "asset_123",
+                    "modality": "image",
+                    "source_path": "assets/frame.png",
+                    "text": "",
+                }
+            ],
+            check_kg=False,
+            require_citations=False,
+        )
+
+        self.assertEqual(result["source_modalities"], {"image": 1})
+        self.assertEqual(result["multimodal_sources"][0]["asset_id"], "asset_123")
+        self.assertFalse(result["multimodal_sources"][0]["has_extracted_text"])
+        self.assertIn("Some multimodal sources have no extracted text yet", result["warnings"])
+
 
 if __name__ == "__main__":
     unittest.main()

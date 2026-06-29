@@ -192,6 +192,35 @@ def summarize_claim_types(coverage: list[SourceCoverage]) -> dict[str, int]:
     return summary
 
 
+def summarize_source_modalities(retrieval_hits: list[dict[str, Any]]) -> dict[str, int]:
+    """Count retrieval sources by modality."""
+    summary: dict[str, int] = {}
+    for hit in retrieval_hits:
+        modality = str(hit.get("modality") or "text")
+        summary[modality] = summary.get(modality, 0) + 1
+    return summary
+
+
+def multimodal_source_refs(retrieval_hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return compact metadata for non-text sources used in validation."""
+    refs: list[dict[str, Any]] = []
+    for index, hit in enumerate(retrieval_hits, start=1):
+        modality = str(hit.get("modality") or "text")
+        if modality == "text":
+            continue
+        refs.append(
+            {
+                "source_index": index,
+                "document_id": hit.get("document_id"),
+                "asset_id": hit.get("asset_id") or hit.get("media", {}).get("asset", {}).get("asset_id"),
+                "modality": modality,
+                "source_path": hit.get("source_path"),
+                "has_extracted_text": bool(str(hit.get("text", "")).strip()),
+            }
+        )
+    return refs
+
+
 def validate_generated_output(
     text: str,
     *,
@@ -208,6 +237,8 @@ def validate_generated_output(
     coverage = evaluate_source_coverage(text, retrieval_hits, require_citations=require_citations)
     unsupported = [item for item in coverage if not item.supported]
     uncited_supported = [item for item in coverage if item.missing_citation]
+    source_modalities = summarize_source_modalities(retrieval_hits)
+    multimodal_sources = multimodal_source_refs(retrieval_hits)
     constraint_checks = evaluate_constraints(text, constraints)
     failed_constraints = [item for item in constraint_checks if not item.passed]
     style_checks = evaluate_style(text, style_rules)
@@ -240,12 +271,17 @@ def validate_generated_output(
         status = "style_warning"
         warnings.append(f"{len(failed_style)} style check(s) failed")
 
+    if any(not item["has_extracted_text"] for item in multimodal_sources):
+        warnings.append("Some multimodal sources have no extracted text yet")
+
     return {
         "schema_version": 1,
         "universe_id": universe_id,
         "status": status,
         "warnings": warnings,
         "source_coverage": [item.to_dict() for item in coverage],
+        "source_modalities": source_modalities,
+        "multimodal_sources": multimodal_sources,
         "unsupported_claims": [item.to_dict() for item in unsupported],
         "uncited_supported_claims": [item.to_dict() for item in uncited_supported],
         "claim_type_summary": summarize_claim_types(coverage),
