@@ -1,6 +1,6 @@
 import unittest
 
-from src.agent import plan_request, run_controlled_agent
+from src.agent import build_generation_prompt, plan_request, run_controlled_agent
 from src.llm_provider import StaticLLMProvider
 
 
@@ -27,6 +27,15 @@ class AgentTests(unittest.TestCase):
 
         self.assertEqual(run.final_output, "Mirror Spock implemented reforms that weakened the Terran Empire.")
         self.assertEqual(run.trace[1]["provider"], "static")
+
+    def test_generation_prompt_requires_source_citations(self):
+        prompt = build_generation_prompt(
+            "Mirror Spock reforms",
+            [{"source_path": "source.txt", "text": "Mirror Spock implemented reforms."}],
+        )
+
+        self.assertIn("Cite every factual claim", prompt)
+        self.assertIn("[1]", prompt)
 
 
 if __name__ == "__main__":

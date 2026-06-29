@@ -55,7 +55,8 @@ def build_generation_prompt(user_input: str, sources: list[dict[str, Any]]) -> s
         for index, source in enumerate(sources[:4])
     )
     return (
-        "Answer using the provided sources. Cite uncertainty when sources are weak.\n\n"
+        "Answer using the provided sources. Cite every factual claim with source ids like [1]. "
+        "Distinguish canon-supported facts from extrapolation and say when evidence is weak.\n\n"
         f"Sources:\n{excerpts}\n\n"
         f"User request: {user_input}\n"
         "Answer:"

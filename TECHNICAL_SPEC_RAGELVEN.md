@@ -671,8 +671,12 @@ Keep `make sanity` and `make test` mandatory. Add validation reports before
 automatic memory writes. Add stronger secret scanning before public releases.
 
 Current status:
-Generated-output validation combines retrieved source coverage, KG checks, and
-validated-memory awareness.
+Generated-output validation combines retrieved source coverage, explicit source
+citations, KG checks, validated-memory awareness, deterministic constraints,
+and lightweight style checks. Reports distinguish canon-supported claims,
+uncited supported claims, extrapolations, and unsupported inventions. Outputs
+that need source citation, human review, KG attention, constraint fixes, or
+style correction are marked explicitly instead of being silently accepted.
 
 Governance policy:
 Broad read access is acceptable. Write access must be limited by tool,

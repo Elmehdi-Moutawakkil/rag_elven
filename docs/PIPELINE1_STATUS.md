@@ -1,12 +1,12 @@
 # PIPELINE1 Status
 
-Date: 2026-06-28.
+Date: 2026-06-29.
 
 Source roadmap: `PIPELINE1.md`.
 
 ## Current Position
 
-Active position: Step 11 hardening.
+Active position: Step 12 hardening.
 
 Reason:
 
@@ -14,7 +14,9 @@ Reason:
 - Step 8 retrieval exists, is wired, and has a Terran evaluation set.
 - Step 9 KG exists, has schema documentation, source-file provenance, exports, and regression tests.
 - Step 10 validated memory has gates, versioning, history, and rollback.
-- Step 11 LLM generation has a provider-neutral interface and is being hardened.
+- Step 11 LLM generation has a provider-neutral interface.
+- Step 12 output validation checks source support, citations, KG continuity,
+  validated-memory awareness, constraints, and style warnings.
 - Steps 10 to 16 exist as prototypes or backend slices, not finished product layers.
 - Steps 17 and 18 are not mature enough to call done.
 
@@ -32,8 +34,8 @@ Reason:
 | 8 | Indexing/retrieval | Done for current scope | `src/retrieval_adapter.py`, `indexes/terran_empire/`, `evals/retrieval/terran_empire.jsonl` | Add larger evals later |
 | 9 | Knowledge Graph | Done for current scope | `src/knowledge_graph.py`, `src/kg_tools.py`, `docs/KNOWLEDGE_GRAPH.md`, `kg/*/export.json` | Add source spans later |
 | 10 | Validated memory | Done for current scope | `src/memory_store.py`, tests, `memory/README.md` | Connect to UI later |
-| 11 | AI generation | Active hardening | `src/llm_provider.py`, tests | Route legacy direct calls later |
-| 12 | Output validation | Partial | `src/output_validation.py`, tests | Add source-coverage thresholds |
+| 11 | AI generation | Done for current scope | `src/llm_provider.py`, tests | Route legacy direct calls later |
+| 12 | Output validation | Done for current scope | `src/output_validation.py`, tests | Add stronger semantic checks later |
 | 13 | Multimodal | Scaffold only | `src/multimodal.py`, docs | Do not expand before text is solid |
 | 14 | AI agents | Prototype | `src/agent/planner.py`, `.codex/agents.json` | Keep controlled, tool-limited |
 | 15 | Template integration | Partial | `reports/template_integration.md`, `.codex/` | Import only useful workflow pieces |
@@ -43,5 +45,5 @@ Reason:
 
 ## Immediate Roadmap
 
-1. Finish Step 11 provider abstraction hardening.
+1. Add larger validation eval sets and semantic source checks later.
 2. Delay multimodal, broad agents, MCP expansion, and fine-tuning until retrieval/KG/memory/generation are stronger.
