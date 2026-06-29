@@ -10,10 +10,12 @@ from src.mcp_tools import (
     get_entity_tool,
     list_entities_tool,
     list_relations_tool,
+    list_tools,
     list_universes,
     read_document,
     search_corpus_tool,
     validate_assertion_tool,
+    validate_generated_output_tool,
 )
 
 
@@ -27,6 +29,11 @@ except ModuleNotFoundError as exc:  # pragma: no cover - depends on optional pac
 
 
 mcp = FastMCP("ragelven")
+
+
+@mcp.tool()
+def list_tools_mcp() -> dict:
+    return list_tools()
 
 
 @mcp.tool()
@@ -62,6 +69,25 @@ def list_relations_mcp(entity_name: str, universe_id: str = "terran_empire", rel
 @mcp.tool()
 def validate_assertion_mcp(assertion: str, universe_id: str = "terran_empire") -> dict:
     return validate_assertion_tool(assertion=assertion, universe_id=universe_id)
+
+
+@mcp.tool()
+def validate_generated_output_mcp(
+    text: str,
+    universe_id: str = "terran_empire",
+    retrieval_hits: list[dict] | None = None,
+    require_citations: bool = True,
+    check_kg: bool = True,
+    check_memory: bool = True,
+) -> dict:
+    return validate_generated_output_tool(
+        text=text,
+        universe_id=universe_id,
+        retrieval_hits=retrieval_hits,
+        require_citations=require_citations,
+        check_kg=check_kg,
+        check_memory=check_memory,
+    )
 
 
 if __name__ == "__main__":  # pragma: no cover - manual MCP runtime

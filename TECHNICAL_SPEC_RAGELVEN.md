@@ -512,7 +512,7 @@ Tool results as structured JSON with status, data, warnings, and trace IDs.
 Formats:
 Python tool functions first.
 JSON schemas for tool inputs and outputs.
-MCP server definitions later.
+MCP server definitions around stable Python handlers.
 
 Folders/files to create:
 `src/mcp_tools.py`
@@ -536,7 +536,8 @@ Existing layer functions in `src/layer_registry.py` are adapted into
 contract. `src/mcp_tools.py` exposes stable read-only/validation tool handlers.
 
 Dependencies:
-No MCP dependency at first. Future MCP SDK/server runtime.
+Core tool handlers have no MCP runtime dependency. The optional server uses the
+Python MCP SDK when installed.
 
 Candidate MCP servers:
 Corpus/Git MCP for listing universes, collections, manifests, summaries, and
@@ -558,8 +559,9 @@ tools with MCP.
 
 Current status:
 First MCP-ready tools exist for universe listing, document reading, corpus
-search, entity lookup, relation lookup, and assertion validation. The optional
-MCP server is intentionally thin and read-only/validation-only.
+search, entity lookup, relation lookup, assertion validation, generated-output
+validation, and tool contract discovery. The optional MCP server is
+intentionally thin and read-only/validation-only.
 
 ## Layer 9: Generation And Fine-Tuning
 

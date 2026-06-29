@@ -6,7 +6,7 @@ Source roadmap: `PIPELINE1.md`.
 
 ## Current Position
 
-Active position: Step 15 complete for current scope.
+Active position: Step 16 complete for current scope.
 
 Reason:
 
@@ -26,6 +26,8 @@ Reason:
 - Step 15 template integration is selective: useful review/verification/context
   prompt contracts were adapted without importing `.aip` runtime
   infrastructure.
+- Step 16 MCP exposes thin read-only/validation tool wrappers over stable
+  internal modules, with tool contract discovery.
 - Steps 10 to 16 exist as prototypes or backend slices, not finished product layers.
 - Steps 17 and 18 are not mature enough to call done.
 
@@ -48,11 +50,11 @@ Reason:
 | 13 | Multimodal | Done for current scope | `src/multimodal.py`, `src/ingestion/loaders.py`, `src/output_validation.py`, tests, `docs/MULTIMODAL.md` | Add real OCR/caption/transcription later |
 | 14 | AI agents | Done for current scope | `src/agent/planner.py`, `.codex/agents.json`, `prompts/agent_profiles.json`, tests, `docs/AGENT_ORCHESTRATION.md` | Add durable agent run logs later |
 | 15 | Template integration | Done for current scope | `reports/template_integration.md`, `prompts/workflow_templates.json`, `prompts/agent_profiles.json`, `.codex/` | Revisit only when contributors or PR workflow grow |
-| 16 | MCP | Prototype | `mcp/ragelven_server.py`, `src/mcp_tools.py` | Keep read-only until contracts harden |
+| 16 | MCP | Done for current scope | `src/mcp_tools.py`, `mcp/ragelven_server.py`, `mcp/README.md`, tests | Keep write tools disabled until permissions/UI review exist |
 | 17 | Fine-tuning/LoRA | Not started | No dataset baseline | Wait for validated memory |
 | 18 | Open source/governance | Partial | README, `.env.example`, governance docs | Add CI, license check, contribution docs |
 
 ## Immediate Roadmap
 
-1. Start Step 16 MCP with thin read-only wrappers only.
-2. Keep `.aip` template infrastructure out of the app runtime.
+1. Start Step 17 only when validated examples exist.
+2. Keep MCP write tools disabled until auth, review, and rollback are explicit.
