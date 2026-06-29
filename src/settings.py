@@ -30,14 +30,17 @@ ELVISH_KG_DB_PATH = VECTOR_DB_DIR / "knowledge_graph.sqlite"
 
 GROQ_API_KEY_ENV = "GROQ_API_KEY"
 ANTHROPIC_API_KEY_ENV = "ANTHROPIC_API_KEY"
+OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
 
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 ANTHROPIC_LORE_MODEL = os.getenv("ANTHROPIC_LORE_MODEL", "claude-sonnet-4-6")
 ANTHROPIC_POLISH_MODEL = os.getenv("ANTHROPIC_POLISH_MODEL", "claude-haiku-4-5-20251001")
 ANTHROPIC_JUDGE_MODEL = os.getenv("ANTHROPIC_JUDGE_MODEL", "claude-sonnet-4-6")
 
 LM_STUDIO_BASE_URL = os.getenv("LM_STUDIO_BASE_URL", "http://localhost:1234/v1")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 LOCAL_MODEL_NAME = os.getenv("LOCAL_MODEL_NAME", "local-model")
 
 

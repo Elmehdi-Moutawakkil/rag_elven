@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from src.llm_provider import LLMProvider, LLMRequest
+from src.llm_provider import LLMProvider, LLMRequest, generate_with_trace
 from src.output_validation import validate_generated_output
 from src.retrieval_adapter import retrieve_evidence
 
@@ -79,9 +79,28 @@ def run_controlled_agent(
 
     if provider:
         prompt = build_generation_prompt(user_input, sources)
-        response = provider.generate(LLMRequest(prompt=prompt))
-        final_output = response.text
-        trace.append({"tool": "generate", "status": "ok", "provider": response.provider, "model": response.model})
+        generation = generate_with_trace(provider, LLMRequest(prompt=prompt))
+        if generation.ok and generation.response:
+            final_output = generation.response.text
+            trace.append({
+                "tool": "generate",
+                "status": "ok",
+                "provider": generation.provider,
+                "model": generation.model,
+                "duration_ms": generation.duration_ms,
+                "usage": generation.usage,
+                "cost_estimate_usd": generation.cost_estimate_usd,
+            })
+        else:
+            final_output = sources[0]["text"] if sources else "Aucune source pertinente trouvee."
+            trace.append({
+                "tool": "generate",
+                "status": "error",
+                "provider": generation.provider,
+                "model": generation.model,
+                "duration_ms": generation.duration_ms,
+                "error": generation.error,
+            })
     else:
         final_output = sources[0]["text"] if sources else "Aucune source pertinente trouvee."
         trace.append({"tool": "generate", "status": "skipped", "reason": "no provider configured"})

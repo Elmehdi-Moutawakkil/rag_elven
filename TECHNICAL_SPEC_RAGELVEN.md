@@ -595,8 +595,8 @@ Current modules concerned:
 `src/settings.py`
 
 Dependencies:
-Anthropic, Groq, OpenAI-compatible local endpoint, future image/audio model
-dependencies.
+Anthropic, Groq, OpenAI API, OpenAI-compatible local endpoints such as LM
+Studio or Ollama, future image/audio model dependencies.
 
 Risks:
 API cost, model drift, invalid model IDs, prompt fragility, generating more data
@@ -610,8 +610,10 @@ answers when appropriate. Improve trace capture. Collect validated examples.
 Only then create fine-tuning datasets.
 
 Current status:
-A provider-neutral `LLMProvider` interface exists for Groq, Anthropic,
-OpenAI-compatible local endpoints, and static offline tests.
+A provider-neutral `LLMProvider` interface exists for Groq, Anthropic, OpenAI,
+OpenAI-compatible local endpoints, Ollama aliases, and static offline tests.
+Generation can be wrapped with a trace object containing provider, model,
+duration, usage, estimated cost when price data is known, and clean error text.
 
 ## Layer 10: Validation, Safety, And Governance
 
