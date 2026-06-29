@@ -29,7 +29,7 @@ Reason:
 | 7 | Document ingestion | Done for text/Markdown | `src/ingestion/`, `storage/processed/terran_empire/` | Add PDF ingestion later |
 | 8 | Indexing/retrieval | Done for current scope | `src/retrieval_adapter.py`, `indexes/terran_empire/`, `evals/retrieval/terran_empire.jsonl` | Add larger evals later |
 | 9 | Knowledge Graph | Done for current scope | `src/knowledge_graph.py`, `src/kg_tools.py`, `docs/KNOWLEDGE_GRAPH.md`, `kg/*/export.json` | Add source spans later |
-| 10 | Validated memory | Partial | `src/memory_store.py`, tests | Connect to UI and agent flow |
+| 10 | Validated memory | Active hardening | `src/memory_store.py`, tests, `memory/README.md` | Connect to UI and agent flow |
 | 11 | AI generation | Partial | `src/llm_provider.py`, lore generators | Improve cost/log traces |
 | 12 | Output validation | Partial | `src/output_validation.py`, tests | Add source-coverage thresholds |
 | 13 | Multimodal | Scaffold only | `src/multimodal.py`, docs | Do not expand before text is solid |

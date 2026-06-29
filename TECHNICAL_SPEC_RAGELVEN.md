@@ -387,29 +387,21 @@ Validated memory records for retrieval, KG candidate facts, changelog entries,
 and future generation context.
 
 Formats:
-Markdown for approved lore.
-JSON for metadata.
-SQLite for queryable memory.
+Current implementation uses JSONL for append-readable project memory records.
+Future SQLite can be added when query volume requires it.
 
-Folders/files to create:
-`memory/<universe_id>/drafts/`
-`memory/<universe_id>/pending/`
-`memory/<universe_id>/validated/`
-`memory/<universe_id>/rejected/`
-`memory/<universe_id>/memory.sqlite`
+Folders/files:
+`memory/<universe_id>/memory.jsonl`
 
-Tables:
-`memory_items`:
-`memory_id`, `universe_id`, `status`, `modality`, `content_path`,
-`summary`, `created_at`, `validated_at`, `reviewer`, `model`,
-`source_chunk_ids`, `kg_validation_score`, `notes`.
-
-`memory_events`:
-`event_id`, `memory_id`, `event_type`, `timestamp`, `payload_json`.
+Record fields:
+`memory_id`, `universe_id`, `status`, `content`, `summary`, `sources`,
+`kg_validation`, `model`, `created_at`, `updated_at`, `validated_at`,
+`reviewer`, `version`, `content_hash`, `events`, `metadata`.
 
 Current modules concerned:
 `src/memory_store.py` provides JSONL memory records, review statuses, event
-history, and reusable-only reads for validated memory.
+history, source/KG reuse gates, edit/rollback, and reusable-only reads for
+validated memory.
 
 Dependencies:
 SQLite, JSON, human review flow.
@@ -424,8 +416,9 @@ Create status model first: `draft`, `pending`, `validated`, `rejected`,
 add automatic candidate extraction.
 
 Current status:
-JSONL memory with controlled status transitions is implemented. It is not yet
-connected to the Streamlit UI.
+JSONL memory with controlled status transitions, review gates, versioning,
+rollback, and reusable-only reads is implemented. It is not yet connected to
+the Streamlit UI.
 
 ## Layer 7: AI Agent
 
