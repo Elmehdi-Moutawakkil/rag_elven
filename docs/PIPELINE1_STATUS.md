@@ -2,11 +2,14 @@
 
 Date: 2026-06-29.
 
-Source roadmap: `PIPELINE1.md`.
+Source roadmap: `docs/archive/PIPELINE1.md`.
+
+Archive status: the source roadmap has been archived after Step 18 foundation
+work. This status file remains the active operational view.
 
 ## Current Position
 
-Active position: Step 17 complete for current scope.
+Active position: PIPELINE1 archived after Step 18 foundation.
 
 Reason:
 
@@ -30,8 +33,10 @@ Reason:
   internal modules, with tool contract discovery.
 - Step 17 fine-tuning is deliberately deferred, with dataset strategy and
   validated-memory-only export foundations in place.
-- Steps 10 to 16 exist as prototypes or backend slices, not finished product layers.
-- Steps 17 and 18 are not mature enough to call done.
+- Step 18 has open-source governance foundations, but publication is deferred
+  until license and corpus redistribution decisions are made.
+- Steps 10 to 18 exist as prototypes, foundations, or backend slices, not a
+  finished public product release.
 
 ## Step Status
 
@@ -54,9 +59,18 @@ Reason:
 | 15 | Template integration | Done for current scope | `reports/template_integration.md`, `prompts/workflow_templates.json`, `prompts/agent_profiles.json`, `.codex/` | Revisit only when contributors or PR workflow grow |
 | 16 | MCP | Done for current scope | `src/mcp_tools.py`, `mcp/ragelven_server.py`, `mcp/README.md`, tests | Keep write tools disabled until permissions/UI review exist |
 | 17 | Fine-tuning/LoRA | Done for foundation scope | `docs/FINE_TUNING_STRATEGY.md`, `src/training_datasets.py`, tests | Do not train until enough validated examples exist |
-| 18 | Open source/governance | Partial | README, `.env.example`, governance docs | Add CI, license check, contribution docs |
+| 18 | Open source/governance | Prepared, not release-ready | `docs/OPEN_SOURCE_READINESS.md`, `CONTRIBUTING.md`, `SECURITY.md`, CI, audit script | Choose license and review corpus redistribution before publication |
+
+## Remaining Gaps
+
+- Improve Normal/Lab UI trace consistency.
+- Add more retrieval evals and source-span precision.
+- Decide license and corpus redistribution policy before public release.
+- Add durable agent/tool run logs.
+- Connect validated memory to UI later.
+- Keep PDF/OCR/audio/video and LoRA deferred until data and models are ready.
 
 ## Immediate Roadmap
 
-1. Start Step 18 open-source/governance cleanup.
-2. Keep LoRA/fine-tuning deferred until validated datasets and baselines exist.
+1. Do not publish as open source until license and corpus decisions are resolved.
+2. Next useful work: final audit, cleanup, and packaging pass when publication is actually planned.

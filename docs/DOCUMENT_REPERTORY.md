@@ -116,12 +116,9 @@ Active:
 - `TECHNICAL_SPEC_RAGELVEN.md`
 - `README.md`
 
-Needs decision:
-
-- `PIPELINE1.md`
-
 Archived:
 
+- `docs/archive/PIPELINE1.md`
 - `docs/archive/AI_IMAGE_INTEGRATION_CONTEXT.md`
 - `docs/archive/EXECUTION_PLAN.md`
 - `docs/archive/ÉTAT_DES_LIEUX.md`
@@ -133,13 +130,12 @@ Archived:
 Observed state:
 
 - `TECHNICAL_SPEC_RAGELVEN.md` is the active architecture contract.
-- `PIPELINE1.md` is useful as a roadmap, but it is currently untracked and can
-  conflict with the active spec if left ambiguous.
+- `docs/archive/PIPELINE1.md` is the archived source roadmap.
+- `docs/PIPELINE1_STATUS.md` is the active operational status view.
 
 Action needed:
 
-- Either version `PIPELINE1.md` as the active roadmap and align it with
-  `TECHNICAL_SPEC_RAGELVEN.md`, or move it into `docs/archive/`.
+- Keep `docs/PIPELINE1_STATUS.md` updated when roadmap state changes.
 
 ## Operational Documentation
 

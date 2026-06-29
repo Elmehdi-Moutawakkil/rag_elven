@@ -53,6 +53,14 @@ The active technical direction is documented in:
 
 [`TECHNICAL_SPEC_RAGELVEN.md`](TECHNICAL_SPEC_RAGELVEN.md)
 
+Current pipeline status:
+
+[`docs/PIPELINE1_STATUS.md`](docs/PIPELINE1_STATUS.md)
+
+Open-source readiness is tracked in:
+
+[`docs/OPEN_SOURCE_READINESS.md`](docs/OPEN_SOURCE_READINESS.md)
+
 Archived documents from earlier MVP phases are stored in:
 
 [`docs/archive/`](docs/archive/)

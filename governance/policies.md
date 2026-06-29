@@ -10,3 +10,7 @@ Initial project rules:
    permission, and target.
 5. Validation should be traceable to sources, Knowledge Graph checks, or human
    review.
+6. Open-source publication requires a license decision before release.
+7. Tracked corpus, PDF, and index assets require redistribution review before
+   public release.
+8. Private corpus and public example corpus must remain separable.
