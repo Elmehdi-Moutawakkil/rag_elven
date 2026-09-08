@@ -67,6 +67,19 @@ class CitationIdentityTests(unittest.TestCase):
             citation_excerpt_id(second, "same excerpt", start_offset=0, end_offset=12),
         )
 
+    def test_identity_golden_values_are_stable_across_compatibility_fix(self):
+        version = citation_version_id("mirror", "lore/history.txt", "same excerpt", document_sha256="a" * 64)
+
+        self.assertEqual(version, "cver_f90cf96644409841b63107b6")
+        self.assertEqual(
+            citation_excerpt_id(version, "same excerpt", start_offset=0, end_offset=12),
+            "cexp_fbb9245ce1e35424d208db38",
+        )
+        self.assertEqual(
+            legacy_faiss_chunk_id("notes.txt", "same evidence", universe_id="mirror", page=4),
+            "legacy_abbced0b45223dffa0c95ed1",
+        )
+
     def test_legacy_faiss_identity_ignores_search_rank(self):
         first = legacy_faiss_chunk_id("notes.txt", "same evidence", universe_id="mirror", page=4)
         second = legacy_faiss_chunk_id("notes.txt", "same evidence", universe_id="mirror", page=4)

@@ -53,10 +53,11 @@ def citation_version_id(
     Without a document hash, the content hash is the conservative fallback.
     """
     content_hash = _digest(str(text))
-    return f"cver_{_digest({
+    identity_fields = {
         'source_id': stable_source_id(universe_id, source_path),
         'document_sha256': str(document_sha256) if document_sha256 else content_hash,
-    })[:24]}"
+    }
+    return f"cver_{_digest(identity_fields)[:24]}"
 
 
 def citation_excerpt_id(
@@ -68,13 +69,14 @@ def citation_excerpt_id(
     page: int | str | None = None,
 ) -> str:
     """Return an immutable identity for one versioned excerpt and its span."""
-    return f"cexp_{_digest({
+    identity_fields = {
         'version_id': str(version_id),
         'text_sha256': _digest(str(text)),
         'start_offset': start_offset,
         'end_offset': end_offset,
         'page': page,
-    })[:24]}"
+    }
+    return f"cexp_{_digest(identity_fields)[:24]}"
 
 
 def legacy_faiss_chunk_id(
@@ -85,11 +87,12 @@ def legacy_faiss_chunk_id(
     page: int | str | None = None,
 ) -> str:
     """Return a rank-independent identity for legacy FAISS metadata."""
-    return f"legacy_{_digest({
+    identity_fields = {
         'source_id': stable_source_id(universe_id, source_path),
         'text_sha256': _digest(str(text)),
         'page': page,
-    })[:24]}"
+    }
+    return f"legacy_{_digest(identity_fields)[:24]}"
 
 
 def _metadata_value(record: Mapping[str, Any], name: str, default: Any = None) -> Any:
