@@ -15,7 +15,7 @@ from src.normal_mode import (
 class NormalModeTests(unittest.TestCase):
     def test_official_pipelines_reference_known_available_modules(self):
         for route, modules in NORMAL_PIPELINES.items():
-            self.assertEqual(pipeline_for_route(route), modules)
+            self.assertEqual(pipeline_for_route(route, universe_id="tolkien"), modules)
             self.assertTrue(modules)
             for module_id in modules:
                 self.assertIn(module_id, MODULE_REGISTRY)
@@ -39,6 +39,7 @@ class NormalModeTests(unittest.TestCase):
         self.assertEqual(detect_universe_for_input("Who is Mirror Spock?"), "terran_empire")
         self.assertEqual(detect_universe_for_input("What is the Agony Booth?"), "terran_empire")
         self.assertEqual(detect_universe_for_input("What does elda mean?"), "tolkien")
+        self.assertIsNone(detect_universe_for_input("Tell me about history"))
 
     def test_non_tolkien_qa_pipeline_excludes_elvish_dictionary(self):
         self.assertEqual(pipeline_for_route("qa", universe_id="terran_empire"), ["L01", "L02", "L13"])
@@ -48,10 +49,11 @@ class NormalModeTests(unittest.TestCase):
         self.assertEqual(pipeline_for_route("lore", universe_id="terran_empire"), ["L01", "L02", "L07", "L08", "L09"])
 
     def test_resolve_normal_universe_matches_ui_selection_rules(self):
-        self.assertEqual(resolve_normal_universe("qa", "Who is Mirror Spock?", "Auto"), "terran_empire")
-        self.assertEqual(resolve_normal_universe("qa", "Who is Mirror Spock?", "Tolkien / Elfique"), "tolkien")
-        self.assertEqual(resolve_normal_universe("qa", "What does elda mean?", "Empire Terran"), "terran_empire")
-        self.assertEqual(resolve_normal_universe("translate", "Translate: the warrior walks", "Empire Terran"), "tolkien")
+        self.assertEqual(resolve_normal_universe("qa", "Who is Mirror Spock?", "Auto").universe_id, "terran_empire")
+        self.assertEqual(resolve_normal_universe("qa", "Who is Mirror Spock?", "Tolkien / Elfique").universe_id, "tolkien")
+        self.assertEqual(resolve_normal_universe("qa", "What does elda mean?", "Empire Terran").universe_id, "terran_empire")
+        self.assertEqual(resolve_normal_universe("translate", "Translate: the warrior walks", "Empire Terran").status, "CAPABILITY_UNSUPPORTED")
+        self.assertEqual(resolve_normal_universe("qa", "Tell me about history", "Auto").status, "SELECTION_REQUIRED")
 
     def test_star_trek_question_routes_to_qa_without_tolkien_generation_bias(self):
         result = classify_request("Who is Mirror Spock?", api_key="")

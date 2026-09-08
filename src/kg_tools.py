@@ -9,13 +9,15 @@ from typing import Any
 from src.knowledge_graph import KnowledgeGraph
 from src.retrieval_adapter import retrieve_evidence
 from src.settings import PROJECT_ROOT
+from src.universe_registry import get_universe_registry
 
 
-def kg_path_for_universe(universe_id: str) -> Path:
-    """Return the current KG SQLite path for a universe."""
-    if universe_id == "terran_empire":
-        return PROJECT_ROOT / "vector_db" / "terran_empire" / "knowledge_graph.sqlite"
-    return PROJECT_ROOT / "vector_db" / "knowledge_graph.sqlite"
+def kg_path_for_universe(universe_id: str | None) -> Path:
+    """Return a manifest-declared KG path; never silently select Tolkien."""
+    config = get_universe_registry().require(universe_id or "")
+    if config.knowledge_graph_path is None:
+        raise ValueError(f"Knowledge graph is not declared for universe: {config.universe_id}")
+    return config.knowledge_graph_path
 
 
 def _decode_aliases(entity: dict[str, Any]) -> dict[str, Any]:
@@ -28,12 +30,12 @@ def _decode_aliases(entity: dict[str, Any]) -> dict[str, Any]:
     return entity
 
 
-def get_kg(universe_id: str = "terran_empire") -> KnowledgeGraph:
+def get_kg(universe_id: str | None = None) -> KnowledgeGraph:
     """Open a KnowledgeGraph for a universe."""
     return KnowledgeGraph(kg_path_for_universe(universe_id)).connect()
 
 
-def list_entities(universe_id: str = "terran_empire", entity_type: str | None = None) -> list[dict[str, Any]]:
+def list_entities(universe_id: str | None = None, entity_type: str | None = None) -> list[dict[str, Any]]:
     """List KG entities as JSON-compatible dictionaries."""
     with get_kg(universe_id) as kg:
         if entity_type:
@@ -46,7 +48,7 @@ def list_entities(universe_id: str = "terran_empire", entity_type: str | None = 
         return [_decode_aliases(dict(row)) for row in rows]
 
 
-def find_entity(name: str, universe_id: str = "terran_empire") -> dict[str, Any] | None:
+def find_entity(name: str, universe_id: str | None = None) -> dict[str, Any] | None:
     """Find one entity by exact name or alias."""
     with get_kg(universe_id) as kg:
         entity = kg.get_entity(name)
@@ -56,7 +58,7 @@ def find_entity(name: str, universe_id: str = "terran_empire") -> dict[str, Any]
 def list_relations(
     entity_name: str,
     *,
-    universe_id: str = "terran_empire",
+    universe_id: str | None = None,
     relation_type: str | None = None,
 ) -> list[dict[str, Any]]:
     """List outgoing relations for one entity."""
@@ -64,7 +66,7 @@ def list_relations(
         return kg.get_relations(entity_name, relation_type=relation_type)
 
 
-def export_knowledge_graph(universe_id: str = "terran_empire") -> dict[str, Any]:
+def export_knowledge_graph(universe_id: str | None = None) -> dict[str, Any]:
     """Export the current KG as deterministic JSON-compatible data."""
     with get_kg(universe_id) as kg:
         entity_rows = kg.conn.execute("SELECT * FROM entities ORDER BY name").fetchall()
@@ -130,14 +132,14 @@ def export_knowledge_graph(universe_id: str = "terran_empire") -> dict[str, Any]
 def source_evidence_for_entity(
     entity_name: str,
     *,
-    universe_id: str = "terran_empire",
+    universe_id: str | None = None,
     k: int = 3,
 ) -> list[dict[str, Any]]:
     """Retrieve source chunks that mention an entity."""
     return retrieve_evidence(entity_name, universe_id=universe_id, k=k)
 
 
-def validate_assertion(assertion: str, *, universe_id: str = "terran_empire") -> dict[str, Any]:
+def validate_assertion(assertion: str, *, universe_id: str | None = None) -> dict[str, Any]:
     """Validate an assertion or generated passage against the universe KG."""
     with get_kg(universe_id) as kg:
         result = kg.validate_story(assertion)

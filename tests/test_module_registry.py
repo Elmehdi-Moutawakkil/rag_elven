@@ -45,7 +45,7 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertTrue(result["final_output"])
         self.assertIn("source_path", result["final_output"][0])
 
-    def test_l02_preserves_legacy_faiss_contract_without_universe_id(self):
+    def test_l02_rejects_legacy_faiss_contract_without_registered_handle(self):
         class FakeModel:
             def encode(self, values, normalize_embeddings=True):
                 import numpy as np
@@ -68,10 +68,7 @@ class ModuleRegistryTests(unittest.TestCase):
             },
         )
 
-        self.assertIsNone(result["error"])
-        self.assertEqual(result["final_type"], "json_chunks")
-        self.assertEqual(result["final_output"][0]["source"], "legacy.txt")
-        self.assertIn("faiss", result["trace"][0]["label"])
+        self.assertIn("UNIVERSE_REQUIRED", result["error"])
 
 
 if __name__ == "__main__":

@@ -22,16 +22,16 @@ if _ROOT not in sys.path:
 import streamlit as st
 
 from src.embeddings import load_model
-from src.retrieval   import load_faiss, retrieve, search_faiss
-from src.retrieval_adapter import retrieve_evidence
+from src.retrieval_adapter import RetrievalStatus, retrieve_evidence_result
 from src.llm         import answer
 from src.lore_generator_p4 import generate_lore_p4
 from src.lore_generator_generic import generate_lore_for_universe
-from src.router      import classify_request
+from src.router      import _fast_classify, classify_request
 from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
 from src.layer_registry import LAYER_META, LAYER_ORDER
 from src.normal_mode import normalize_input_for_route, pipeline_for_route, resolve_normal_universe
 from src.pipeline_executor import execute_pipeline, format_final_output
+from src.universe_registry import load_semantic_handle, resolve_universe
 
 
 # ==============================================================================
@@ -41,9 +41,7 @@ from src.pipeline_executor import execute_pipeline, format_final_output
 @st.cache_resource
 def load_resources():
     try:
-        model           = load_model()
-        index, metadata = load_faiss()
-        return model, index, metadata
+        return load_model(), load_semantic_handle("tolkien"), None
     except Exception as e:
         return None, None, str(e)
 
@@ -51,12 +49,7 @@ def load_resources():
 @st.cache_resource
 def load_universe_resources(universe: str):
     try:
-        model = load_model()
-        index, metadata = load_faiss(
-            index_path=f"vector_db/{universe}/faiss.index",
-            meta_path=f"vector_db/{universe}/metadata.json",
-        )
-        return model, index, metadata
+        return load_model(), load_semantic_handle(universe), None
     except Exception as e:
         return None, None, str(e)
 
@@ -113,6 +106,13 @@ submit = st.button("✨ Envoyer", type="primary")
 # ==============================================================================
 
 if submit and user_input.strip():
+    selection_preflight = resolve_universe(normal_universe_choice, query=user_input)
+    if not selection_preflight.ok:
+        st.error(f"❌ {selection_preflight.status}: {selection_preflight.error}")
+        st.stop()
+    if selection_preflight.universe_id == "terran_empire" and _fast_classify(user_input) == "translate":
+        st.error("❌ CAPABILITY_UNSUPPORTED: translation is available only for Tolkien / Elvish.")
+        st.stop()
 
     # ── 1. Classify ─────────────────────────────────────────────────────────
     with st.spinner("Analyse de la requête…"):
@@ -129,7 +129,12 @@ if submit and user_input.strip():
 
     # ── 3. Execute Normal Mode through the shared module engine ──────────────
     route_name = route["route"]
-    normal_universe_id = resolve_normal_universe(route_name, user_input, normal_universe_choice)
+    normal_resolution = resolve_normal_universe(route_name, user_input, normal_universe_choice)
+    if not normal_resolution.ok:
+        st.error(f"❌ {normal_resolution.status}: {normal_resolution.error}")
+        st.stop()
+    normal_universe_id = normal_resolution.universe_id
+    assert normal_universe_id is not None
     normal_input = normalize_input_for_route(route_name, user_input)
     normal_layers = pipeline_for_route(route_name, universe_id=normal_universe_id)
     if normal_universe_id == "terran_empire":
@@ -141,8 +146,7 @@ if submit and user_input.strip():
     else:
         normal_resources = {
             "model": model,
-            "index": index,
-            "meta": metadata,
+            "semantic_handle": index,
             "universe": "Tolkien's Middle-earth",
             "universe_id": "tolkien",
             "kg_db_path": str(KG_DB_PATH),
@@ -167,7 +171,14 @@ if submit and user_input.strip():
 
         if normal_result["error"]:
             st.error(f"❌ {normal_result['error']}")
-        elif route_name == "qa":
+        else:
+            retrieval_layer = normal_result["outputs"].get("L02")
+            retrieval_data = retrieval_layer.metadata.get("retrieval_result", {}) if retrieval_layer else {}
+            if retrieval_data.get("degraded"):
+                st.warning("⚠️ Recherche dégradée : " + " · ".join(retrieval_data.get("warnings", [])))
+            elif retrieval_data.get("warnings"):
+                st.info("Recherche : " + " · ".join(retrieval_data["warnings"]))
+        if not normal_result["error"] and route_name == "qa":
             st.markdown("### Réponse")
             st.write(format_final_output(normal_result))
 
@@ -261,9 +272,9 @@ st.markdown("### 🖖 Empire Terran")
 st.caption("Univers miroir de Star Trek — explorez le lore de l'Empire Terran et de l'Alliance Klingon-Cardassian.")
 
 with st.spinner("Chargement de l'index Empire Terran…"):
-    _te_model, _te_index, _te_meta = load_universe_resources("terran_empire")
+    _te_model, _te_handle, _te_error = load_universe_resources("terran_empire")
 
-_te_available = _te_model is not None and _te_index is not None
+_te_available = _te_model is not None and _te_handle is not None
 
 te_tab_qa, te_tab_lore = st.tabs(["💬 Q&A", "📖 Générer du Lore"])
 
@@ -283,25 +294,20 @@ with te_tab_qa:
     if te_submit and te_input.strip():
         if not _te_available:
             st.error("❌ Index Empire Terran non disponible.")
-        elif not _groq_key:
-            st.error("❌ GROQ_API_KEY manquante.")
         else:
             with st.spinner("Recherche dans le lore de l'Empire Terran…"):
-                faiss_results = retrieve_evidence(
-                    te_input,
-                    universe_id="terran_empire",
-                    k=3,
-                    model=_te_model,
-                    index=_te_index,
-                    metadata=_te_meta,
-                )
+                retrieval = retrieve_evidence_result(te_input, universe_id="terran_empire", k=3)
+            if retrieval.status != RetrievalStatus.SUCCESS:
+                st.error(f"❌ {retrieval.status}: {retrieval.error or 'Aucune preuve trouvée.'}")
+                st.stop()
+            if retrieval.degraded or retrieval.warnings:
+                st.warning("⚠️ Recherche dégradée : " + " · ".join(retrieval.warnings))
+            if not _groq_key:
+                st.error("❌ GROQ_API_KEY manquante.")
+                st.stop()
+            faiss_results = retrieval.hits
             with st.spinner("Génération de la réponse…"):
-                response = answer(
-                    te_input,
-                    faiss_results,
-                    [],
-                    universe_name="Terran Empire — Star Trek Mirror Universe",
-                )
+                response = answer(te_input, faiss_results, [], universe_name="Terran Empire — Star Trek Mirror Universe")
             st.markdown("### Réponse")
             st.write(response)
             with st.expander("Sources utilisées"):
@@ -335,14 +341,16 @@ with te_tab_lore:
                     universe_name="Terran Empire (Star Trek Mirror Universe)",
                     api_key=_anthropic_key,
                     model=_te_model,
-                    index=_te_index,
-                    metadata=_te_meta,
+                    semantic_handle=_te_handle,
                     universe_id="terran_empire",
                 )
             if result["success"]:
                 st.markdown("### 📖 Lore généré")
                 st.write(result["story"])
                 st.caption(f"Contexte : {result['chunks_used']} passages utilisés")
+                retrieval_data = result.get("retrieval", {})
+                if retrieval_data.get("degraded") or retrieval_data.get("warnings"):
+                    st.warning("⚠️ Recherche : " + " · ".join(retrieval_data.get("warnings", [])))
                 kg_validation = result.get("kg_validation") or {}
                 if kg_validation.get("warning"):
                     st.info(f"Validation KG non appliquée : {kg_validation['warning']}")
@@ -392,18 +400,27 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
             q = st.text_input("Question", key="manual_qa")
             if q:
                 with st.spinner("…"):
-                    res = retrieve(q, model, index, metadata, k=3)
-                    rep = answer(q, res["faiss"], res["dictionary"])
+                    res = execute_pipeline(
+                        ["L01", "L02", "L03", "L13"],
+                        q,
+                        {"model": model, "semantic_handle": index, "universe_id": "tolkien", "universe": "Tolkien's Middle-earth"},
+                    )
+                if res["error"]:
+                    st.error(f"❌ {res['error']}")
+                    st.stop()
                 st.markdown("### Réponse")
-                st.write(rep)
-                rw = res.get("rewriter", {})
+                st.write(res["final_output"])
+                rw_result = res["outputs"].get("L01")
+                rw = rw_result.output if rw_result else {}
                 if rw:
                     badge = "🟢 vocabulaire" if rw.get("type") == "vocabulary" else "🔵 lore"
                     st.caption(f"Query Rewriter → {badge} · **{rw.get('keyword', '?')}**")
                 with st.expander("Sources"):
-                    for e in res["dictionary"][:5]:
+                    dict_result = res["outputs"].get("L03")
+                    for e in (dict_result.output if dict_result else [])[:5]:
                         st.markdown(f"- **{e.get('word')}** ({e.get('language')}) → {e.get('translation')}")
-                    for r in res["faiss"]:
+                    chunks_result = res["outputs"].get("L02")
+                    for r in (chunks_result.output if chunks_result else []):
                         src = r.get("source", "").split("/")[-1]
                         st.markdown(f"*{src}* — {r['score']:.3f}")
                         st.caption(r["text"][:200])
@@ -462,10 +479,20 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
             lreq = st.text_area("Requête lore", height=80, key="manual_lore")
             if st.button("Générer", key="manual_lore_btn"):
                 with st.spinner("…"):
-                    lr = generate_lore_p4(lreq, _anthropic_key, model, index, metadata)
+                    lr = generate_lore_for_universe(
+                        user_request=lreq,
+                        universe_name="Tolkien's Middle-earth",
+                        api_key=_anthropic_key,
+                        model=model,
+                        semantic_handle=index,
+                        universe_id="tolkien",
+                    )
                 if lr["success"]:
                     st.write(lr["story"])
-                    v = lr["validation"]
+                    retrieval_data = lr.get("retrieval", {})
+                    if retrieval_data.get("degraded") or retrieval_data.get("warnings"):
+                        st.warning("⚠️ Recherche : " + " · ".join(retrieval_data.get("warnings", [])))
+                    v = lr.get("kg_validation") or {}
                     valid_str = "✅ valide" if v.get("is_valid") else "❌ violations"
                     st.caption(f"Score KG : {v.get('score', 0)}/100 · {valid_str}")
                 else:
@@ -531,16 +558,14 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
     # ── Sélecteur d'univers ───────────────────────────────────────────────────
     UNIVERSE_OPTIONS = {
         "🧝 Elfique (Tolkien)": {
-            "index": index,
-            "meta": metadata,
+            "semantic_handle": index,
             "model": model,
             "universe": "Tolkien's Middle-earth",
             "universe_id": "tolkien",
             "kg_db_path": str(KG_DB_PATH),
         },
         "🖖 Empire Terran (Star Trek)": {
-            "index": _te_index,
-            "meta": _te_meta,
+            "semantic_handle": _te_handle,
             "model": _te_model,
             "universe": "Terran Empire (Star Trek Mirror Universe)",
             "universe_id": "terran_empire",
@@ -636,8 +661,7 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
     if lab_go and lab_input and lab_selected:
         _lab_res = {
             "model":    _lab_universe_res["model"],
-            "index":    _lab_universe_res["index"],
-            "meta":     _lab_universe_res["meta"],
+            "semantic_handle": _lab_universe_res["semantic_handle"],
             "universe": _lab_universe_res["universe"],
             "universe_id": _lab_universe_res["universe_id"],
             "kg_db_path": _lab_universe_res["kg_db_path"],
@@ -662,6 +686,9 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
                 c2.caption(f"`{LAYER_META[lid].cost}`")
                 c3.caption("✅ déterministe" if LAYER_META[lid].deterministic else "🎲 LLM")
                 if lr:
+                    retrieval_data = lr.metadata.get("retrieval_result", {})
+                    if retrieval_data.get("degraded") or retrieval_data.get("warnings"):
+                        st.info("Recherche : " + " · ".join(retrieval_data.get("warnings", [])))
                     _render_layer_output(lr.output, lr.output_type)
 
         st.markdown("---")

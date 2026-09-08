@@ -191,12 +191,10 @@ def _run_L01(input: Any, context: dict) -> LayerResult:
 
 
 def _run_L02(input: Any, context: dict) -> LayerResult:
-    from src.retrieval_adapter import retrieve_evidence
-    from src.retrieval import search_faiss
+    from src.retrieval_adapter import RetrievalStatus, retrieve_evidence_result
     resources = context.get("resources", {})
     model = resources.get("model")
-    index = resources.get("index")
-    meta  = resources.get("meta")
+    semantic_handle = resources.get("semantic_handle")
     universe_id = resources.get("universe_id")
 
     # Construire la query : utilise le keyword normalisé si L01 a tourné
@@ -208,33 +206,63 @@ def _run_L02(input: Any, context: dict) -> LayerResult:
     else:
         query = context["user_input"]
 
-    if universe_id:
-        chunks = retrieve_evidence(
-            query,
-            universe_id=universe_id,
-            k=5,
-            model=model,
-            index=index,
-            metadata=meta,
+    result = retrieve_evidence_result(
+        query,
+        universe_id=universe_id,
+        k=5,
+        semantic_handle=semantic_handle,
+        model=model,
+    )
+    if result.status == RetrievalStatus.NO_RESULTS and resources.get("allow_dictionary_fallback"):
+        return LayerResult(
+            output=[],
+            output_type="json_chunks",
+            label="NO_RESULTS · relais dictionnaire autorisé",
+            metadata={"retrieval_result": result.to_dict(), "retrieval_status": str(result.status)},
         )
-        engines = sorted({chunk.get("retrieval_engine", "unknown") for chunk in chunks})
-        engine_label = "+".join(engines) if engines else "aucun moteur"
-        return LayerResult(output=chunks, output_type="json_chunks", label=f"{len(chunks)} chunks trouvés · {engine_label}")
-
-    if model is None or index is None:
-        return LayerResult(output=[], output_type="json_chunks", label="FAISS non disponible")
-    chunks = search_faiss(query, model, index, meta, k=5)
-    return LayerResult(output=chunks, output_type="json_chunks", label=f"{len(chunks)} chunks trouvés · faiss")
+    if result.status != RetrievalStatus.SUCCESS:
+        return LayerResult(
+            output=result.to_dict(),
+            output_type="retrieval_result",
+            label=f"{result.status} · {result.error or 'aucune preuve'}",
+            error=f"{result.status}: {result.error or 'no evidence'}",
+            metadata={"retrieval_status": str(result.status)},
+        )
+    engine_label = "+".join(result.engines)
+    return LayerResult(
+        output=result.hits,
+        output_type="json_chunks",
+        label=f"{len(result.hits)} chunks trouvés · {engine_label}",
+        metadata={"retrieval_result": result.to_dict()},
+    )
 
 
 def _run_L03(input: Any, context: dict) -> LayerResult:
-    from src.retrieval import search_dictionary
+    from src.database import lookup_word, search_translation
+    from src.retrieval import extract_keyword
+    from src.universe_registry import get_universe_registry
+    universe_id = context.get("resources", {}).get("universe_id")
+    registry = get_universe_registry()
+    config = registry.get(universe_id)
+    if config is None:
+        return LayerResult(output=[], output_type="json_dict", label="Univers invalide", error="UNIVERSE_REQUIRED or UNIVERSE_UNKNOWN")
+    if config.universe_id != "tolkien" or config.dictionary_path is None:
+        return LayerResult(output=[], output_type="json_dict", label="Dictionnaire indisponible", error="CAPABILITY_UNSUPPORTED")
+    requested_path = context.get("resources", {}).get("dictionary_db_path")
+    if requested_path and Path(requested_path).resolve() != config.dictionary_path:
+        return LayerResult(output=[], output_type="json_dict", label="Dictionnaire non lié", error="Dictionary path does not match manifest")
+    if not config.dictionary_path.exists():
+        return LayerResult(output=[], output_type="json_dict", label="Dictionnaire absent", error="INDEX_MISSING")
     prev_L01 = context["outputs"].get("L01")
     if prev_L01 and prev_L01.output_type == "json_rewrite":
         query = prev_L01.output.get("keyword", context["user_input"])
     else:
         query = context["user_input"]
-    entries = search_dictionary(query)
+    keyword = extract_keyword(query)
+    entries = lookup_word(keyword, db_path=str(config.dictionary_path))
+    if not entries:
+        entries = search_translation(keyword, db_path=str(config.dictionary_path))
+    entries = [dict(entry) for entry in entries]
     return LayerResult(output=entries, output_type="json_dict", label=f"{len(entries)} entrées dictionnaire")
 
 
@@ -287,6 +315,11 @@ def _run_L07(input: Any, context: dict) -> LayerResult:
 
 
 def _run_L08(input: Any, context: dict) -> LayerResult:
+    prev_L02 = context["outputs"].get("L02")
+    chunks = prev_L02.output if (prev_L02 and prev_L02.output_type == "json_chunks") else []
+    if not chunks:
+        return LayerResult(output={"story": None, "warnings": []}, output_type="json_story", label="Preuves requises", error="RETRIEVAL_REQUIRED")
+
     from anthropic import Anthropic
 
     api_key = env_value(ANTHROPIC_API_KEY_ENV)
@@ -306,8 +339,6 @@ def _run_L08(input: Any, context: dict) -> LayerResult:
     prev_L07 = context["outputs"].get("L07")
     constraints = prev_L07.output if (prev_L07 and prev_L07.output_type == "text_constraints") else ""
 
-    prev_L02 = context["outputs"].get("L02")
-    chunks = prev_L02.output if (prev_L02 and prev_L02.output_type == "json_chunks") else []
     context_text = "\n\n".join(c["text"] for c in chunks[:4])
 
     prompt = f"""You are a creative lore writer for the {universe} universe.
@@ -377,14 +408,16 @@ def _run_L09(input: Any, context: dict) -> LayerResult:
 
 
 def _run_L13(input: Any, context: dict) -> LayerResult:
-    from src.llm import answer
-    question = context["user_input"]
-    universe = context.get("resources", {}).get("universe", "Tolkien's Middle-earth and Elvish languages")
-
     prev_L02 = context["outputs"].get("L02")
     prev_L03 = context["outputs"].get("L03")
     faiss_results = prev_L02.output if (prev_L02 and prev_L02.output_type == "json_chunks") else []
     dict_results  = prev_L03.output if (prev_L03 and prev_L03.output_type == "json_dict") else []
+    if not faiss_results and not dict_results:
+        return LayerResult(output="", output_type="text", label="Preuves requises", error="RETRIEVAL_REQUIRED")
+
+    from src.llm import answer
+    question = context["user_input"]
+    universe = context.get("resources", {}).get("universe", "selected universe")
 
     response = answer(question, faiss_results, dict_results, universe_name=universe)
     return LayerResult(output=response, output_type="text", label="Réponse Groq générée")

@@ -25,6 +25,8 @@ class RetrievalHit:
     universe_id: str
     collection_id: str | None
     text: str
+    start_offset: int | None
+    end_offset: int | None
     source_path: str
     source_name: str
     score: float
@@ -106,6 +108,8 @@ def score_chunks(query: str, chunks: list[dict[str, Any]]) -> list[RetrievalHit]
                 universe_id=str(chunk["universe_id"]),
                 collection_id=chunk.get("collection_id"),
                 text=text,
+                start_offset=chunk.get("start_offset"),
+                end_offset=chunk.get("end_offset"),
                 source_path=str(chunk.get("source_path", "")),
                 source_name=str(chunk.get("source_name", "")),
                 score=round(combined_score, 6),

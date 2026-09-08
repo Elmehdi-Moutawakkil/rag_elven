@@ -127,7 +127,7 @@ class RegressionTests(unittest.TestCase):
         self.assertFalse(result["is_valid"])
         self.assertEqual(len(result["violations"]), 1)
 
-    def test_lab_l09_uses_kg_validation_without_llm(self):
+    def test_lab_l09_rejects_unmanifested_kg_override(self):
         with tempfile.NamedTemporaryFile(suffix=".sqlite") as tmp:
             with KnowledgeGraph(Path(tmp.name)) as kg:
                 kg.add_canon_fact(
@@ -139,15 +139,10 @@ class RegressionTests(unittest.TestCase):
             result = execute_pipeline(
                 ["L09"],
                 "The Terran Empire was a democracy.",
-                resources={"kg_db_path": tmp.name},
+                resources={"universe_id": "terran_empire", "kg_db_path": tmp.name},
             )
 
-        self.assertIsNone(result["error"])
-        final = result["final_output"]
-        self.assertIn("validation", final)
-        self.assertEqual(final["validation"]["method"], "knowledge_graph")
-        self.assertFalse(final["validation"]["is_valid"])
-        self.assertEqual(len(final["validation"]["violations"]), 1)
+        self.assertIn("Knowledge graph path does not match manifest", result["error"])
 
     def test_empty_constraints_are_universe_specific_not_tolkien_hardcoded(self):
         constraints = build_constraints_from_chunks([], universe_name="Terran Empire")

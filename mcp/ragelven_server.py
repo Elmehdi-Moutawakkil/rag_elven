@@ -13,6 +13,7 @@ from src.mcp_tools import (
     list_tools,
     list_universes,
     read_document,
+    resolve_citation_tool,
     search_corpus_tool,
     validate_assertion_tool,
     validate_generated_output_tool,
@@ -42,39 +43,44 @@ def list_universes_tool() -> dict:
 
 
 @mcp.tool()
-def read_document_tool(universe_id: str = "terran_empire", document_id: str | None = None, source_path: str | None = None) -> dict:
+def read_document_tool(universe_id: str | None = None, document_id: str | None = None, source_path: str | None = None) -> dict:
     return read_document(universe_id=universe_id, document_id=document_id, source_path=source_path)
 
 
 @mcp.tool()
-def search_corpus_mcp(query: str, universe_id: str = "terran_empire", k: int = 5) -> dict:
+def search_corpus_mcp(query: str, universe_id: str | None = None, k: int = 5) -> dict:
     return search_corpus_tool(query=query, universe_id=universe_id, k=k)
 
 
 @mcp.tool()
-def list_entities_mcp(universe_id: str = "terran_empire", entity_type: str | None = None) -> dict:
+def resolve_citation_mcp(citation: str, universe_id: str | None = None) -> dict:
+    return resolve_citation_tool(citation=citation, universe_id=universe_id)
+
+
+@mcp.tool()
+def list_entities_mcp(universe_id: str | None = None, entity_type: str | None = None) -> dict:
     return list_entities_tool(universe_id=universe_id, entity_type=entity_type)
 
 
 @mcp.tool()
-def get_entity_mcp(name: str, universe_id: str = "terran_empire") -> dict:
+def get_entity_mcp(name: str, universe_id: str | None = None) -> dict:
     return get_entity_tool(name=name, universe_id=universe_id)
 
 
 @mcp.tool()
-def list_relations_mcp(entity_name: str, universe_id: str = "terran_empire", relation_type: str | None = None) -> dict:
+def list_relations_mcp(entity_name: str, universe_id: str | None = None, relation_type: str | None = None) -> dict:
     return list_relations_tool(entity_name=entity_name, universe_id=universe_id, relation_type=relation_type)
 
 
 @mcp.tool()
-def validate_assertion_mcp(assertion: str, universe_id: str = "terran_empire") -> dict:
+def validate_assertion_mcp(assertion: str, universe_id: str | None = None) -> dict:
     return validate_assertion_tool(assertion=assertion, universe_id=universe_id)
 
 
 @mcp.tool()
 def validate_generated_output_mcp(
     text: str,
-    universe_id: str = "terran_empire",
+    universe_id: str | None = None,
     retrieval_hits: list[dict] | None = None,
     require_citations: bool = True,
     check_kg: bool = True,

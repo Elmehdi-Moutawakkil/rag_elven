@@ -232,17 +232,17 @@ def call_lore_terran(request: str) -> dict:
             return _missing_key_result(ANTHROPIC_API_KEY_ENV, "generation lore Empire Terran", t0)
 
         from src.lore_generator_generic import generate_lore_for_universe
+        from src.universe_registry import load_semantic_handle
 
         model = _get_embedding_model()
-        index, metadata = _get_terran_index()
+        semantic_handle = load_semantic_handle("terran_empire")
 
         result = generate_lore_for_universe(
             user_request=request,
             universe_name="Terran Empire (Star Trek Mirror Universe)",
             api_key=anthropic_key,
             model=model,
-            index=index,
-            metadata=metadata,
+            semantic_handle=semantic_handle,
             universe_id="terran_empire",
         )
         if result.get("success"):

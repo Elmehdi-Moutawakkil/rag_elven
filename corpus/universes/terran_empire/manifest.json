@@ -44,6 +44,7 @@
   "indexes": {
     "text": {
       "type": "faiss",
+      "chunks_path": "indexes/terran_empire/text/chunks.jsonl",
       "index_path": "vector_db/terran_empire/faiss.index",
       "metadata_path": "vector_db/terran_empire/metadata.json",
       "embedding_model": "all-MiniLM-L6-v2"

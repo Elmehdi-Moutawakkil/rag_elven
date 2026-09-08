@@ -94,7 +94,7 @@ class IndexingRetrievalTests(unittest.TestCase):
         self.assertIn("source_path", hits[0])
         self.assertEqual(hits[0]["retrieval_engine"], "lexical")
 
-    def test_retrieve_evidence_can_fuse_semantic_resources(self):
+    def test_retrieve_evidence_rejects_unbound_semantic_resources(self):
         class FakeModel:
             def encode(self, values, normalize_embeddings=True):
                 import numpy as np
@@ -116,7 +116,9 @@ class IndexingRetrievalTests(unittest.TestCase):
             }
         ]
 
-        hits = retrieve_evidence(
+        from src.retrieval_adapter import RetrievalStatus, retrieve_evidence_result
+
+        result = retrieve_evidence_result(
             "semantic-only passage",
             universe_id="missing_universe",
             k=1,
@@ -125,9 +127,7 @@ class IndexingRetrievalTests(unittest.TestCase):
             metadata=metadata,
         )
 
-        self.assertEqual(len(hits), 1)
-        self.assertEqual(hits[0]["retrieval_engine"], "faiss")
-        self.assertGreater(hits[0]["semantic_score"], 0)
+        self.assertEqual(result.status, RetrievalStatus.UNIVERSE_UNKNOWN)
 
     def test_terran_retrieval_eval_queries_find_expected_sources_and_terms(self):
         cases = read_jsonl(TERRAN_RETRIEVAL_EVAL)

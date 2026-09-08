@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 from src.llm_provider import LLMProvider, LLMRequest, generate_with_trace
 from src.output_validation import validate_generated_output
-from src.retrieval_adapter import retrieve_evidence
+from src.retrieval_adapter import RetrievalStatus, retrieve_evidence_result
 
 
 RiskLevel = Literal["low", "medium", "high"]
@@ -40,7 +40,7 @@ class AgentStep:
 @dataclass(frozen=True)
 class AgentRun:
     user_input: str
-    universe_id: str
+    universe_id: str | None
     plan: list[dict[str, Any]]
     trace: list[dict[str, Any]]
     final_output: str
@@ -186,7 +186,7 @@ def build_generation_prompt(user_input: str, sources: list[dict[str, Any]]) -> s
 def run_controlled_agent(
     user_input: str,
     *,
-    universe_id: str = "terran_empire",
+    universe_id: str | None = None,
     mode: str = "normal",
     provider: LLMProvider | None = None,
     k: int = 4,
@@ -229,13 +229,37 @@ def run_controlled_agent(
             requires_human_confirmation=True,
         )
 
-    sources = retrieve_evidence(user_input, universe_id=universe_id, k=k)
+    retrieval = retrieve_evidence_result(user_input, universe_id=universe_id, k=k)
+    sources = retrieval.hits
     trace.append({
         "tool": "retrieve",
-        "status": "ok",
+        "status": str(retrieval.status),
         "risk_level": TOOL_REGISTRY["retrieve"].risk_level,
         "result_count": len(sources),
+        "engines": retrieval.engines,
+        "degraded": retrieval.degraded,
+        "warnings": retrieval.warnings,
     })
+    if retrieval.status != RetrievalStatus.SUCCESS:
+        validation = {
+            "schema_version": 2,
+            "universe_id": retrieval.universe_id,
+            "status": str(retrieval.status),
+            "warnings": retrieval.warnings,
+            "error": retrieval.error,
+            "human_review_required": False,
+        }
+        return AgentRun(
+            user_input=user_input,
+            universe_id=retrieval.universe_id,
+            plan=[step.to_dict() for step in plan],
+            trace=trace,
+            final_output=retrieval.error or "No evidence was found.",
+            validation=validation,
+            sources=[],
+            risk_level=risk["risk_level"],
+            requires_human_confirmation=False,
+        )
 
     if provider:
         prompt = build_generation_prompt(user_input, sources)

@@ -16,21 +16,17 @@ from sentence_transformers import SentenceTransformer
 import faiss
 
 from src.knowledge_graph import KnowledgeGraph
-from src.retrieval import search_faiss
+from src.retrieval_adapter import RetrievalStatus, retrieve_evidence_result
 from src.settings import ANTHROPIC_API_KEY_ENV, ANTHROPIC_LORE_MODEL, missing_key_message
+from src.universe_registry import SemanticIndexHandle, get_universe_registry
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
-# Map universe_id → KG path (add new universes here)
-KG_PATHS = {
-    "terran_empire": PROJECT_ROOT / "vector_db" / "terran_empire" / "knowledge_graph.sqlite",
-}
-
-
-def _load_kg_constraints(universe_id: str) -> tuple[str, list[dict]]:
+def _load_kg_constraints(universe_id: str | None) -> tuple[str, list[dict]]:
     """Return (constraints_text, canon_facts) from the KG if it exists."""
-    kg_path = KG_PATHS.get(universe_id)
-    if not kg_path or not kg_path.exists():
+    config = get_universe_registry().get(universe_id)
+    kg_path = config.knowledge_graph_path if config else None
+    if kg_path is None or not kg_path.exists():
         return "", []
 
     conn = sqlite3.connect(kg_path)
@@ -70,9 +66,8 @@ def generate_lore_for_universe(
     user_request: str,
     universe_name: str,
     api_key: str,
-    model: SentenceTransformer,
-    index: faiss.Index,
-    metadata: list[dict],
+    model: SentenceTransformer | None = None,
+    semantic_handle: SemanticIndexHandle | None = None,
     k: int = 5,
     universe_id: str | None = None,
 ) -> dict:
@@ -83,8 +78,7 @@ def generate_lore_for_universe(
         universe_name : display name used in the generation prompt
         api_key       : Anthropic API key
         model         : sentence-transformers model (for FAISS query encoding)
-        index         : FAISS index for the target universe
-        metadata      : FAISS metadata parallel to the index
+        semantic_handle: manifest-bound FAISS resources for the selected universe
         k             : number of context chunks to retrieve
         universe_id   : optional vector_db/<universe_id>/knowledge_graph.sqlite namespace
 
@@ -97,6 +91,21 @@ def generate_lore_for_universe(
         }
     """
     try:
+        retrieval = retrieve_evidence_result(
+            user_request,
+            universe_id=universe_id,
+            model=model,
+            semantic_handle=semantic_handle,
+        )
+        if retrieval.status != RetrievalStatus.SUCCESS:
+            return {
+                "success": False,
+                "error": f"{retrieval.status}: {retrieval.error or 'No evidence available'}",
+                "story": None,
+                "chunks_used": 0,
+                "kg_violations": [],
+                "retrieval": retrieval.to_dict(),
+            }
         if not api_key:
             return {
                 "success": False,
@@ -106,15 +115,7 @@ def generate_lore_for_universe(
                 "kg_violations": [],
             }
 
-        chunks = search_faiss(user_request, model, index, metadata, k=k)
-
-        if not chunks:
-            return {
-                "success": False,
-                "error": "No relevant context found in index. Try rephrasing your request.",
-                "story": None,
-                "chunks_used": 0,
-            }
+        chunks = retrieval.hits[:k]
 
         context_text = "\n\n---\n\n".join(c["text"] for c in chunks[:4])
 
@@ -152,6 +153,7 @@ Write the lore now. Be creative but strictly respect the canon entities and fact
             "success": True,
             "story": story,
             "chunks_used": len(chunks),
+            "retrieval": retrieval.to_dict(),
             "kg_validation": kg_validation,
             "kg_violations": kg_violations or regex_violations,
         }
@@ -171,8 +173,9 @@ def _validate_with_universe_kg(story: str, universe_id: str | None) -> dict | No
     if not universe_id:
         return None
 
-    db_path = Path(__file__).parent.parent / "vector_db" / universe_id / "knowledge_graph.sqlite"
-    if not db_path.exists():
+    config = get_universe_registry().get(universe_id)
+    db_path = config.knowledge_graph_path if config else None
+    if db_path is None or not db_path.exists():
         return {
             "method": "knowledge_graph",
             "is_valid": None,

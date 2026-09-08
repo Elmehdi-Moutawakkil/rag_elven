@@ -72,6 +72,14 @@ class AgentTests(unittest.TestCase):
         self.assertEqual(data["trace"][-1]["tool"], "request_confirmation")
         self.assertFalse(data["sources"])
 
+    def test_controlled_agent_stops_before_generation_when_retrieval_fails(self):
+        provider = StaticLLMProvider("must not be used")
+        run = run_controlled_agent("question", universe_id=None, provider=provider)
+
+        self.assertEqual(run.trace[-1]["tool"], "retrieve")
+        self.assertEqual(run.trace[-1]["status"], "UNIVERSE_REQUIRED")
+        self.assertFalse(any(step["tool"] == "generate" for step in run.trace))
+
 
 if __name__ == "__main__":
     unittest.main()

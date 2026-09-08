@@ -8,8 +8,9 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
+from src.citations import citation_excerpt_id, citation_version_id, stable_source_id
 
-CHUNK_SCHEMA_VERSION = 1
+CHUNK_SCHEMA_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -37,8 +38,41 @@ class ChunkRecord:
         return json.dumps(self.to_dict(), ensure_ascii=False, sort_keys=True)
 
 
-def stable_chunk_id(document_id: str, index: int, start_offset: int, end_offset: int) -> str:
-    digest = hashlib.sha256(f"{document_id}:{index}:{start_offset}:{end_offset}".encode("utf-8")).hexdigest()
+def stable_chunk_id(
+    document_id: str,
+    index: int,
+    start_offset: int,
+    end_offset: int,
+    *,
+    content: str | None = None,
+    universe_id: str = "",
+    source_path: str = "",
+    document_sha256: str | None = None,
+) -> str:
+    """Return a deterministic chunk ID.
+
+    The positional-only form is retained for callers that read legacy data.
+    Newly produced chunks must pass content and source provenance so changed
+    same-length text cannot retain the prior citation target.
+    """
+    if content is None:
+        digest = hashlib.sha256(f"{document_id}:{index}:{start_offset}:{end_offset}".encode("utf-8")).hexdigest()
+        return f"chk_{digest[:16]}"
+
+    source_key = source_path or f"document:{document_id}"
+    version_id = citation_version_id(
+        universe_id,
+        source_key,
+        content,
+        document_sha256=document_sha256,
+    )
+    excerpt_id = citation_excerpt_id(
+        version_id,
+        content,
+        start_offset=start_offset,
+        end_offset=end_offset,
+    )
+    digest = hashlib.sha256(f"{version_id}:{excerpt_id}:{index}".encode("utf-8")).hexdigest()
     return f"chk_{digest[:16]}"
 
 
@@ -92,22 +126,51 @@ def chunk_document(document: dict[str, Any], *, chunk_size: int = 900, overlap: 
     for index, (text, start_offset, end_offset) in enumerate(
         chunk_text(clean_content, chunk_size=chunk_size, overlap=overlap)
     ):
+        source_path = str(document["source_path"])
+        document_sha256 = document.get("sha256")
+        citation_source = stable_source_id(str(document["universe_id"]), source_path)
+        citation_version = citation_version_id(
+            str(document["universe_id"]),
+            source_path,
+            text,
+            document_sha256=str(document_sha256) if document_sha256 else None,
+        )
+        citation_excerpt = citation_excerpt_id(
+            citation_version,
+            text,
+            start_offset=start_offset,
+            end_offset=end_offset,
+        )
         metadata = {
+            **dict(document.get("metadata", {})),
             "chunk_index": index,
             "chunk_size": chunk_size,
             "chunk_overlap": overlap,
             "document_version": document.get("version"),
-            "document_sha256": document.get("sha256"),
+            "document_sha256": document_sha256,
+            "canon_status": document.get("canon_status", document.get("metadata", {}).get("canon_status")),
+            "citation_source_id": citation_source,
+            "citation_version_id": citation_version,
+            "citation_excerpt_id": citation_excerpt,
         }
         records.append(
             ChunkRecord(
                 schema_version=CHUNK_SCHEMA_VERSION,
-                chunk_id=stable_chunk_id(str(document["document_id"]), index, start_offset, end_offset),
+                chunk_id=stable_chunk_id(
+                    str(document["document_id"]),
+                    index,
+                    start_offset,
+                    end_offset,
+                    content=text,
+                    universe_id=str(document["universe_id"]),
+                    source_path=source_path,
+                    document_sha256=str(document_sha256) if document_sha256 else None,
+                ),
                 document_id=str(document["document_id"]),
                 universe_id=str(document["universe_id"]),
                 collection_id=document.get("collection_id"),
-                source_path=str(document["source_path"]),
-                source_name=str(document.get("source_name", Path(str(document["source_path"])).name)),
+                source_path=source_path,
+                source_name=str(document.get("source_name", Path(source_path).name)),
                 modality=str(document.get("modality", "text")),
                 text=text,
                 start_offset=start_offset,

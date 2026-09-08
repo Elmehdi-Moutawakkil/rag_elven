@@ -18,9 +18,40 @@ Usage :
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from typing import Any, Optional
 
 from src.layer_registry import LAYER_META, MODULE_REGISTRY, LayerResult
+from src.universe_registry import get_universe_registry, resolve_universe
+
+
+def _preflight_error(message: str) -> dict:
+    return {"final_output": None, "final_type": "error", "trace": [], "outputs": {}, "error": message}
+
+
+def _preflight_resources(layer_sequence: list[str], resources: dict[str, Any]) -> str | None:
+    """Validate universe capabilities and manifested overrides before runners."""
+    active = [layer_id for layer_id in layer_sequence if layer_id in MODULE_REGISTRY and MODULE_REGISTRY[layer_id].available]
+    if not active:
+        return None
+    resolution = resolve_universe(resources.get("universe_id"))
+    if not resolution.ok:
+        return f"{resolution.status}: {resolution.error}"
+    config = get_universe_registry().require(resolution.universe_id or "")
+    if any(layer_id in {"L03", "L04", "L05", "L06"} for layer_id in active) and config.universe_id != "tolkien":
+        return "CAPABILITY_UNSUPPORTED: Elvish dictionary and translation layers require Tolkien"
+    if "L03" in active and (config.dictionary_path is None or not config.dictionary_path.exists()):
+        return "INDEX_MISSING: Tolkien dictionary is unavailable"
+    if "L09" in active:
+        if config.knowledge_graph_path is None or not config.knowledge_graph_path.exists():
+            return "INDEX_MISSING: Knowledge graph is unavailable"
+        requested = resources.get("kg_db_path")
+        if requested is not None and Path(requested).resolve() != config.knowledge_graph_path:
+            return "ERROR: Knowledge graph path does not match manifest"
+    requested_dictionary = resources.get("dictionary_db_path")
+    if requested_dictionary is not None and Path(requested_dictionary).resolve() != config.dictionary_path:
+        return "ERROR: Dictionary path does not match manifest"
+    return None
 
 
 def execute_pipeline(
@@ -43,10 +74,21 @@ def execute_pipeline(
             outputs       — dict {layer_id: LayerResult}
             error         — str si erreur, None sinon
     """
+    resource_values = dict(resources or {})
+    resolution = resolve_universe(resource_values.get("universe_id"))
+    resource_values["allow_dictionary_fallback"] = bool(
+        resolution.ok
+        and resolution.universe_id == "tolkien"
+        and {"L02", "L03", "L13"}.issubset(layer_sequence)
+    )
+    preflight_error = _preflight_resources(layer_sequence, resource_values)
+    if preflight_error:
+        return _preflight_error(preflight_error)
+
     context: dict[str, Any] = {
         "user_input": user_input,
         "outputs": {},
-        "resources": resources or {},
+        "resources": resource_values,
     }
 
     trace = []
@@ -107,6 +149,26 @@ def execute_pipeline(
             }
 
         duration_ms = round((time.perf_counter() - t0) * 1000)
+
+        if result.error:
+            trace.append({
+                "layer_id": layer_id,
+                "module_status": module.status,
+                "name": meta.name,
+                "emoji": meta.emoji,
+                "label": f"❌ {result.label}",
+                "output_type": result.output_type,
+                "duration_ms": duration_ms,
+                "retrieval_status": result.metadata.get("retrieval_status"),
+            })
+            context["outputs"][layer_id] = result
+            return {
+                "final_output": result.output,
+                "final_type": "error",
+                "trace": trace,
+                "outputs": context["outputs"],
+                "error": result.error,
+            }
 
         context["outputs"][layer_id] = result
         current_output = result.output
