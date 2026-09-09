@@ -33,7 +33,27 @@ ANTHROPIC_API_KEY_ENV = "ANTHROPIC_API_KEY"
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
 
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+DEFAULT_GROQ_MODEL = "openai/gpt-oss-20b"
+_RETIRED_GROQ_MODELS = {"llama-3.1-8b-instant": DEFAULT_GROQ_MODEL}
+
+
+def resolve_groq_model(value: str | None = None) -> tuple[str, str | None]:
+    """Return a usable Groq model and a migration notice when needed."""
+    configured = (os.getenv("GROQ_MODEL", "") if value is None else value).strip()
+    selected = configured or DEFAULT_GROQ_MODEL
+    replacement = _RETIRED_GROQ_MODELS.get(selected)
+    if replacement:
+        return (
+            replacement,
+            "Le modèle Groq configuré a été retiré ; openai/gpt-oss-20b est utilisé.",
+        )
+    return selected, None
+
+
+GROQ_MODEL, GROQ_MODEL_WARNING = resolve_groq_model()
+GROQ_LORE_MODEL, GROQ_LORE_MODEL_WARNING = resolve_groq_model(
+    os.getenv("GROQ_LORE_MODEL", "")
+)
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 ANTHROPIC_LORE_MODEL = os.getenv("ANTHROPIC_LORE_MODEL", "claude-sonnet-4-6")
 ANTHROPIC_POLISH_MODEL = os.getenv("ANTHROPIC_POLISH_MODEL", "claude-haiku-4-5-20251001")

@@ -11,13 +11,13 @@ import re
 import sqlite3
 from pathlib import Path
 
-from anthropic import Anthropic
 from sentence_transformers import SentenceTransformer
 import faiss
 
 from src.knowledge_graph import KnowledgeGraph
 from src.retrieval_adapter import RetrievalStatus, retrieve_evidence_result
-from src.settings import ANTHROPIC_API_KEY_ENV, ANTHROPIC_LORE_MODEL, missing_key_message
+from src.llm_provider import generate_lore_text, safe_provider_error
+from src.settings import ANTHROPIC_API_KEY_ENV, GROQ_API_KEY_ENV, missing_key_message
 from src.universe_registry import SemanticIndexHandle, get_universe_registry
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -65,18 +65,19 @@ def _check_violations(story: str, canon_facts: list[dict]) -> list[str]:
 def generate_lore_for_universe(
     user_request: str,
     universe_name: str,
-    api_key: str,
+    api_key: str | None,
     model: SentenceTransformer | None = None,
     semantic_handle: SemanticIndexHandle | None = None,
     k: int = 5,
     universe_id: str | None = None,
+    provider: str = "anthropic",
 ) -> dict:
     """Generate lore for any universe using FAISS context + Claude.
 
     Args:
         user_request  : the user's lore generation request
         universe_name : display name used in the generation prompt
-        api_key       : Anthropic API key
+        api_key       : API key for the selected lore provider
         model         : sentence-transformers model (for FAISS query encoding)
         semantic_handle: manifest-bound FAISS resources for the selected universe
         k             : number of context chunks to retrieve
@@ -97,6 +98,16 @@ def generate_lore_for_universe(
             model=model,
             semantic_handle=semantic_handle,
         )
+        provider_name = provider.strip().lower()
+        if provider_name not in {"anthropic", "groq"}:
+            return {
+                "success": False,
+                "error": "PROVIDER_UNSUPPORTED: fournisseur de lore non pris en charge.",
+                "story": None,
+                "chunks_used": 0,
+                "kg_violations": [],
+                "retrieval": retrieval.to_dict(),
+            }
         if retrieval.status != RetrievalStatus.SUCCESS:
             return {
                 "success": False,
@@ -109,7 +120,10 @@ def generate_lore_for_universe(
         if not api_key:
             return {
                 "success": False,
-                "error": missing_key_message(ANTHROPIC_API_KEY_ENV, "generation de lore"),
+                "error": missing_key_message(
+                    ANTHROPIC_API_KEY_ENV if provider_name == "anthropic" else GROQ_API_KEY_ENV,
+                    "generation de lore",
+                ),
                 "story": None,
                 "chunks_used": 0,
                 "kg_violations": [],
@@ -137,14 +151,10 @@ USER REQUEST:
 
 Write the lore now. Be creative but strictly respect the canon entities and facts above."""
 
-        client = Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model=ANTHROPIC_LORE_MODEL,
-            max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}],
-        )
-
-        story = message.content[0].text
+        try:
+            story = generate_lore_text(prompt, provider_name, api_key)
+        except Exception as exc:
+            raise safe_provider_error(provider_name, exc) from None
         regex_violations = _check_violations(story, canon_facts) if canon_facts else []
         kg_validation = _validate_with_universe_kg(story, universe_id)
         kg_violations = kg_validation.get("violations", []) if kg_validation else []
@@ -161,7 +171,7 @@ Write the lore now. Be creative but strictly respect the canon entities and fact
     except Exception as e:
         return {
             "success": False,
-            "error": str(e),
+            "error": str(safe_provider_error(provider, e)),
             "story": None,
             "chunks_used": 0,
             "kg_violations": [],

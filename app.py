@@ -31,6 +31,8 @@ from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
 from src.layer_registry import LAYER_META, LAYER_ORDER
 from src.normal_mode import normalize_input_for_route, pipeline_for_route, resolve_normal_universe
 from src.pipeline_executor import execute_pipeline, format_final_output
+from src.llm_provider import safe_provider_error
+from src.settings import GROQ_LORE_MODEL_WARNING, GROQ_MODEL_WARNING
 from src.universe_registry import load_semantic_handle, resolve_universe
 
 
@@ -75,6 +77,17 @@ _qa_available  = model is not None and index is not None
 _kg_ready      = KG_DB_PATH.exists()
 _anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 _groq_key      = os.getenv("GROQ_API_KEY")
+
+_lore_provider_label = st.selectbox(
+    "Fournisseur de lore",
+    options=["Anthropic", "Groq"],
+    index=0,
+    help="Le choix est explicite. L'application ne bascule jamais automatiquement de fournisseur.",
+    key="lore_provider",
+)
+_lore_provider = _lore_provider_label.lower()
+_lore_api_key = _anthropic_key if _lore_provider == "anthropic" else _groq_key
+_lore_model_warning = GROQ_LORE_MODEL_WARNING if _lore_provider == "groq" else None
 
 
 # ==============================================================================
@@ -138,10 +151,14 @@ if submit and user_input.strip():
     normal_input = normalize_input_for_route(route_name, user_input)
     normal_layers = pipeline_for_route(route_name, universe_id=normal_universe_id)
     if normal_universe_id == "terran_empire":
+        normal_model, normal_handle, normal_resource_error = load_universe_resources("terran_empire")
         normal_resources = {
+            "model": normal_model,
+            "semantic_handle": normal_handle,
             "universe": "Terran Empire (Star Trek Mirror Universe)",
             "universe_id": "terran_empire",
             "kg_db_path": "vector_db/terran_empire/knowledge_graph.sqlite",
+            "lore_provider": _lore_provider,
         }
     else:
         normal_resources = {
@@ -150,22 +167,29 @@ if submit and user_input.strip():
             "universe": "Tolkien's Middle-earth",
             "universe_id": "tolkien",
             "kg_db_path": str(KG_DB_PATH),
+            "lore_provider": _lore_provider,
         }
     st.caption(f"Univers : {normal_resources['universe']}")
     st.caption(f"Layers : {' → '.join(normal_layers)}")
     st.divider()
 
-    if normal_universe_id == "tolkien" and route_name in {"qa", "lore"} and not _qa_available:
+    if route_name in {"qa", "lore"} and (
+        not normal_resources.get("model") or not normal_resources.get("semantic_handle")
+    ):
         st.error("❌ Index FAISS non disponible.")
     elif route_name == "qa" and not _groq_key:
         st.error("❌ GROQ_API_KEY manquante.")
-    elif route_name == "lore" and not _anthropic_key:
-        st.error("❌ ANTHROPIC_API_KEY manquante.")
-    elif route_name == "lore" and not _kg_ready:
+    elif route_name == "lore" and not _lore_api_key:
+        st.error(f"❌ {'ANTHROPIC_API_KEY' if _lore_provider == 'anthropic' else 'GROQ_API_KEY'} manquante.")
+    elif route_name == "lore" and normal_universe_id == "tolkien" and not _kg_ready:
         st.error("❌ Knowledge Graph non construit. Exécutez `python scripts/build_kg.py`.")
     elif route_name == "translate" and not normal_input:
         st.warning("Impossible d'extraire la phrase à traduire. Essayez : *Translate: the warrior walks.*")
     else:
+        if route_name == "qa" and GROQ_MODEL_WARNING:
+            st.warning(f"⚠️ {GROQ_MODEL_WARNING}")
+        if route_name == "lore" and _lore_model_warning:
+            st.warning(f"⚠️ {_lore_model_warning}")
         with st.spinner("Exécution du pipeline officiel…"):
             normal_result = execute_pipeline(normal_layers, normal_input, normal_resources)
 
@@ -204,7 +228,7 @@ if submit and user_input.strip():
                         st.markdown(f"*{src}* — score {r['score']:.3f}")
                         st.caption(r["text"][:300])
 
-        elif route_name == "translate":
+        elif not normal_result["error"] and route_name == "translate":
             st.caption(f"Phrase détectée : *\"{normal_input}\"*")
             syntax_result = normal_result["outputs"].get("L06")
             if syntax_result and hasattr(syntax_result.output, "quenya_sentence"):
@@ -228,7 +252,7 @@ if submit and user_input.strip():
                     for form in morph_result.output:
                         st.markdown(f"**{form.english_lemma}** → `{form.quenya_form}` · {form.feature}")
 
-        elif route_name == "lore":
+        elif not normal_result["error"] and route_name == "lore":
             story_data = normal_result["final_output"]
             st.markdown("### 📖 Lore généré")
             st.write(story_data.get("story", ""))
@@ -296,7 +320,13 @@ with te_tab_qa:
             st.error("❌ Index Empire Terran non disponible.")
         else:
             with st.spinner("Recherche dans le lore de l'Empire Terran…"):
-                retrieval = retrieve_evidence_result(te_input, universe_id="terran_empire", k=3)
+                retrieval = retrieve_evidence_result(
+                    te_input,
+                    universe_id="terran_empire",
+                    model=_te_model,
+                    semantic_handle=_te_handle,
+                    k=3,
+                )
             if retrieval.status != RetrievalStatus.SUCCESS:
                 st.error(f"❌ {retrieval.status}: {retrieval.error or 'Aucune preuve trouvée.'}")
                 st.stop()
@@ -307,7 +337,13 @@ with te_tab_qa:
                 st.stop()
             faiss_results = retrieval.hits
             with st.spinner("Génération de la réponse…"):
-                response = answer(te_input, faiss_results, [], universe_name="Terran Empire — Star Trek Mirror Universe")
+                try:
+                    response = answer(te_input, faiss_results, [], universe_name="Terran Empire — Star Trek Mirror Universe")
+                except Exception as exc:
+                    st.error(f"❌ {safe_provider_error('groq', exc)}")
+                    st.stop()
+            if GROQ_MODEL_WARNING:
+                st.warning(f"⚠️ {GROQ_MODEL_WARNING}")
             st.markdown("### Réponse")
             st.write(response)
             with st.expander("Sources utilisées"):
@@ -332,19 +368,22 @@ with te_tab_lore:
     if te_lore_submit and te_lore_input.strip():
         if not _te_available:
             st.error("❌ Index Empire Terran non disponible.")
-        elif not _anthropic_key:
-            st.error("❌ ANTHROPIC_API_KEY manquante.")
+        elif not _lore_api_key:
+            st.error(f"❌ {'ANTHROPIC_API_KEY' if _lore_provider == 'anthropic' else 'GROQ_API_KEY'} manquante.")
         else:
             with st.spinner("Récupération du contexte + génération…"):
                 result = generate_lore_for_universe(
                     user_request=te_lore_input,
                     universe_name="Terran Empire (Star Trek Mirror Universe)",
-                    api_key=_anthropic_key,
+                    api_key=_lore_api_key,
                     model=_te_model,
                     semantic_handle=_te_handle,
                     universe_id="terran_empire",
+                    provider=_lore_provider,
                 )
             if result["success"]:
+                if _lore_model_warning:
+                    st.warning(f"⚠️ {_lore_model_warning}")
                 st.markdown("### 📖 Lore généré")
                 st.write(result["story"])
                 st.caption(f"Contexte : {result['chunks_used']} passages utilisés")
@@ -464,8 +503,8 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
         st.markdown(_pipeline_html(["L01", "L02", "L07", "L08", "L09"]), unsafe_allow_html=True)
         if not _kg_ready:
             st.warning("⚠️ KG non construit.")
-        elif not _anthropic_key:
-            st.error("❌ ANTHROPIC_API_KEY manquante.")
+        elif not _lore_api_key:
+            st.error(f"❌ {'ANTHROPIC_API_KEY' if _lore_provider == 'anthropic' else 'GROQ_API_KEY'} manquante.")
         elif not _qa_available:
             st.error("❌ Index FAISS non disponible.")
         else:
@@ -482,10 +521,11 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
                     lr = generate_lore_for_universe(
                         user_request=lreq,
                         universe_name="Tolkien's Middle-earth",
-                        api_key=_anthropic_key,
+                        api_key=_lore_api_key,
                         model=model,
                         semantic_handle=index,
                         universe_id="tolkien",
+                        provider=_lore_provider,
                     )
                 if lr["success"]:
                     st.write(lr["story"])
@@ -665,6 +705,7 @@ with st.expander("🔬 Lab Mode — composition libre des layers"):
             "universe": _lab_universe_res["universe"],
             "universe_id": _lab_universe_res["universe_id"],
             "kg_db_path": _lab_universe_res["kg_db_path"],
+            "lore_provider": _lore_provider,
         }
         with st.spinner("Exécution…"):
             lab_result = execute_pipeline(lab_selected, lab_input, _lab_res)

@@ -18,6 +18,7 @@ from typing import Optional
 
 from dotenv import load_dotenv  # lit le fichier .env et charge les variables en mémoire
 from groq import Groq           # client Python officiel pour l'API Groq
+from src.llm_provider import safe_provider_error
 from src.settings import GROQ_API_KEY_ENV, GROQ_MODEL, env_value, missing_key_message
 
 load_dotenv()  # charge .env au moment où ce fichier est importé (rend GROQ_API_KEY disponible via os.getenv)
@@ -117,14 +118,17 @@ def call_llm(prompt: str, api_key: Optional[str] = None) -> str:
     client = Groq(api_key=key)  # initialise le client avec la clé API
 
     # appel à l'API : on envoie un message "user" (comme dans une conversation chat)
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {"role": "user", "content": prompt}  # role = qui parle, content = le texte
-        ],
-        max_tokens=MAX_TOKENS,
-        temperature=TEMPERATURE,
-    )
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "user", "content": prompt}  # role = qui parle, content = le texte
+            ],
+            max_tokens=MAX_TOKENS,
+            temperature=TEMPERATURE,
+        )
+    except Exception as exc:
+        raise safe_provider_error("groq", exc) from None
 
     return response.choices[0].message.content  # extrait le texte de la réponse (la première proposition)
 

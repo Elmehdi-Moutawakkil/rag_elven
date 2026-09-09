@@ -20,6 +20,7 @@ import faiss
 
 from src.retrieval import load_faiss, load_model, search_faiss
 from src.knowledge_graph import KnowledgeGraph, KG_DB_PATH
+from src.llm_provider import safe_provider_error
 
 # ==============================================================================
 # RE-USE Phase 3 helpers unchanged
@@ -144,7 +145,7 @@ def generate_lore_p4(
     except Exception as e:
         return {
             "success": False,
-            "error": f"Phase 4 generation failed: {str(e)}",
+            "error": str(safe_provider_error("anthropic", e)),
             "story": None,
             "validation": None,
         }

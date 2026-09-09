@@ -320,14 +320,24 @@ def _run_L08(input: Any, context: dict) -> LayerResult:
     if not chunks:
         return LayerResult(output={"story": None, "warnings": []}, output_type="json_story", label="Preuves requises", error="RETRIEVAL_REQUIRED")
 
-    from anthropic import Anthropic
+    from src.llm_provider import generate_lore_text, safe_provider_error
 
-    api_key = env_value(ANTHROPIC_API_KEY_ENV)
+    provider_name = str(context["resources"].get("lore_provider", "anthropic")).strip().lower()
+    if provider_name not in {"anthropic", "groq"}:
+        return LayerResult(
+            output={"story": None, "warnings": []},
+            output_type="json_story",
+            label="Fournisseur lore non pris en charge",
+            error="PROVIDER_UNSUPPORTED: fournisseur de lore non pris en charge.",
+        )
+    api_key_env = ANTHROPIC_API_KEY_ENV if provider_name == "anthropic" else "GROQ_API_KEY"
+    api_key = env_value(api_key_env)
     if not api_key:
         return LayerResult(
-            output={"story": f"[{missing_key_message(ANTHROPIC_API_KEY_ENV, 'generation de lore')}]", "warnings": []},
+            output={"story": None, "warnings": []},
             output_type="json_story",
-            label="Clé API Claude manquante",
+            label="Clé API lore manquante",
+            error=missing_key_message(api_key_env, "generation de lore"),
         )
 
     # Universe comes from resources (set by Lab Mode selector or defaults to Tolkien)
@@ -356,14 +366,20 @@ USER REQUEST:
 
 Write the lore now, staying true to the {universe} universe."""
 
-    client = Anthropic(api_key=api_key)
-    message = client.messages.create(
-        model=ANTHROPIC_LORE_MODEL,
-        max_tokens=1024,
-        messages=[{"role": "user", "content": prompt}],
+    try:
+        story = generate_lore_text(prompt, provider_name, api_key)
+    except Exception as exc:
+        return LayerResult(
+            output={"story": None, "warnings": []},
+            output_type="json_story",
+            label="Fournisseur lore indisponible",
+            error=str(safe_provider_error(provider_name, exc)),
+        )
+    return LayerResult(
+        output={"story": story, "warnings": []},
+        output_type="json_story",
+        label=f"Lore généré par {provider_name.title()}",
     )
-    story = message.content[0].text
-    return LayerResult(output={"story": story, "warnings": []}, output_type="json_story", label="Lore généré par Claude")
 
 
 def _run_L09(input: Any, context: dict) -> LayerResult:

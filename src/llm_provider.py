@@ -11,6 +11,7 @@ from src.settings import (
     ANTHROPIC_API_KEY_ENV,
     ANTHROPIC_LORE_MODEL,
     GROQ_API_KEY_ENV,
+    GROQ_LORE_MODEL,
     GROQ_MODEL,
     LM_STUDIO_BASE_URL,
     LOCAL_MODEL_NAME,
@@ -75,9 +76,47 @@ class MissingLLMKeyError(ValueError):
     """Raised when a provider requires a missing API key."""
 
 
+class LLMProviderError(RuntimeError):
+    """A safe, user-facing failure from an external LLM provider."""
+
+
+def provider_error_message(provider: str, error: BaseException) -> str:
+    """Translate an SDK failure without exposing a provider response body."""
+    provider_name = provider.strip().lower()
+    provider_label = {"groq": "Groq", "anthropic": "Anthropic"}.get(provider_name, provider.title())
+    status_code = getattr(error, "status_code", None)
+    error_text = str(error).casefold()
+
+    if provider_name == "anthropic" and any(
+        marker in error_text
+        for marker in ("credit balance", "insufficient credit", "balance too low", "insufficient funds")
+    ):
+        return "Le crédit Anthropic est insuffisant pour générer du lore."
+    if status_code == 404:
+        if provider_name == "groq":
+            return "Le modèle Groq configuré est introuvable. Vérifiez GROQ_MODEL."
+        return f"Le modèle configuré pour {provider_label} est introuvable."
+    if status_code in {401, 403}:
+        return f"L'accès à {provider_label} a été refusé. Vérifiez la clé API configurée."
+    if status_code == 429:
+        return f"{provider_label} limite temporairement les requêtes. Réessayez plus tard."
+    if status_code is not None and 400 <= status_code < 500:
+        return f"{provider_label} a refusé la requête. Vérifiez sa configuration puis réessayez."
+    return f"{provider_label} est temporairement indisponible. Réessayez plus tard."
+
+
+def safe_provider_error(provider: str, error: BaseException) -> LLMProviderError:
+    """Convert provider SDK exceptions to the public error contract."""
+    if isinstance(error, LLMProviderError):
+        return error
+    if isinstance(error, MissingLLMKeyError):
+        return LLMProviderError(str(error))
+    return LLMProviderError(provider_error_message(provider, error))
+
+
 PRICE_PER_MILLION_TOKENS_USD: dict[tuple[str, str], tuple[float, float]] = {
     ("openai", "gpt-4o-mini"): (0.15, 0.60),
-    ("groq", "llama-3.1-8b-instant"): (0.05, 0.08),
+    ("groq", "openai/gpt-oss-20b"): (0.075, 0.30),
 }
 
 
@@ -137,14 +176,24 @@ def generate_with_trace(provider: LLMProvider, request: LLMRequest) -> LLMRunTra
             cost_estimate_usd=cost,
             response=response,
         )
-    except Exception as exc:
+    except MissingLLMKeyError as exc:
         duration_ms = int((perf_counter() - started) * 1000)
         return LLMRunTrace(
             provider=provider_name,
             model=request.model,
             ok=False,
             duration_ms=duration_ms,
-            error=f"{exc.__class__.__name__}: {exc}",
+            error=f"MissingLLMKeyError: {exc}",
+        )
+    except Exception as exc:
+        duration_ms = int((perf_counter() - started) * 1000)
+        public_error = safe_provider_error(provider_name, exc)
+        return LLMRunTrace(
+            provider=provider_name,
+            model=request.model,
+            ok=False,
+            duration_ms=duration_ms,
+            error=str(public_error),
         )
 
 
@@ -187,12 +236,15 @@ class GroqProvider:
         if request.system:
             messages.append({"role": "system", "content": request.system})
         messages.append({"role": "user", "content": request.prompt})
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=request.max_tokens,
-            temperature=request.temperature,
-        )
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_tokens=request.max_tokens,
+                temperature=request.temperature,
+            )
+        except Exception as exc:
+            raise safe_provider_error(self.provider_name, exc) from None
         usage = _usage_to_dict(getattr(response, "usage", None))
         return LLMResponse(
             text=response.choices[0].message.content or "",
@@ -217,13 +269,16 @@ class AnthropicProvider:
 
         model = request.model or ANTHROPIC_LORE_MODEL
         client = anthropic.Anthropic(api_key=key)
-        response = client.messages.create(
-            model=model,
-            max_tokens=request.max_tokens,
-            temperature=request.temperature,
-            system=request.system or "",
-            messages=[{"role": "user", "content": request.prompt}],
-        )
+        try:
+            response = client.messages.create(
+                model=model,
+                max_tokens=request.max_tokens,
+                temperature=request.temperature,
+                system=request.system or "",
+                messages=[{"role": "user", "content": request.prompt}],
+            )
+        except Exception as exc:
+            raise safe_provider_error(self.provider_name, exc) from None
         text = "".join(block.text for block in response.content if getattr(block, "type", "") == "text")
         usage = _usage_to_dict(getattr(response, "usage", None))
         return LLMResponse(
@@ -321,3 +376,23 @@ def provider_from_name(name: str) -> LLMProvider:
     if normalized == "static":
         return StaticLLMProvider()
     raise ValueError(f"Unknown LLM provider: {name}")
+
+
+def generate_lore_text(prompt: str, provider_name: str, api_key: str | None) -> str:
+    """Generate lore through an explicitly selected provider, with no fallback."""
+    normalized = provider_name.strip().lower()
+    if normalized == "anthropic":
+        provider: LLMProvider = AnthropicProvider(api_key=api_key)
+        model = ANTHROPIC_LORE_MODEL
+    elif normalized == "groq":
+        provider = GroqProvider(api_key=api_key)
+        model = GROQ_LORE_MODEL
+    else:
+        raise LLMProviderError("PROVIDER_UNSUPPORTED: fournisseur de lore non pris en charge.")
+
+    response = provider.generate(
+        LLMRequest(prompt=prompt, model=model, max_tokens=1024, temperature=0.2)
+    )
+    if not response.text.strip():
+        raise LLMProviderError("Le fournisseur de lore n'a renvoyé aucun texte.")
+    return response.text

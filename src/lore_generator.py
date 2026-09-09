@@ -25,6 +25,7 @@ from src.prompt_templates import (
 )
 from src.retrieval import load_faiss, load_model, search_faiss
 from src.settings import ANTHROPIC_API_KEY_ENV, ANTHROPIC_LORE_MODEL, missing_key_message
+from src.llm_provider import MissingLLMKeyError, safe_provider_error
 
 
 # ==============================================================================
@@ -224,7 +225,7 @@ def generate_story(
         Generated story text
     """
     if not api_key:
-        raise ValueError(missing_key_message(ANTHROPIC_API_KEY_ENV, "generation de lore"))
+        raise MissingLLMKeyError(missing_key_message(ANTHROPIC_API_KEY_ENV, "generation de lore"))
 
     # Format constraints from chunks
     chunks_text = "\n\n".join([c["text"] for c in chunks[:3]])
@@ -255,13 +256,16 @@ def generate_story(
 
     # Call Claude
     client = Anthropic(api_key=api_key)
-    message = client.messages.create(
-        model=ANTHROPIC_LORE_MODEL,
-        max_tokens=1024,
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-    )
+    try:
+        message = client.messages.create(
+            model=ANTHROPIC_LORE_MODEL,
+            max_tokens=1024,
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+        )
+    except Exception as exc:
+        raise safe_provider_error("anthropic", exc) from None
 
     return message.content[0].text
 
@@ -289,7 +293,7 @@ def validate_coherence(
         }
     """
     if not api_key:
-        raise ValueError(missing_key_message(ANTHROPIC_API_KEY_ENV, "validation Claude"))
+        raise MissingLLMKeyError(missing_key_message(ANTHROPIC_API_KEY_ENV, "validation Claude"))
 
     # Format canon facts from chunks
     canon_facts = "\n\n".join([c["text"] for c in chunks[:3]])
@@ -298,13 +302,16 @@ def validate_coherence(
     validation_prompt = format_validation_prompt(story=story, canon_facts=canon_facts)
 
     client = Anthropic(api_key=api_key)
-    message = client.messages.create(
-        model=ANTHROPIC_LORE_MODEL,
-        max_tokens=512,
-        messages=[
-            {"role": "user", "content": validation_prompt}
-        ],
-    )
+    try:
+        message = client.messages.create(
+            model=ANTHROPIC_LORE_MODEL,
+            max_tokens=512,
+            messages=[
+                {"role": "user", "content": validation_prompt}
+            ],
+        )
+    except Exception as exc:
+        raise safe_provider_error("anthropic", exc) from None
 
     validation_text = message.content[0].text
 
@@ -403,7 +410,7 @@ def generate_lore(
     except Exception as e:
         return {
             "success": False,
-            "error": f"Generation failed: {str(e)}",
+            "error": str(safe_provider_error("anthropic", e)),
             "story": None,
             "validation": None,
         }
