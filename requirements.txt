@@ -6,6 +6,11 @@
 streamlit>=1.32.0
 
 # Embeddings et recherche vectorielle
+# `transformers` expose des processeurs d'image pendant l'inspection Streamlit.
+# Installer explicitement la paire CPU évite que cette inspection casse le
+# chargement de sentence-transformers et désactive la recherche sémantique.
+torch>=2.2.0
+torchvision>=0.17.0
 sentence-transformers>=2.6.0
 faiss-cpu>=1.7.4
 
