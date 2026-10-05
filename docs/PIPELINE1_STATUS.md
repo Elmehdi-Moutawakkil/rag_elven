@@ -55,7 +55,7 @@ Reason:
 | 11 | AI generation | Done for current scope | `src/llm_provider.py`, tests | Route legacy direct calls later |
 | 12 | Output validation | Done for current scope | `src/output_validation.py`, tests | Add stronger semantic checks later |
 | 13 | Multimodal | Done for current scope | `src/multimodal.py`, `src/ingestion/loaders.py`, `src/output_validation.py`, tests, `docs/MULTIMODAL.md` | Add real OCR/caption/transcription later |
-| 14 | AI agents | Done for current scope | `src/agent/planner.py`, `.codex/agents.json`, `prompts/agent_profiles.json`, tests, `docs/AGENT_ORCHESTRATION.md` | Add durable agent run logs later |
+| 14 | AI agents | Done for current scope | `src/agent/planner.py`, `.codex/config.toml`, `.codex/agents/*.toml`, `prompts/agent_profiles.json`, tests, `docs/AGENT_ORCHESTRATION.md` | Add durable agent run logs later |
 | 15 | Template integration | Done for current scope | `reports/template_integration.md`, `prompts/workflow_templates.json`, `prompts/agent_profiles.json`, `.codex/` | Revisit only when contributors or PR workflow grow |
 | 16 | MCP | Done for current scope | `src/mcp_tools.py`, `mcp/ragelven_server.py`, `mcp/README.md`, tests | Keep write tools disabled until permissions/UI review exist |
 | 17 | Fine-tuning/LoRA | Done for foundation scope | `docs/FINE_TUNING_STRATEGY.md`, `src/training_datasets.py`, tests | Do not train until enough validated examples exist |

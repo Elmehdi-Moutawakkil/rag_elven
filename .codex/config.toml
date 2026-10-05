@@ -1,0 +1,11 @@
+[agents.codex-rag-engineer]
+description = "RAGElven specialist for ingestion, chunking, indexing, retrieval, provenance, evaluation, and thin MCP tools."
+config_file = "agents/codex-rag-engineer.toml"
+
+[agents.codex-linguist]
+description = "RAGElven specialist for deterministic translation, morphology, syntax, grammar, and uncertainty."
+config_file = "agents/codex-linguist.toml"
+
+[agents.codex-lore-expert]
+description = "Read-only RAGElven reviewer for lore, canon, universe isolation, KG continuity, and provenance."
+config_file = "agents/codex-lore-expert.toml"

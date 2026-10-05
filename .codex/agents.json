@@ -1,15 +1,13 @@
 {
-  "version": "3.0",
+  "version": "3.0-legacy",
+  "status": "compatibility-only",
+  "replacement": "Native global agents in ~/.codex/agents/*.toml and RAGElven agents in .codex/agents/*.toml",
   "defaultAgent": "codex-agent-manager",
   "policy": {
     "alwaysActive": [
-      "codex-agent-manager",
-      "codex-cost-accountant"
+      "codex-agent-manager"
     ],
-    "systemicAgents": [
-      "codex-historian",
-      "codex-memory-manager"
-    ],
+    "systemicAgents": [],
     "selectionRule": "Call only the specialist agents needed for the task. Do not call the full cohort by default.",
     "defaultFlow": [
       "user_input",
@@ -19,12 +17,12 @@
       "selected_specialists",
       "codex-qa-reviewer_when_work_changes",
       "codex-agent-manager_final_synthesis",
-      "codex-memory-manager_memory_update_when_session_is_important",
-      "codex-cost-accountant_final_cost_footer"
+      "codex-memory-manager_only_when_user_requests_durable_memory",
+      "deterministic_cost_report"
     ],
     "taskPattern": "One responsible specialist plus one reviewer is the default. Add more agents only when their domain is materially involved.",
-    "budgetPolicy": "The cost accountant is invoked for every final answer. For non-trivial tasks it performs a budget precheck. It may emit budget_stop when a user-defined token, API, provider, model, agent, task, or time-window threshold is exceeded or likely to be exceeded. The manager must stop the operation and ask the user before continuing unless the user explicitly overrides for that task.",
-    "memoryPolicy": "The historian is read-only and retrieves relevant prior context before work. The memory manager writes durable session memory, summaries, indexes, and decision notes only when the session produced useful reusable knowledge."
+    "budgetPolicy": "Token accounting is handled deterministically. Invoke the cost accountant only for non-trivial budget, API cost, ROI, or optimization analysis. It may emit budget_stop when a user-defined threshold is exceeded or likely to be exceeded. The manager must stop and ask the user before continuing unless the user explicitly overrides for that task.",
+    "memoryPolicy": "The historian is read-only and retrieves relevant prior context when it matters. The memory manager writes durable memory, summaries, indexes, and decision notes only after the user explicitly asks to persist knowledge."
   },
   "agents": {
     "codex-agent-manager": {
@@ -59,7 +57,7 @@
         "continue after budget_stop without explicit user approval",
         "commit or push without explicit user request"
       ],
-      "expectedOutput": "A short routing decision, specialist briefs when delegating, and a final synthesis with evidence and the Cost Analyzer report preserved."
+      "expectedOutput": "A short routing decision, specialist briefs when delegating, and a final synthesis with evidence and deterministic cost reporting."
     },
     "codex-cost-accountant": {
       "displayName": "Codex Cost Analyzer",
@@ -73,7 +71,7 @@
         "model": "gpt-5.4",
         "reasoningEffort": "medium"
       },
-      "alwaysInvoked": true,
+      "alwaysInvoked": false,
       "authority": {
         "canIssue": [
           "budget_warning",
@@ -95,7 +93,7 @@
         "report percentage distribution by token source when enough data is available",
         "recommend context and workflow optimizations based on the largest token sources",
         "recommend cheaper alternatives",
-        "append a structured Token Report or compact Cost Analyzer footer to every final answer",
+        "provide a structured Token Report or compact Cost Analyzer footer when invoked",
         "ask the manager to stop when budget thresholds are breached"
       ],
       "forbidden": [
@@ -107,7 +105,7 @@
         "spend money or call paid APIs directly unless explicitly authorized",
         "commit or push without explicit user request"
       ],
-      "expectedOutput": "A Token Report distinguishing measured, estimated, and unknown costs. It must show input categories, output tokens, estimated total, API dollars when configured, confidence, budget status, and optimization advice."
+      "expectedOutput": "A Token Report for the requested budget, API cost, ROI, or optimization analysis, distinguishing measured, estimated, and unknown costs."
     },
     "codex-historian": {
       "displayName": "Codex Historian",
@@ -370,7 +368,7 @@
       "use": "codex-agent-manager"
     },
     {
-      "when": "every final response, every multi-agent plan, every paid API operation, or any user question about cost, profitability, budget, tokens, or ROI",
+      "when": "a non-trivial budget, API cost, ROI, or optimization analysis is needed",
       "use": "codex-cost-accountant"
     },
     {
@@ -378,7 +376,7 @@
       "use": "codex-historian"
     },
     {
-      "when": "a session produced durable lessons, decisions, summaries, indexes, or memory updates worth preserving",
+      "when": "the user explicitly asks to persist durable lessons, decisions, summaries, indexes, or memory updates",
       "use": "codex-memory-manager"
     },
     {

@@ -1,56 +1,16 @@
 {
-  "version": "1.0",
-  "currency": "USD",
+  "version": "2.0",
+  "extends": "~/.codex/cost-models.json",
   "notes": [
-    "Prices are user-configured. Fill provider/model prices from current billing pages before using dollar totals as measured truth.",
-    "When runtime usage metadata is unavailable, the cost accountant must label values as estimated.",
-    "Token estimates are for decision support, not billing records."
+    "RAGElven currently inherits the global deterministic token budget.",
+    "Add project-specific API prices only after providers and a test budget are selected."
   ],
   "budgetPolicy": {
-    "enabled": true,
-    "defaultActionOnBreach": "budget_stop",
-    "userCanOverride": true,
     "thresholds": {
-      "perOperationUsd": null,
-      "perHourUsd": null,
-      "perDayUsd": null,
+      "warningPerOperationTokens": 250000,
       "perOperationTokens": null,
       "perDayTokens": null
     }
   },
-  "estimation": {
-    "charsPerToken": 4,
-    "confidenceLevels": ["measured", "estimated", "unknown"],
-    "finalFooterRequired": true,
-    "inputCategories": [
-      "user_prompt",
-      "memory_context",
-      "docs_specs_read",
-      "code_loaded",
-      "tool_outputs",
-      "subagent_responses",
-      "assistant_output",
-      "unknown_overhead"
-    ],
-    "footerFormat": "Cost Analyzer: mode=<measured|estimated|unknown> input_exact=<available|unavailable> input_estimated=<tokens> output_estimated=<tokens> total_estimated=<tokens> api=<usd|unknown> confidence=<high|medium|low> budget=<ok|warning|stop>"
-  },
-  "providers": {
-    "openai": {
-      "pricingSource": "user-configured",
-      "models": {
-        "gpt-5.5": {"inputUsdPerMTok": null, "outputUsdPerMTok": null},
-        "gpt-5.4": {"inputUsdPerMTok": null, "outputUsdPerMTok": null},
-        "gpt-5.4-mini": {"inputUsdPerMTok": null, "outputUsdPerMTok": null}
-      }
-    },
-    "anthropic": {
-      "pricingSource": "user-configured",
-      "models": {}
-    },
-    "local": {
-      "pricingSource": "local-estimate",
-      "models": {},
-      "costBasis": "hardware/electricity/opportunity cost if configured"
-    }
-  }
+  "providers": {}
 }

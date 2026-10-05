@@ -1,28 +1,57 @@
 # RAGElven
 
-RAGElven is an open-source AI lore platform experiment.
+RAGElven is a local-first experimental AI lore workspace.
 
-The goal is to build a modular system where fictional universes can be stored,
-searched, validated, extended, and generated from a versioned canon repository.
-The long-term target is not just a chatbot: it is a lore-aware workspace with
-Normal Mode for everyday use and Lab Mode for composing, testing, and replacing
-individual modules.
+It explores how fictional universes can be ingested, searched, validated,
+extended, and generated from versioned sources. The project is not just a
+chatbot prototype: it is a modular RAG/KG/lore system with a normal user path
+and a lab path for testing individual pipeline layers.
 
-## Current State
+## Status
 
-The app currently includes:
+Current maturity: research prototype with working foundations.
 
-- RAG Q&A over local FAISS indexes and SQLite data;
-- deterministic Quenya translation layers;
-- lore generation;
-- local Knowledge Graph validation;
-- an experimental Lab Mode with composable layers;
-- manifest-driven ingestion and text chunk indexes;
-- hybrid retrieval over normalized chunks;
-- validated-memory primitives;
-- provider-neutral LLM interface;
-- controlled agent runner and MCP-ready read tools;
-- basic sanity and regression checks.
+Not ready for public open-source release yet.
+
+Main blockers before publication:
+
+- choose a license;
+- review corpus and index redistribution rights;
+- separate public sample data from private or unclear-license data;
+- add GitHub Actions once the repository token has `workflow` scope;
+- finalize public contribution and security processes.
+
+See [`docs/OPEN_SOURCE_READINESS.md`](docs/OPEN_SOURCE_READINESS.md).
+
+## What Works Now
+
+- RAG Q&A over local FAISS indexes and SQLite data.
+- Deterministic Quenya translation layers.
+- Lore generation over retrieved sources.
+- Manifest-driven text/Markdown ingestion.
+- Hybrid retrieval over normalized chunks.
+- Local Knowledge Graph with source provenance and regression tests.
+- Output validation against sources, KG continuity, constraints, and memory.
+- Validated memory primitives with draft, validated, rejected, history, and
+  rollback semantics.
+- Provider-neutral LLM interface for future OpenAI, Anthropic, Groq, Ollama, or
+  LM Studio routing.
+- Multimodal document metadata foundations for image/audio support.
+- Controlled agent runner with inspectable plans and risky-action blocking.
+- Thin MCP tool wrappers over stable read/validation modules.
+- Fine-tuning/LoRA strategy and dataset export foundations, without training.
+- Sanity checks and regression tests.
+
+## What Is Still Experimental
+
+- Normal Mode and Lab Mode need better UI trace consistency.
+- Retrieval evaluation needs more examples and stricter source-span checks.
+- Validated memory is not fully exposed in the user interface.
+- Multimodal support is metadata-first; OCR, image captioning, audio
+  transcription, and embeddings are planned later.
+- MCP write tools remain disabled until permissions, validation, and rollback
+  are mature.
+- Fine-tuning is intentionally deferred until enough validated examples exist.
 
 ## Run Locally
 
@@ -47,20 +76,14 @@ cp .env.example .env
 
 Never commit real API keys.
 
-## Architecture
+## Key Documentation
 
-The active technical direction is documented in:
-
-[`TECHNICAL_SPEC_RAGELVEN.md`](TECHNICAL_SPEC_RAGELVEN.md)
-
-Current pipeline status:
-
-[`docs/PIPELINE1_STATUS.md`](docs/PIPELINE1_STATUS.md)
-
-Open-source readiness is tracked in:
-
-[`docs/OPEN_SOURCE_READINESS.md`](docs/OPEN_SOURCE_READINESS.md)
-
-Archived documents from earlier MVP phases are stored in:
-
-[`docs/archive/`](docs/archive/)
+- Architecture: [`TECHNICAL_SPEC_RAGELVEN.md`](TECHNICAL_SPEC_RAGELVEN.md)
+- Pipeline status: [`docs/PIPELINE1_STATUS.md`](docs/PIPELINE1_STATUS.md)
+- Knowledge Graph: [`docs/KNOWLEDGE_GRAPH.md`](docs/KNOWLEDGE_GRAPH.md)
+- Multimodal plan: [`docs/MULTIMODAL.md`](docs/MULTIMODAL.md)
+- Agent orchestration: [`docs/AGENT_ORCHESTRATION.md`](docs/AGENT_ORCHESTRATION.md)
+- MCP tools: [`mcp/README.md`](mcp/README.md)
+- Fine-tuning strategy: [`docs/FINE_TUNING_STRATEGY.md`](docs/FINE_TUNING_STRATEGY.md)
+- Open-source readiness: [`docs/OPEN_SOURCE_READINESS.md`](docs/OPEN_SOURCE_READINESS.md)
+- Archived planning docs: [`docs/archive/`](docs/archive/)
