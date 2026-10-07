@@ -19,6 +19,19 @@ from src.settings import QA_PROVIDER
 
 
 class LLMProviderTests(unittest.TestCase):
+    def test_llm_request_keeps_legacy_positional_metadata_argument(self):
+        request = LLMRequest(
+            "prompt",
+            "system",
+            "legacy-model",
+            256,
+            0.1,
+            {"legacy": True},
+        )
+
+        self.assertEqual(request.metadata, {"legacy": True})
+        self.assertIsNone(request.response_format)
+
     def test_static_provider_is_deterministic(self):
         provider = StaticLLMProvider("fixed response")
 
@@ -84,6 +97,30 @@ class LLMProviderTests(unittest.TestCase):
         self.assertEqual(response.provider, "deepseek")
         self.assertEqual(response.model, "deepseek-flash")
         self.assertEqual(response.usage["completion_tokens"], 4)
+
+    @patch("openai.OpenAI")
+    def test_deepseek_forwards_json_object_response_format_when_requested(self, openai_client):
+        openai_client.return_value.chat.completions.create.return_value = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content='{"gloss":"walk"}'))],
+            usage={},
+        )
+
+        DeepSeekProvider(api_key="test-deepseek-key").generate(
+            LLMRequest(
+                prompt="Return JSON",
+                response_format="json_object",
+                max_tokens=128,
+                temperature=0.0,
+            )
+        )
+
+        openai_client.return_value.chat.completions.create.assert_called_once_with(
+            model="deepseek-flash",
+            messages=[{"role": "user", "content": "Return JSON"}],
+            max_tokens=128,
+            temperature=0.0,
+            response_format={"type": "json_object"},
+        )
 
     def test_generate_with_trace_captures_success(self):
         trace = generate_with_trace(StaticLLMProvider("fixed response"), LLMRequest(prompt="hello world"))

@@ -85,7 +85,37 @@ def parse_translation_request(user_input: str) -> TranslationRequest:
 _NORMALIZATION_SYSTEM = """You normalize one lexical gloss for dictionary lookup.
 Return exactly one JSON object with exactly one field named \"gloss\".
 The gloss must be a concise lowercase English dictionary lemma.
-Do not translate into Quenya or Sindarin. Do not add markdown or explanation."""
+Do not translate into Quenya or Sindarin. Do not add markdown or explanation.
+Example JSON output: {\"gloss\":\"walk\"}"""
+
+_NORMALIZATION_ERROR = "Le fournisseur de traduction n'a pas renvoyé le JSON attendu."
+
+
+def _parse_gloss_json(raw: object) -> str | None:
+    """Parse a plain JSON object or one exact ```json fenced object."""
+    if not isinstance(raw, str):
+        return None
+    body = raw.strip()
+    if not body:
+        return None
+    fenced = re.fullmatch(r"```json\s*(\{.*\})\s*```", body, flags=re.IGNORECASE | re.DOTALL)
+    if body.startswith("```"):
+        if fenced is None:
+            return None
+        body = fenced.group(1)
+    try:
+        payload = json.loads(body)
+    except (json.JSONDecodeError, TypeError):
+        return None
+    if not isinstance(payload, dict) or set(payload) != {"gloss"}:
+        return None
+    gloss = payload.get("gloss")
+    if not isinstance(gloss, str):
+        return None
+    normalized = gloss.strip().lower()
+    if not normalized or not re.fullmatch(r"[a-z][a-z -]*", normalized):
+        return None
+    return normalized
 
 
 def normalize_lexical_gloss(
@@ -100,41 +130,44 @@ def normalize_lexical_gloss(
     provider_key = provider_name.strip().lower()
     try:
         provider = provider_from_name(provider_key, api_key=api_key)
-        response = provider.generate(
-            LLMRequest(
-                system=_NORMALIZATION_SYSTEM,
-                prompt=json.dumps(
-                    {
-                        "source_text": request.source_text,
-                        "source_language": request.source_language,
-                        "target_language": request.target_language,
-                    },
-                    ensure_ascii=False,
-                ),
-                max_tokens=40,
-                temperature=0.0,
-                metadata={"purpose": "translation_gloss_normalization"},
-            )
-        )
     except Exception as exc:
         raise TranslationNormalizationError(str(safe_provider_error(provider_key, exc))) from None
 
-    try:
-        payload = json.loads(response.text)
-    except (json.JSONDecodeError, TypeError):
-        raise TranslationNormalizationError(
-            "Le fournisseur de traduction n'a pas renvoyé le JSON attendu."
-        ) from None
-    if set(payload) != {"gloss"} or not isinstance(payload["gloss"], str):
-        raise TranslationNormalizationError(
-            "Le fournisseur de traduction n'a pas renvoyé le JSON attendu."
-        )
-    gloss = payload["gloss"].strip().lower()
-    if not gloss or not re.fullmatch(r"[a-z][a-z -]*", gloss):
-        raise TranslationNormalizationError(
-            "Le fournisseur de traduction a renvoyé un glossaire anglais invalide."
-        )
-    return gloss
+    input_json = json.dumps(
+        {
+            "source_text": request.source_text,
+            "source_language": request.source_language,
+            "target_language": request.target_language,
+        },
+        ensure_ascii=False,
+    )
+    prompts = (
+        input_json,
+        (
+            "The previous response was empty or invalid. Return only one valid JSON object "
+            "matching this exact example: {\"gloss\":\"walk\"}. "
+            f"Normalize this same input: {input_json}"
+        ),
+    )
+    for prompt in prompts:
+        try:
+            response = provider.generate(
+                LLMRequest(
+                    system=_NORMALIZATION_SYSTEM,
+                    prompt=prompt,
+                    max_tokens=128,
+                    temperature=0.0,
+                    response_format="json_object",
+                    metadata={"purpose": "translation_gloss_normalization"},
+                )
+            )
+        except Exception as exc:
+            raise TranslationNormalizationError(str(safe_provider_error(provider_key, exc))) from None
+        gloss = _parse_gloss_json(getattr(response, "text", None))
+        if gloss is not None:
+            return gloss
+
+    raise TranslationNormalizationError(_NORMALIZATION_ERROR)
 
 
 def lookup_lexical_translation(request: TranslationRequest, gloss: str) -> list[dict]:

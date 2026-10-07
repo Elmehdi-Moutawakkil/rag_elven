@@ -34,6 +34,7 @@ class LLMRequest:
     max_tokens: int = 1024
     temperature: float = 0.2
     metadata: dict[str, Any] = field(default_factory=dict)
+    response_format: str | None = None
 
 
 @dataclass(frozen=True)
@@ -362,13 +363,18 @@ class DeepSeekProvider:
         if request.system:
             messages.append({"role": "system", "content": request.system})
         messages.append({"role": "user", "content": request.prompt})
+        create_kwargs: dict[str, Any] = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": request.max_tokens,
+            "temperature": request.temperature,
+        }
+        if request.response_format is not None:
+            if request.response_format != "json_object":
+                raise LLMProviderError("Format de réponse DeepSeek non pris en charge.")
+            create_kwargs["response_format"] = {"type": "json_object"}
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=messages,
-                max_tokens=request.max_tokens,
-                temperature=request.temperature,
-            )
+            response = client.chat.completions.create(**create_kwargs)
         except Exception as exc:
             raise safe_provider_error(self.provider_name, exc) from None
         usage = _usage_to_dict(getattr(response, "usage", None))

@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -37,12 +37,64 @@ def test_lexical_gloss_normalization_uses_deepseek_provider_and_strict_json():
     factory.assert_called_once_with("deepseek", api_key="test-key")
 
 
-def test_lexical_gloss_rejects_non_json_without_leaking_provider_text():
+def test_lexical_gloss_accepts_single_json_code_fence_for_provider_compatibility():
     provider = SimpleNamespace(
-        generate=lambda request: SimpleNamespace(
-            text="not-json secret-provider-body"
+        generate=lambda request: SimpleNamespace(text='  ```json\n{"gloss":"walk"}\n```  ')
+    )
+    parsed = parse_translation_request('Comment se dit "marcher" en elfique ?')
+
+    with patch("src.translation_request.provider_from_name", return_value=provider):
+        gloss = normalize_lexical_gloss(parsed, api_key="test-key")
+
+    assert gloss == "walk"
+
+
+def test_lexical_gloss_retries_once_after_invalid_json():
+    provider = SimpleNamespace()
+    provider.generate = Mock(
+        side_effect=[
+            SimpleNamespace(text="not-json first-private-body"),
+            SimpleNamespace(text='{"gloss":"walk"}'),
+        ]
+    )
+    parsed = parse_translation_request('Comment se dit "marcher" en elfique ?')
+
+    with patch("src.translation_request.provider_from_name", return_value=provider):
+        gloss = normalize_lexical_gloss(parsed, api_key="test-key")
+
+    assert gloss == "walk"
+    assert provider.generate.call_count == 2
+    first_request, retry_request = [call.args[0] for call in provider.generate.call_args_list]
+    assert first_request.response_format == "json_object"
+    assert first_request.max_tokens >= 128
+    assert '{"gloss":"walk"}' in (first_request.system or "")
+    assert retry_request.response_format == "json_object"
+    assert "previous response" in retry_request.prompt.lower()
+
+
+def test_lexical_gloss_retries_once_after_empty_content():
+    provider = SimpleNamespace(
+        generate=Mock(
+            side_effect=[
+                SimpleNamespace(text=""),
+                SimpleNamespace(text='{"gloss":"walk"}'),
+            ]
         )
     )
+    parsed = parse_translation_request('Comment se dit "marcher" en elfique ?')
+
+    with patch("src.translation_request.provider_from_name", return_value=provider):
+        gloss = normalize_lexical_gloss(parsed, api_key="test-key")
+
+    assert gloss == "walk"
+    assert provider.generate.call_count == 2
+
+
+def test_lexical_gloss_double_invalid_does_not_leak_provider_text_or_key():
+    provider = SimpleNamespace(generate=Mock(side_effect=[
+        SimpleNamespace(text="not-json secret-provider-body"),
+        SimpleNamespace(text='{"gloss":"walk","secret":"second-private-body"}'),
+    ]))
     parsed = parse_translation_request('Comment se dit "marcher" en elfique ?')
 
     with patch("src.translation_request.provider_from_name", return_value=provider):
@@ -51,13 +103,13 @@ def test_lexical_gloss_rejects_non_json_without_leaking_provider_text():
 
     assert "JSON" in str(raised.value)
     assert "secret-provider-body" not in str(raised.value)
+    assert "second-private-body" not in str(raised.value)
     assert "test-secret" not in str(raised.value)
+    assert provider.generate.call_count == 2
 
 
 def test_french_lexical_translation_returns_quenya_and_sindarin_dictionary_entries():
-    provider = SimpleNamespace(
-        generate=lambda request: SimpleNamespace(text='{"gloss": "walk"}')
-    )
+    provider = SimpleNamespace(generate=Mock(return_value=SimpleNamespace(text='{"gloss": "walk"}')))
 
     with patch("src.translation_request.provider_from_name", return_value=provider):
         result = run_normal_translation(
@@ -68,6 +120,9 @@ def test_french_lexical_translation_returns_quenya_and_sindarin_dictionary_entri
     assert result["status"] == "SUCCESS"
     assert result["kind"] == "lexical"
     assert result["normalized_gloss"] == "walk"
+    request = provider.generate.call_args.args[0]
+    assert request.response_format == "json_object"
+    assert request.max_tokens >= 128
     assert any(
         entry["language"] == "Quenya" and entry["word"].strip(" -") == "vanta"
         for entry in result["entries"]
