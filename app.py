@@ -29,11 +29,54 @@ from src.lore_generator_generic import generate_lore_for_universe
 from src.router      import _fast_classify, classify_request
 from src.knowledge_graph import KG_DB_PATH, KnowledgeGraph
 from src.layer_registry import LAYER_META, LAYER_ORDER
-from src.normal_mode import normalize_input_for_route, pipeline_for_route, resolve_normal_universe
+from src.normal_mode import normalize_input_for_route, pipeline_for_route, resolve_normal_universe, run_normal_translation
 from src.pipeline_executor import execute_pipeline, format_final_output
 from src.llm_provider import safe_provider_error
 from src.settings import GROQ_LORE_MODEL_WARNING, GROQ_MODEL_WARNING, QA_API_KEY_ENV, QA_PROVIDER
+from src.translation_request import TranslationRequestError, parse_translation_request
 from src.universe_registry import load_semantic_handle, resolve_universe
+
+
+_RELEVANCE_HELP = (
+    "La pertinence relative indique l'adéquation du passage à cette recherche. "
+    "Elle ne mesure pas la confiance factuelle ni la fiabilité de la source."
+)
+
+
+def _relevance_percent(hit: dict) -> int:
+    value = hit.get("relevance_score", hit.get("score", 0.0))
+    try:
+        normalized = float(value)
+    except (TypeError, ValueError):
+        normalized = 0.0
+    return round(max(0.0, min(1.0, normalized)) * 100)
+
+
+def _format_episode_ref(ref: dict) -> str:
+    parts = [str(ref.get("series") or "").strip(), str(ref.get("title") or "").strip()]
+    season = ref.get("season")
+    episode = ref.get("episode")
+    if season is not None and episode is not None:
+        try:
+            parts.append(f"S{int(season):02d}E{int(episode):02d}")
+        except (TypeError, ValueError):
+            parts.append(f"S{season}E{episode}")
+    elif episode is not None:
+        parts.append(f"Épisode {episode}")
+    return " — ".join(part for part in parts if part)
+
+
+def _render_source_hit(hit: dict, *, excerpt_chars: int = 300) -> None:
+    src = (hit.get("source") or hit.get("source_path") or "Source inconnue").split("/")[-1]
+    st.markdown(f"*{src}* — Pertinence de recherche : {_relevance_percent(hit)}/100")
+    refs = hit.get("episode_refs") or hit.get("metadata", {}).get("episode_refs") or []
+    episode_labels = [label for label in (_format_episode_ref(ref) for ref in refs) if label]
+    st.caption(
+        "Références d'épisodes : " + (
+            " · ".join(episode_labels) if episode_labels else "Référence non renseignée"
+        )
+    )
+    st.caption(str(hit.get("text", ""))[:excerpt_chars])
 
 
 # ==============================================================================
@@ -140,7 +183,11 @@ if submit and user_input.strip():
 
     # ── 1. Classify ─────────────────────────────────────────────────────────
     with st.spinner("Analyse de la requête…"):
-        route = classify_request(user_input, api_key=_groq_key)
+        route = classify_request(user_input, api_key=_qa_key, provider_name=QA_PROVIDER)
+
+    if not route.get("route"):
+        st.error(f"❌ {route.get('error') or route.get('reason') or 'Routage indisponible.'}")
+        st.stop()
 
     # ── 2. Display routing decision ──────────────────────────────────────────
     method_badge = "🔵 règles" if route["method"] == "rules" else "🟣 LLM"
@@ -161,6 +208,12 @@ if submit and user_input.strip():
     assert normal_universe_id is not None
     normal_input = normalize_input_for_route(route_name, user_input)
     normal_layers = pipeline_for_route(route_name, universe_id=normal_universe_id)
+    translation_kind = None
+    if route_name == "translate":
+        try:
+            translation_kind = parse_translation_request(user_input).kind
+        except TranslationRequestError:
+            pass
     if normal_universe_id == "terran_empire":
         normal_model, normal_handle, normal_resource_error = load_universe_resources("terran_empire")
         normal_resources = {
@@ -181,7 +234,10 @@ if submit and user_input.strip():
             "lore_provider": _lore_provider,
         }
     st.caption(f"Univers : {normal_resources['universe']}")
-    st.caption(f"Layers : {' → '.join(normal_layers)}")
+    if translation_kind == "lexical":
+        st.caption("Pipeline : Normalisation fournisseur → Dictionnaire SQLite")
+    else:
+        st.caption(f"Pipeline : {' → '.join(normal_layers)}")
     st.divider()
 
     if route_name in {"qa", "lore"} and (
@@ -202,18 +258,27 @@ if submit and user_input.strip():
         if route_name == "lore" and _lore_model_warning:
             st.warning(f"⚠️ {_lore_model_warning}")
         with st.spinner("Exécution du pipeline officiel…"):
-            normal_result = execute_pipeline(normal_layers, normal_input, normal_resources)
+            if route_name == "translate":
+                normal_result = run_normal_translation(
+                    user_input,
+                    provider_name=QA_PROVIDER,
+                    api_key=_qa_key,
+                    resources=normal_resources,
+                )
+            else:
+                normal_result = execute_pipeline(normal_layers, normal_input, normal_resources)
 
-        if normal_result["error"]:
+        lexical_translation = route_name == "translate" and normal_result.get("kind") == "lexical"
+        if normal_result.get("error"):
             st.error(f"❌ {normal_result['error']}")
-        else:
+        elif not lexical_translation:
             retrieval_layer = normal_result["outputs"].get("L02")
             retrieval_data = retrieval_layer.metadata.get("retrieval_result", {}) if retrieval_layer else {}
             if retrieval_data.get("degraded"):
                 st.warning("⚠️ Recherche dégradée : " + " · ".join(retrieval_data.get("warnings", [])))
             elif retrieval_data.get("warnings"):
                 st.info("Recherche : " + " · ".join(retrieval_data["warnings"]))
-        if not normal_result["error"] and route_name == "qa":
+        if not normal_result.get("error") and route_name == "qa":
             st.markdown("### Réponse")
             st.write(format_final_output(normal_result))
 
@@ -234,12 +299,26 @@ if submit and user_input.strip():
                         st.markdown(f"- **{e.get('word')}** ({e.get('language')}) → {e.get('translation')}")
                 if chunks:
                     st.markdown("**Passages sourcés**")
+                    st.caption(_RELEVANCE_HELP)
                     for r in chunks:
-                        src = (r.get("source") or r.get("source_path") or "").split("/")[-1]
-                        st.markdown(f"*{src}* — score {r['score']:.3f}")
-                        st.caption(r["text"][:300])
+                        _render_source_hit(r)
 
-        elif not normal_result["error"] and route_name == "translate":
+        elif not normal_result.get("error") and lexical_translation:
+            st.caption(f"Glossaire anglais normalisé : **{normal_result.get('normalized_gloss', '?')}**")
+            entries = normal_result.get("entries", [])
+            for language in ("Quenya", "Sindarin"):
+                language_entries = [entry for entry in entries if entry.get("language") == language]
+                if not language_entries:
+                    continue
+                st.markdown(f"### {language}")
+                for entry in language_entries:
+                    st.markdown(f"- **{entry.get('word', '')}** → {entry.get('translation', '')}")
+                    source = entry.get("source") or "Source non renseignée"
+                    page = entry.get("page")
+                    source_label = f"{source} · page {page}" if page is not None else str(source)
+                    st.caption(source_label)
+
+        elif not normal_result.get("error") and route_name == "translate":
             st.caption(f"Phrase détectée : *\"{normal_input}\"*")
             syntax_result = normal_result["outputs"].get("L06")
             if syntax_result and hasattr(syntax_result.output, "quenya_sentence"):
@@ -263,7 +342,7 @@ if submit and user_input.strip():
                     for form in morph_result.output:
                         st.markdown(f"**{form.english_lemma}** → `{form.quenya_form}` · {form.feature}")
 
-        elif not normal_result["error"] and route_name == "lore":
+        elif not normal_result.get("error") and route_name == "lore":
             story_data = normal_result["final_output"]
             st.markdown("### 📖 Lore généré")
             st.write(story_data.get("story", ""))
@@ -358,10 +437,9 @@ with te_tab_qa:
             st.markdown("### Réponse")
             st.write(response)
             with st.expander("Sources utilisées"):
+                st.caption(_RELEVANCE_HELP)
                 for r in faiss_results:
-                    src = (r.get("source") or r.get("source_path") or "").split("/")[-1]
-                    st.markdown(f"*{src}* — score {r['score']:.3f}")
-                    st.caption(r["text"][:300])
+                    _render_source_hit(r)
 
 with te_tab_lore:
     te_lore_input = st.text_area(
@@ -470,10 +548,9 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
                     for e in (dict_result.output if dict_result else [])[:5]:
                         st.markdown(f"- **{e.get('word')}** ({e.get('language')}) → {e.get('translation')}")
                     chunks_result = res["outputs"].get("L02")
+                    st.caption(_RELEVANCE_HELP)
                     for r in (chunks_result.output if chunks_result else []):
-                        src = r.get("source", "").split("/")[-1]
-                        st.markdown(f"*{src}* — {r['score']:.3f}")
-                        st.caption(r["text"][:200])
+                        _render_source_hit(r, excerpt_chars=200)
 
     # ── TRANSLATE ─────────────────────────────────────────────────────────────
     with tab_tr:
@@ -561,9 +638,9 @@ def _render_layer_output(output, otype):
         st.json(output)
     elif otype == "json_chunks":
         if output:
+            st.caption(_RELEVANCE_HELP)
             for chunk in output[:3]:
-                st.caption(f"[score {chunk.get('score', 0):.3f}] {chunk.get('source', '').split('/')[-1]}")
-                st.write(chunk.get("text", "")[:300])
+                _render_source_hit(chunk)
         else:
             st.caption("Aucun chunk trouvé.")
     elif otype == "json_dict":

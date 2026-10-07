@@ -58,6 +58,7 @@ def metadata_for_source(
     project_root: Path,
     source_index: int,
     collection: dict[str, Any] | None,
+    source_file: str | None = None,
 ) -> dict[str, Any]:
     """Build provenance metadata for one manifest source."""
     metadata: dict[str, Any] = {
@@ -75,6 +76,11 @@ def metadata_for_source(
                 "themes": collection.get("themes", []),
             }
         )
+    source_metadata = manifest.get("source_metadata", {})
+    if source_file and isinstance(source_metadata, dict):
+        per_source = source_metadata.get(source_file)
+        if isinstance(per_source, dict):
+            metadata.update(per_source)
     return metadata
 
 
@@ -88,11 +94,18 @@ def ingest_universe_manifest(
     universe_id = manifest["universe_id"]
     documents: list[DocumentRecord] = []
 
-    for source_index, (path, _source_file, collection) in enumerate(
+    for source_index, (path, source_file, collection) in enumerate(
         iter_manifest_sources(manifest, project_root=project_root)
     ):
         collection_id = collection.get("collection_id") if collection else None
-        metadata = metadata_for_source(manifest, manifest_path, project_root, source_index, collection)
+        metadata = metadata_for_source(
+            manifest,
+            manifest_path,
+            project_root,
+            source_index,
+            collection,
+            source_file,
+        )
         documents.append(
             load_document(
                 path,

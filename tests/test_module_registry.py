@@ -36,6 +36,13 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertNotIn("ANTHROPIC_API_KEY", meta.dependencies)
         self.assertIn("fournisseur de lore sélectionné", meta.description.lower())
 
+    def test_l01_metadata_describes_configurable_query_provider(self):
+        meta = LAYER_META["L01"]
+
+        self.assertEqual(meta.cost, "unknown")
+        self.assertNotIn("GROQ_API_KEY", meta.dependencies)
+        self.assertIn("fournisseur q&a configuré", meta.description.lower())
+
     def test_pipeline_reports_unavailable_future_module(self):
         result = execute_pipeline(["L10"], "show me an image")
 

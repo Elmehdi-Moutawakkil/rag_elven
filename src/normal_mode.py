@@ -9,6 +9,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from src.pipeline_executor import execute_pipeline
+from src.settings import QA_PROVIDER
+from src.translation_request import (
+    TranslationNormalizationError,
+    lookup_lexical_translation,
+    normalize_lexical_gloss,
+    parse_translation_request,
+)
 from src.universe_registry import get_universe_registry, resolve_universe
 
 
@@ -99,3 +107,45 @@ def normalize_input_for_route(route: str, user_input: str) -> str:
         text,
         flags=re.IGNORECASE,
     ).strip().strip('"').strip("'")
+
+
+def run_normal_translation(
+    user_input: str,
+    *,
+    provider_name: str = QA_PROVIDER,
+    api_key: str | None = None,
+    resources: dict | None = None,
+) -> dict:
+    """Run lexical lookup or the existing English sentence pipeline."""
+    request = parse_translation_request(user_input)
+    if request.kind == "sentence":
+        resource_values = dict(resources or {"universe_id": "tolkien"})
+        resource_values.setdefault("universe_id", "tolkien")
+        return execute_pipeline(
+            ["L04", "L05", "L06"],
+            request.source_text,
+            resources=resource_values,
+        )
+
+    try:
+        gloss = normalize_lexical_gloss(
+            request,
+            provider_name=provider_name,
+            api_key=api_key,
+        )
+    except TranslationNormalizationError as exc:
+        return {
+            "status": "ERROR",
+            "kind": "lexical",
+            "error": str(exc),
+            "entries": [],
+        }
+    entries = lookup_lexical_translation(request, gloss)
+    return {
+        "status": "SUCCESS" if entries else "NO_RESULTS",
+        "kind": "lexical",
+        "request": request,
+        "normalized_gloss": gloss,
+        "entries": entries,
+        "error": None,
+    }

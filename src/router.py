@@ -2,10 +2,10 @@
 
 Stratégie :
   1. Fast path déterministe (mots-clés) — 0 appel API, < 1 ms
-  2. LLM fallback (Groq llama-3.1-8b) pour les cas ambigus
+  2. LLM fallback via le fournisseur Q&A configuré pour les cas ambigus
 
 Routes :
-  "qa"        → Phase 1 : Q&A (FAISS + SQLite + Groq)
+  "qa"        → Phase 1 : Q&A (FAISS + SQLite + fournisseur LLM)
   "translate" → Phase 2 : Traduction Quenya (pipeline déterministe)
   "lore"      → Phase 3 : Génération de lore (Claude + KG validation)
 """
@@ -14,8 +14,8 @@ import json
 from typing import Optional
 
 from dotenv import load_dotenv
-from groq import Groq
-from src.settings import GROQ_API_KEY_ENV, GROQ_MODEL, env_value
+from src.llm_provider import LLMRequest, provider_from_name, safe_provider_error
+from src.settings import QA_API_KEY_ENV_BY_PROVIDER, QA_PROVIDER, env_value, missing_key_message, resolve_qa_provider
 
 load_dotenv()
 
@@ -28,13 +28,13 @@ LAYER_TRACES: dict[str, list[str]] = {
         "🔄 Query Rewriter (LLM)",
         "🔍 FAISS Semantic Search",
         "📚 SQLite Dictionary Lookup",
-        "💬 Answer Generation (Groq LLM)",
+        "💬 Answer Generation (fournisseur Q&A configuré)",
     ],
     "translate": [
         "🔤 spaCy NLP Parser (déterministe)",
         "⚙️  Morphology Engine — formes Quenya (déterministe)",
         "🧩 SOV Syntax Assembler (déterministe)",
-        "✨ LLM Polish — optionnel (Groq)",
+        "✨ LLM Polish — optionnel",
     ],
     "lore": [
         "📍 Context Extractor (Regex/Keyword)",
@@ -72,6 +72,7 @@ _TRANSLATE_KEYWORDS = [
     # français
     "traduis", "traduction", "traduire",
     "comment dit-on", "comment dire",
+    "comment se dit",
     "en quenya:", "en sindarin:",
 ]
 
@@ -107,7 +108,7 @@ def _fast_classify(text: str) -> Optional[str]:
 
 
 # ==============================================================================
-# LLM FALLBACK (Groq)
+# LLM FALLBACK (provider-neutral)
 # ==============================================================================
 
 _ROUTER_PROMPT = """\
@@ -125,36 +126,46 @@ Reply with ONLY valid JSON and nothing else:
 """
 
 
-def _llm_classify(text: str, api_key: str) -> dict:
-    """Groq LLM classification for ambiguous requests."""
+def _llm_classify(text: str, api_key: str, provider_name: str = QA_PROVIDER) -> dict:
+    """Provider-neutral LLM classification for ambiguous requests."""
     try:
-        client = Groq(api_key=api_key)
-        response = client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=[{"role": "user", "content": _ROUTER_PROMPT.format(request=text)}],
+        provider = provider_from_name(provider_name, api_key=api_key)
+        response = provider.generate(LLMRequest(
+            prompt=_ROUTER_PROMPT.format(request=text),
             max_tokens=80,
             temperature=0.0,
-        )
-        raw = response.choices[0].message.content.strip()
+            metadata={"purpose": "request_routing"},
+        ))
+        raw = response.text.strip()
         result = json.loads(raw)
+        if set(result) != {"route", "reason"} or result["route"] not in LAYER_TRACES:
+            raise ValueError("invalid router JSON")
         result["method"] = "llm"
         return result
-    except Exception as e:
-        # If LLM fails for any reason, default to Q&A
-        return {"route": "qa", "reason": f"LLM fallback failed ({e}) — defaulting to Q&A", "method": "rules"}
+    except Exception as exc:
+        return {
+            "route": None,
+            "reason": "Le routage LLM a échoué.",
+            "method": "error",
+            "error": str(safe_provider_error(provider_name, exc)),
+        }
 
 
 # ==============================================================================
 # PUBLIC API
 # ==============================================================================
 
-def classify_request(user_input: str, api_key: Optional[str] = None) -> dict:
+def classify_request(
+    user_input: str,
+    api_key: Optional[str] = None,
+    provider_name: str = QA_PROVIDER,
+) -> dict:
     """Analyse la requête et retourne la route appropriée.
 
     Args:
         user_input : texte libre de l'utilisateur
-        api_key    : clé Groq (optionnel — utilisée uniquement si la classification
-                     par mots-clés est ambiguë)
+        api_key    : clé du fournisseur (optionnelle — utilisée uniquement si la
+                     classification par mots-clés est ambiguë)
 
     Returns:
         {
@@ -165,7 +176,9 @@ def classify_request(user_input: str, api_key: Optional[str] = None) -> dict:
             "label"  : str,
         }
     """
-    groq_key = api_key or env_value(GROQ_API_KEY_ENV)
+    selected_provider = resolve_qa_provider(provider_name)
+    key_env = QA_API_KEY_ENV_BY_PROVIDER[selected_provider]
+    provider_key = env_value(key_env) if api_key is None else api_key.strip()
 
     # 1. Fast path
     fast_route = _fast_classify(user_input)
@@ -177,11 +190,17 @@ def classify_request(user_input: str, api_key: Optional[str] = None) -> dict:
         }
     else:
         # 2. LLM fallback
-        if groq_key:
-            result = _llm_classify(user_input, groq_key)
+        if provider_key:
+            result = _llm_classify(user_input, provider_key, selected_provider)
         else:
-            result = {"route": "qa", "reason": "No API key — defaulting to Q&A", "method": "rules"}
+            result = {
+                "route": None,
+                "reason": "Aucune clé fournisseur pour classer cette requête ambiguë.",
+                "method": "error",
+                "error": missing_key_message(key_env, "routage des requêtes"),
+            }
 
-    result["layers"] = LAYER_TRACES[result["route"]]
-    result["label"]  = ROUTE_LABELS[result["route"]]
+    route = result.get("route")
+    result["layers"] = LAYER_TRACES[route] if route else []
+    result["label"] = ROUTE_LABELS[route] if route else "Routage indisponible"
     return result

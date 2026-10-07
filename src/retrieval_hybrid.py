@@ -13,7 +13,19 @@ from src.indexing.chunks import read_chunks_jsonl
 from src.indexing.build import default_text_index_dir
 
 
-TOKEN_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ0-9']+")
+TOKEN_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ0-9]+")
+
+# Function words add noise to small corpora and previously let generic prose
+# outrank the passage that actually defined the requested entity.
+STOPWORDS = {
+    "a", "an", "and", "are", "as", "at", "be", "by", "do", "does", "for", "from",
+    "how", "in", "is", "it", "of", "on", "or", "that", "the", "this", "to", "what",
+    "when", "where", "which", "who", "why", "with",
+    "au", "aux", "avec", "ce", "ces", "cette", "comment", "dans", "de", "des", "donc", "du",
+    "elle", "en", "est", "et", "il", "la", "le", "les", "leur", "leurs", "l", "ou",
+    "par", "pour", "qu", "que", "quel", "quelle", "qui", "son", "sur", "un", "une",
+}
+ENTITY_QUESTION_RE = re.compile(r"\b(?:who|qui|quelle?\s+personnage)\b", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -30,19 +42,22 @@ class RetrievalHit:
     source_path: str
     source_name: str
     score: float
+    relevance_score: float
     lexical_score: float
     semantic_score: float
     match_terms: list[str] = field(default_factory=list)
     citation: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+    diagnostics: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 def tokenize(text: str) -> list[str]:
-    """Lowercase tokenization shared by indexing and retrieval."""
-    return [token.lower() for token in TOKEN_RE.findall(text)]
+    """Return meaningful lowercase terms, excluding common EN/FR words."""
+    normalized = text.replace("’", "'").replace("'", " ")
+    return [token.lower() for token in TOKEN_RE.findall(normalized) if token.lower() not in STOPWORDS]
 
 
 def _matches_filters(chunk: dict[str, Any], filters: dict[str, Any] | None) -> bool:
@@ -75,7 +90,8 @@ def score_chunks(query: str, chunks: list[dict[str, Any]]) -> list[RetrievalHit]
 
     total_chunks = max(1, len(chunks))
     query_lower = query.lower().strip()
-    hits: list[RetrievalHit] = []
+    scored: list[tuple[float, dict[str, Any], list[str], str]] = []
+    entity_question = bool(ENTITY_QUESTION_RE.search(query))
 
     for chunk in chunks:
         tokens = chunk_tokens[str(chunk["chunk_id"])]
@@ -94,12 +110,23 @@ def score_chunks(query: str, chunks: list[dict[str, Any]]) -> list[RetrievalHit]
 
         text = str(chunk.get("text", ""))
         phrase_bonus = 2.0 if query_lower and query_lower in text.lower() else 0.0
-        lexical_score = score + phrase_bonus
-        semantic_score = 0.0
-        combined_score = lexical_score + semantic_score
-        if combined_score <= 0:
+        raw_score = score + phrase_bonus
+        metadata = dict(chunk.get("metadata", {}))
+        source_name = str(chunk.get("source_name", ""))
+        if entity_question and (
+            metadata.get("content_kind") == "entity_profiles" or "key_figures" in source_name.lower()
+        ):
+            raw_score *= 1.75
+        if raw_score <= 0:
             continue
+        scored.append((raw_score, chunk, sorted(matched_terms), text))
 
+    scored.sort(key=lambda item: (-item[0], str(item[1].get("source_path", "")), str(item[1].get("chunk_id", ""))))
+    max_score = scored[0][0] if scored else 1.0
+    hits: list[RetrievalHit] = []
+    for rank, (raw_score, chunk, matched_terms, text) in enumerate(scored, start=1):
+        relevance = round(min(1.0, raw_score / max_score), 6)
+        metadata = dict(chunk.get("metadata", {}))
         citation = f"{chunk.get('source_path')}#{chunk.get('chunk_id')}"
         hits.append(
             RetrievalHit(
@@ -112,16 +139,18 @@ def score_chunks(query: str, chunks: list[dict[str, Any]]) -> list[RetrievalHit]
                 end_offset=chunk.get("end_offset"),
                 source_path=str(chunk.get("source_path", "")),
                 source_name=str(chunk.get("source_name", "")),
-                score=round(combined_score, 6),
-                lexical_score=round(lexical_score, 6),
-                semantic_score=semantic_score,
-                match_terms=sorted(matched_terms),
+                score=relevance,
+                relevance_score=relevance,
+                lexical_score=relevance,
+                semantic_score=0.0,
+                match_terms=matched_terms,
                 citation=citation,
-                metadata=dict(chunk.get("metadata", {})),
+                metadata=metadata,
+                diagnostics={"lexical_raw_score": round(raw_score, 6), "lexical_rank": rank},
             )
         )
 
-    return sorted(hits, key=lambda hit: hit.score, reverse=True)
+    return hits
 
 
 def search_chunks(

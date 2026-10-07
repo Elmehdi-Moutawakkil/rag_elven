@@ -102,6 +102,23 @@ class IngestionTests(unittest.TestCase):
         self.assertTrue(all(document.clean_content for document in documents))
         self.assertTrue(all(document.metadata["canon_status"] == "canon" for document in documents))
 
+    def test_terran_manifest_attaches_versioned_episode_references(self):
+        manifest_path = PROJECT_ROOT / "corpus" / "universes" / "terran_empire" / "manifest.json"
+
+        documents = ingest_universe_manifest(manifest_path, project_root=PROJECT_ROOT)
+        by_name = {document.source_name: document for document in documents}
+
+        for source_name in (
+            "key_figures.txt",
+            "political_structure.txt",
+            "mirror_universe_crossover_events.txt",
+        ):
+            refs = by_name[source_name].metadata["episode_refs"]
+            self.assertTrue(refs)
+            self.assertTrue(all(ref["provenance_version"] == 1 for ref in refs))
+            self.assertTrue(all(ref["curation_status"] == "human_curated" for ref in refs))
+        self.assertEqual(by_name["key_figures.txt"].metadata["episode_refs"][0]["title"], "Crossover")
+
     def test_documents_jsonl_round_trip(self):
         manifest_path = PROJECT_ROOT / "corpus" / "universes" / "terran_empire" / "manifest.json"
         documents = ingest_universe_manifest(manifest_path, project_root=PROJECT_ROOT)[:2]

@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from src.layer_registry import MODULE_REGISTRY
 from src.query_rewriter import _SYSTEM_PROMPT
@@ -60,6 +61,23 @@ class NormalModeTests(unittest.TestCase):
 
         self.assertEqual(result["route"], "qa")
         self.assertEqual(result["method"], "rules")
+
+    def test_french_how_is_word_said_routes_to_translation_without_llm(self):
+        with patch("src.router.provider_from_name") as factory:
+            result = classify_request('Comment se dit "marcher" en elfique ?')
+
+        self.assertEqual(result["route"], "translate")
+        self.assertEqual(result["method"], "rules")
+        factory.assert_not_called()
+
+    def test_ambiguous_request_without_provider_key_is_not_silently_qa(self):
+        with patch("src.router.env_value", return_value=""):
+            result = classify_request("A curious request", api_key="")
+
+        self.assertIsNone(result["route"])
+        self.assertEqual(result["method"], "error")
+        self.assertEqual(result["layers"], [])
+        self.assertIn("DEEPSEEK_API_KEY", result["error"])
 
     def test_llm_prompts_are_universe_neutral_for_ambiguous_routing(self):
         self.assertIn("multi-universe", _ROUTER_PROMPT)

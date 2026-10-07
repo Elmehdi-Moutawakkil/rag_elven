@@ -71,10 +71,10 @@ class LayerMeta:
 LAYER_META: dict[str, LayerMeta] = {
     "L01": LayerMeta(
         id="L01", name="Query Rewriter", emoji="🔄",
-        description="Envoie la requête brute à un LLM qui en extrait le mot-clé en anglais et détecte si c'est une question de vocabulaire ou de lore.",
+        description="Envoie la requête brute au fournisseur Q&A configuré, qui en extrait le mot-clé anglais et détecte vocabulaire ou lore.",
         input_types=["text"], output_type="json_rewrite",
-        cost="groq", deterministic=False,
-        dependencies=["GROQ_API_KEY optional"],
+        cost="unknown", deterministic=False,
+        dependencies=[f"{QA_API_KEY_ENV} optional"],
         confidence="medium",
     ),
     "L02": LayerMeta(

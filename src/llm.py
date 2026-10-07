@@ -26,6 +26,20 @@ MAX_TOKENS  = 1024                    # longueur maximale de la réponse (en tok
 TEMPERATURE = 0.2                     # 0 = très factuel/répétable, 1 = créatif/aléatoire
 
 
+def _format_episode_ref(ref: dict) -> str:
+    parts = [str(ref.get("series") or "").strip(), str(ref.get("title") or "").strip()]
+    season = ref.get("season")
+    episode = ref.get("episode")
+    if season is not None and episode is not None:
+        try:
+            parts.append(f"S{int(season):02d}E{int(episode):02d}")
+        except (TypeError, ValueError):
+            parts.append(f"S{season}E{episode}")
+    elif episode is not None:
+        parts.append(f"Episode {episode}")
+    return " — ".join(part for part in parts if part)
+
+
 # ---------------------------------------------------------------------------
 # Construction du prompt
 # ---------------------------------------------------------------------------
@@ -65,10 +79,18 @@ def build_prompt(
     # --- section cours/lore ---
     if faiss_results:
         parts.append("\n=== Relevant passages ===")
-        for r in faiss_results[:3]:   # on limite à 3 chunks
+        for index, r in enumerate(faiss_results[:3], start=1):  # on limite à 3 chunks
             source = (r.get("source") or r.get("source_path") or "").split("/")[-1]  # garde uniquement le nom du fichier
             text   = r.get("text", "").strip()
-            parts.append(f"[{source}]\n{text}")
+            refs = r.get("episode_refs") or r.get("metadata", {}).get("episode_refs") or []
+            episode_text = "; ".join(filter(None, (_format_episode_ref(ref) for ref in refs)))
+            if not episode_text:
+                episode_text = "Référence d'épisode non renseignée"
+            parts.append(
+                f"[{index}] Source: {source}\n"
+                f"Episode references: {episode_text}\n"
+                f"{text}"
+            )
 
     context = "\n".join(parts)  # assemble toutes les sections en un seul bloc de texte
 
@@ -79,6 +101,8 @@ Answer the question using the context provided below as your primary source.
 If the context is insufficient, say what is missing instead of switching to another fictional universe.
 Never apologize because the corpus is not Tolkien; use the selected corpus and its sources.
 Be precise and concise.
+Add a citation [n] after every factual claim supported by passage [n].
+Never invent an episode reference. If it is absent from the context, state that the episode reference is not provided.
 IMPORTANT: Always answer in the same language as the question (if the question is in French, answer in French; if in English, answer in English).
 
 --- CONTEXT ---

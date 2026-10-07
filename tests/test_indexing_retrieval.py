@@ -6,7 +6,7 @@ import json
 from src.indexing.build import build_text_index
 from src.indexing.chunks import chunk_text, read_chunks_jsonl
 from src.retrieval_adapter import retrieve_evidence
-from src.retrieval_hybrid import search_chunks
+from src.retrieval_hybrid import search_chunks, tokenize
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -18,6 +18,10 @@ def read_jsonl(path: Path) -> list[dict]:
 
 
 class IndexingRetrievalTests(unittest.TestCase):
+    def test_tokenize_removes_french_and_english_question_stopwords(self):
+        self.assertEqual(tokenize("Who is the Intendant?"), ["intendant"])
+        self.assertEqual(tokenize("Qui est donc l'Intendante ?"), ["intendante"])
+
     def test_chunk_text_keeps_offsets_and_overlap_controlled(self):
         text = "Alpha beta gamma. " * 80
 
@@ -69,6 +73,20 @@ class IndexingRetrievalTests(unittest.TestCase):
         self.assertIn("Spock", hits[0].text)
         self.assertTrue(hits[0].citation)
         self.assertIn("spock", hits[0].match_terms)
+
+    def test_entity_question_ranks_key_figures_first_with_normalized_relevance(self):
+        chunks = read_chunks_jsonl(PROJECT_ROOT / "indexes" / "terran_empire" / "text" / "chunks.jsonl")
+
+        hits = search_chunks("who is the intendant?", chunks, k=3)
+
+        self.assertTrue(hits)
+        self.assertEqual(hits[0].source_name, "key_figures.txt")
+        for rank, hit in enumerate(hits, start=1):
+            self.assertGreaterEqual(hit.relevance_score, 0.0)
+            self.assertLessEqual(hit.relevance_score, 1.0)
+            self.assertEqual(hit.score, hit.relevance_score)
+            self.assertEqual(hit.diagnostics["lexical_rank"], rank)
+            self.assertIn("lexical_raw_score", hit.diagnostics)
 
     def test_search_chunks_filters_by_collection(self):
         with tempfile.TemporaryDirectory() as tmp:

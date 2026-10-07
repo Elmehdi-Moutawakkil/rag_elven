@@ -3,11 +3,38 @@ from unittest.mock import patch
 
 from src.citations import resolve_citation_identity
 from src.indexing.chunks import read_chunks_jsonl
-from src.retrieval_adapter import RetrievalStatus, available_citation_records, retrieve_evidence_result
+from src.retrieval_adapter import (
+    RetrievalStatus,
+    _fuse_ranked_hits,
+    available_citation_records,
+    retrieve_evidence_result,
+)
 from src.universe_registry import UniverseRegistryError, get_universe_registry, validate_source_path
 
 
 class RetrievalContractTests(unittest.TestCase):
+    def test_rrf_fusion_uses_rank_not_incompatible_raw_score_scales(self):
+        lexical = [
+            {"chunk_id": "a", "source_path": "a.txt", "text": "A", "lexical_score": 99.0},
+            {"chunk_id": "a2", "source_path": "a.txt", "text": "A second passage", "lexical_score": 80.0},
+            {"chunk_id": "b", "source_path": "b.txt", "text": "B", "lexical_score": 50.0},
+        ]
+        semantic = [
+            {"chunk_id": "b", "source_path": "b.txt", "text": "B", "semantic_score": 0.8},
+            {"chunk_id": "a", "source_path": "a.txt", "text": "A", "semantic_score": 0.9},
+        ]
+
+        fused = _fuse_ranked_hits(lexical, semantic)
+
+        self.assertEqual({hit["chunk_id"] for hit in fused}, {"a", "b"})
+        self.assertEqual(len({hit["source_path"] for hit in fused}), len(fused))
+        self.assertTrue(all(0.0 <= hit["relevance_score"] <= 1.0 for hit in fused))
+        self.assertTrue(all(hit["score"] == hit["relevance_score"] for hit in fused))
+        self.assertEqual(fused[0]["relevance_score"], 1.0)
+        self.assertLess(fused[1]["relevance_score"], 1.0)
+        self.assertEqual(fused[0]["diagnostics"]["fusion_method"], "rrf")
+        self.assertEqual(fused[0]["diagnostics"]["lexical_chunk_rank"], 1)
+
     def test_missing_and_unknown_universe_return_typed_results_before_lookup(self):
         self.assertEqual(retrieve_evidence_result("question", universe_id=None).status, RetrievalStatus.UNIVERSE_REQUIRED)
         self.assertEqual(retrieve_evidence_result("question", universe_id="missing").status, RetrievalStatus.UNIVERSE_UNKNOWN)
@@ -23,6 +50,17 @@ class RetrievalContractTests(unittest.TestCase):
         records = read_chunks_jsonl(get_universe_registry().require("terran_empire").text_chunks_path)
         self.assertEqual(resolve_citation_identity(result.hits[0]["citation"], records)["text"], result.hits[0]["text"])
 
+    def test_intendant_retrieval_exposes_curated_episode_provenance(self):
+        result = retrieve_evidence_result("who is the intendant?", universe_id="terran_empire", mode="lexical", k=1)
+
+        self.assertEqual(result.status, RetrievalStatus.SUCCESS)
+        hit = result.hits[0]
+        self.assertEqual(hit["source_name"], "key_figures.txt")
+        self.assertEqual(hit["episode_refs"][0]["title"], "Crossover")
+        self.assertEqual(hit["episode_refs"][0]["series"], "Star Trek: Deep Space Nine")
+        self.assertEqual(hit["episode_refs"][0]["provenance_version"], 1)
+        self.assertEqual(hit["metadata"]["episode_refs"], hit["episode_refs"])
+
     def test_cross_universe_and_traversal_chunk_sources_are_rejected(self):
         config = get_universe_registry().require("terran_empire")
         with self.assertRaises(UniverseRegistryError):
@@ -33,6 +71,16 @@ class RetrievalContractTests(unittest.TestCase):
         resolved = resolve_citation_identity(semantic["citation"], available_citation_records("terran_empire"))
 
         self.assertEqual(resolved["text"], semantic["text"])
+
+    def test_semantic_records_receive_manifest_episode_provenance(self):
+        semantic = next(
+            record
+            for record in available_citation_records("terran_empire")
+            if record.get("retrieval_engine") == "faiss" and record.get("source_name") == "key_figures.txt"
+        )
+
+        self.assertEqual(semantic["episode_refs"][0]["title"], "Crossover")
+        self.assertEqual(semantic["metadata"]["episode_refs"], semantic["episode_refs"])
 
     def test_semantic_mode_requires_a_bound_handle(self):
         result = retrieve_evidence_result("question", universe_id="tolkien", mode="semantic")

@@ -35,8 +35,8 @@ import json                                # pour parser la réponse JSON du LLM
 from typing import Optional
 
 from dotenv import load_dotenv             # charge le fichier .env local
-from groq import Groq                      # client Groq pour appeler le LLM
-from src.settings import GROQ_API_KEY_ENV, GROQ_MODEL, env_value
+from src.llm_provider import LLMRequest, provider_from_name
+from src.settings import QA_API_KEY_ENV_BY_PROVIDER, QA_PROVIDER, env_value, resolve_qa_provider
 
 load_dotenv()
 
@@ -44,7 +44,6 @@ load_dotenv()
 # Configuration
 # ---------------------------------------------------------------------------
 
-MODEL       = GROQ_MODEL              # même modèle que le reste du projet
 TEMPERATURE = 0.0   # 0 = déterministe : on veut toujours la même analyse pour la même question
 MAX_TOKENS  = 80    # la réponse est un petit JSON, inutile d'allouer plus
 
@@ -88,7 +87,7 @@ Rules:
 # ---------------------------------------------------------------------------
 
 def _regex_extract(query: str) -> str:
-    """Minimal no-API keyword extraction used when Groq is unavailable."""
+    """Minimal no-API keyword extraction used when the provider is unavailable."""
     patterns = [
         r"what does (.+?) mean",
         r"what is (.+?)\??$",
@@ -114,7 +113,11 @@ def _regex_extract(query: str) -> str:
 # Fonction principale
 # ---------------------------------------------------------------------------
 
-def rewrite_query(question: str, api_key: Optional[str] = None) -> dict:
+def rewrite_query(
+    question: str,
+    api_key: Optional[str] = None,
+    provider_name: str = QA_PROVIDER,
+) -> dict:
     """Analyse la question et retourne le mot-clé normalisé + le type de requête.
 
     Envoie la question à un LLM qui décide :
@@ -126,7 +129,7 @@ def rewrite_query(question: str, api_key: Optional[str] = None) -> dict:
 
     Args:
         question : question brute de l'utilisateur (n'importe quelle langue)
-        api_key  : clé Groq optionnelle (sinon lue depuis GROQ_API_KEY)
+        api_key  : clé fournisseur optionnelle (sinon lue depuis sa variable dédiée)
 
     Returns:
         dict avec :
@@ -140,25 +143,24 @@ def rewrite_query(question: str, api_key: Optional[str] = None) -> dict:
         rewrite_query("qui sont les Noldor?")
         → {"keyword": "Noldor history", "type": "lore"}
     """
-    key = api_key or env_value(GROQ_API_KEY_ENV)
+    selected_provider = resolve_qa_provider(provider_name)
+    key_env = QA_API_KEY_ENV_BY_PROVIDER[selected_provider]
+    key = env_value(key_env) if api_key is None else api_key.strip()
     if not key:
         # Pas de clé API → fallback immédiat sans appel réseau
         return _safe_fallback(question)
 
     try:
-        client = Groq(api_key=key)
-
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},  # instructions de l'agent
-                {"role": "user",   "content": question},         # question brute
-            ],
+        provider = provider_from_name(selected_provider, api_key=key)
+        response = provider.generate(LLMRequest(
+            system=_SYSTEM_PROMPT,
+            prompt=question,
             temperature=TEMPERATURE,  # 0 = réponse stable et reproductible
             max_tokens=MAX_TOKENS,    # JSON court attendu
-        )
+            metadata={"purpose": "query_rewrite"},
+        ))
 
-        raw = response.choices[0].message.content.strip()   # texte brut de la réponse
+        raw = response.text.strip()                          # texte brut de la réponse
         result = json.loads(raw)                             # parse le JSON
 
         # Validation minimale : les deux champs doivent être présents
@@ -176,7 +178,7 @@ def rewrite_query(question: str, api_key: Optional[str] = None) -> dict:
         return _safe_fallback(question)
 
     except Exception:
-        # Toute autre erreur (réseau, quota Groq, etc.) → fallback silencieux
+        # Toute autre erreur fournisseur → extraction locale conservatrice
         return _safe_fallback(question)
 
 

@@ -41,6 +41,134 @@
     "data/universes/terran_empire/lore/terok_nor_and_rebellion.txt",
     "data/universes/terran_empire/lore/the_alliance_and_fall.txt"
   ],
+  "source_metadata": {
+    "data/universes/terran_empire/lore/key_figures.txt": {
+      "provenance_schema_version": 1,
+      "content_kind": "entity_profiles",
+      "episode_refs": [
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Crossover",
+          "season": 2,
+          "episode": 23,
+          "air_year": 1994,
+          "supports": ["Kira Nerys is the Intendant of Bajor", "The Intendant governs Terok Nor for the Alliance"]
+        },
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Through the Looking Glass",
+          "season": 3,
+          "episode": 19,
+          "air_year": 1995,
+          "supports": ["The Intendant's relationship with mirror Benjamin Sisko", "The Terran Rebellion leadership"]
+        },
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Shattered Mirror",
+          "season": 4,
+          "episode": 20,
+          "air_year": 1996,
+          "supports": ["Mirror Sisko's death", "Alliance and Rebellion figures around Terok Nor"]
+        },
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Resurrection",
+          "season": 6,
+          "episode": 8,
+          "air_year": 1997,
+          "supports": ["Mirror Bareil works with the Intendant", "Mirror Bareil crosses to the prime universe"]
+        }
+      ]
+    },
+    "data/universes/terran_empire/lore/political_structure.txt": {
+      "provenance_schema_version": 1,
+      "episode_refs": [
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Crossover",
+          "season": 2,
+          "episode": 23,
+          "air_year": 1994,
+          "supports": ["The Alliance political order", "The Intendant's authority over Terok Nor"]
+        },
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Shattered Mirror",
+          "season": 4,
+          "episode": 20,
+          "air_year": 1996,
+          "supports": ["Alliance command and territorial control around Terok Nor"]
+        }
+      ]
+    },
+    "data/universes/terran_empire/lore/mirror_universe_crossover_events.txt": {
+      "provenance_schema_version": 1,
+      "episode_refs": [
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Crossover",
+          "season": 2,
+          "episode": 23,
+          "air_year": 1994,
+          "supports": ["Kira and Bashir's wormhole crossing", "Kira Nerys as the Intendant", "Terrans enslaved on Terok Nor"]
+        },
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Through the Looking Glass",
+          "season": 3,
+          "episode": 19,
+          "air_year": 1995,
+          "supports": ["Sisko is recruited by the Terran Rebellion"]
+        },
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Shattered Mirror",
+          "season": 4,
+          "episode": 20,
+          "air_year": 1996,
+          "supports": ["The Defiant battle", "Mirror Sisko's death"]
+        },
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "Resurrection",
+          "season": 6,
+          "episode": 8,
+          "air_year": 1997,
+          "supports": ["Mirror Bareil visits the prime universe"]
+        },
+        {
+          "provenance_version": 1,
+          "curation_status": "human_curated",
+          "series": "Star Trek: Deep Space Nine",
+          "title": "The Emperor's New Cloak",
+          "season": 7,
+          "episode": 12,
+          "air_year": 1999,
+          "supports": ["Quark and Rom enter the mirror universe", "The later Alliance and Rebellion conflict"]
+        }
+      ]
+    }
+  },
   "indexes": {
     "text": {
       "type": "faiss",

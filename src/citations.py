@@ -150,6 +150,8 @@ def normalize_chunk_for_citation(record: Mapping[str, Any]) -> dict[str, Any]:
     normalized["citation_source_id"] = source_id
     normalized["citation_version_id"] = version_id
     normalized["citation_excerpt_id"] = excerpt_id
+    episode_refs = metadata.get("episode_refs", [])
+    normalized["episode_refs"] = list(episode_refs) if isinstance(episode_refs, list) else []
     normalized["citation"] = format_citation_identity(normalized)
     return normalized
 
