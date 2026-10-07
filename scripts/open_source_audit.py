@@ -24,7 +24,7 @@ SECRET_PATTERNS = [
     re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b"),
     re.compile(r"\bghp_[A-Za-z0-9_]{20,}\b"),
     re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b"),
-    re.compile(r"\b(?:GROQ|ANTHROPIC|OPENAI)_API_KEY\s*=\s*[A-Za-z0-9_-]{12,}\b"),
+    re.compile(r"\b(?:GROQ|ANTHROPIC|OPENAI|DEEPSEEK)_API_KEY\s*=\s*[A-Za-z0-9_-]{12,}\b"),
 ]
 
 TEXT_SUFFIXES = {".py", ".md", ".txt", ".json", ".toml", ".yaml", ".yml", ".env", ".example"}

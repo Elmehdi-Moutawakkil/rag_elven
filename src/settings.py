@@ -31,6 +31,28 @@ ELVISH_KG_DB_PATH = VECTOR_DB_DIR / "knowledge_graph.sqlite"
 GROQ_API_KEY_ENV = "GROQ_API_KEY"
 ANTHROPIC_API_KEY_ENV = "ANTHROPIC_API_KEY"
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
+DEEPSEEK_API_KEY_ENV = "DEEPSEEK_API_KEY"
+
+QA_API_KEY_ENV_BY_PROVIDER = {
+    "anthropic": ANTHROPIC_API_KEY_ENV,
+    "deepseek": DEEPSEEK_API_KEY_ENV,
+    "groq": GROQ_API_KEY_ENV,
+    "openai": OPENAI_API_KEY_ENV,
+}
+
+
+def resolve_qa_provider(value: str | None = None) -> str:
+    """Resolve the explicitly configured Q&A provider without fallback."""
+    configured = (os.getenv("QA_PROVIDER", "") if value is None else value).strip().lower()
+    selected = configured or "deepseek"
+    if selected not in QA_API_KEY_ENV_BY_PROVIDER:
+        supported = ", ".join(sorted(QA_API_KEY_ENV_BY_PROVIDER))
+        raise ValueError(f"QA_PROVIDER non pris en charge: {selected}. Valeurs: {supported}.")
+    return selected
+
+
+QA_PROVIDER = resolve_qa_provider()
+QA_API_KEY_ENV = QA_API_KEY_ENV_BY_PROVIDER[QA_PROVIDER]
 
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 DEFAULT_GROQ_MODEL = "openai/gpt-oss-20b"
@@ -55,6 +77,8 @@ GROQ_LORE_MODEL, GROQ_LORE_MODEL_WARNING = resolve_groq_model(
     os.getenv("GROQ_LORE_MODEL", "")
 )
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-flash")
+DEEPSEEK_LORE_MODEL = os.getenv("DEEPSEEK_LORE_MODEL", DEEPSEEK_MODEL)
 ANTHROPIC_LORE_MODEL = os.getenv("ANTHROPIC_LORE_MODEL", "claude-sonnet-4-6")
 ANTHROPIC_POLISH_MODEL = os.getenv("ANTHROPIC_POLISH_MODEL", "claude-haiku-4-5-20251001")
 ANTHROPIC_JUDGE_MODEL = os.getenv("ANTHROPIC_JUDGE_MODEL", "claude-sonnet-4-6")

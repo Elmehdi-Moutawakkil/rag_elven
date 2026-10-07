@@ -22,12 +22,19 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.settings import (  # noqa: E402
     ANTHROPIC_API_KEY_ENV,
+    DEEPSEEK_API_KEY_ENV,
     ELVISH_DICTIONARY_DB_PATH,
     ELVISH_INDEX_PATH,
     ELVISH_KG_DB_PATH,
     ELVISH_METADATA_PATH,
     GROQ_API_KEY_ENV,
     has_env,
+)
+
+PROVIDER_API_KEY_ENVS = (
+    DEEPSEEK_API_KEY_ENV,
+    GROQ_API_KEY_ENV,
+    ANTHROPIC_API_KEY_ENV,
 )
 
 
@@ -312,7 +319,7 @@ def main() -> int:
         failures.extend(text_index_errors)
 
     print()
-    for env_name in (GROQ_API_KEY_ENV, ANTHROPIC_API_KEY_ENV):
+    for env_name in PROVIDER_API_KEY_ENVS:
         print(f"[{_status(has_env(env_name))}] env: {env_name} {'set' if has_env(env_name) else 'missing'}")
 
     print()

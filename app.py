@@ -5,7 +5,7 @@ L'agent routeur analyse la requête et dirige vers le bon pipeline :
 
   Phase 1 — Q&A        : questions sur Quenya/Sindarin/lore
   Phase 2 — Traduction  : anglais → Quenya (pipeline déterministe)
-  Phase 3 — Lore        : génération de lore (Claude + KG validation)
+  Phase 3 — Lore        : fournisseur configurable, DeepSeek par défaut + validation KG
 
 Lance avec :
     streamlit run app.py
@@ -32,7 +32,7 @@ from src.layer_registry import LAYER_META, LAYER_ORDER
 from src.normal_mode import normalize_input_for_route, pipeline_for_route, resolve_normal_universe
 from src.pipeline_executor import execute_pipeline, format_final_output
 from src.llm_provider import safe_provider_error
-from src.settings import GROQ_LORE_MODEL_WARNING, GROQ_MODEL_WARNING
+from src.settings import GROQ_LORE_MODEL_WARNING, GROQ_MODEL_WARNING, QA_API_KEY_ENV, QA_PROVIDER
 from src.universe_registry import load_semantic_handle, resolve_universe
 
 
@@ -76,17 +76,28 @@ with st.spinner("Chargement des ressources…"):
 _qa_available  = model is not None and index is not None
 _kg_ready      = KG_DB_PATH.exists()
 _anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+_deepseek_key  = os.getenv("DEEPSEEK_API_KEY")
 _groq_key      = os.getenv("GROQ_API_KEY")
+_qa_key        = os.getenv(QA_API_KEY_ENV)
 
 _lore_provider_label = st.selectbox(
     "Fournisseur de lore",
-    options=["Anthropic", "Groq"],
+    options=["DeepSeek", "Anthropic", "Groq"],
     index=0,
     help="Le choix est explicite. L'application ne bascule jamais automatiquement de fournisseur.",
     key="lore_provider",
 )
 _lore_provider = _lore_provider_label.lower()
-_lore_api_key = _anthropic_key if _lore_provider == "anthropic" else _groq_key
+_lore_api_key_env = {
+    "anthropic": "ANTHROPIC_API_KEY",
+    "deepseek": "DEEPSEEK_API_KEY",
+    "groq": "GROQ_API_KEY",
+}[_lore_provider]
+_lore_api_key = {
+    "anthropic": _anthropic_key,
+    "deepseek": _deepseek_key,
+    "groq": _groq_key,
+}[_lore_provider]
 _lore_model_warning = GROQ_LORE_MODEL_WARNING if _lore_provider == "groq" else None
 
 
@@ -177,16 +188,16 @@ if submit and user_input.strip():
         not normal_resources.get("model") or not normal_resources.get("semantic_handle")
     ):
         st.error("❌ Index FAISS non disponible.")
-    elif route_name == "qa" and not _groq_key:
-        st.error("❌ GROQ_API_KEY manquante.")
+    elif route_name == "qa" and not _qa_key:
+        st.error(f"❌ {QA_API_KEY_ENV} manquante.")
     elif route_name == "lore" and not _lore_api_key:
-        st.error(f"❌ {'ANTHROPIC_API_KEY' if _lore_provider == 'anthropic' else 'GROQ_API_KEY'} manquante.")
+        st.error(f"❌ {_lore_api_key_env} manquante.")
     elif route_name == "lore" and normal_universe_id == "tolkien" and not _kg_ready:
         st.error("❌ Knowledge Graph non construit. Exécutez `python scripts/build_kg.py`.")
     elif route_name == "translate" and not normal_input:
         st.warning("Impossible d'extraire la phrase à traduire. Essayez : *Translate: the warrior walks.*")
     else:
-        if route_name == "qa" and GROQ_MODEL_WARNING:
+        if route_name == "qa" and QA_PROVIDER == "groq" and GROQ_MODEL_WARNING:
             st.warning(f"⚠️ {GROQ_MODEL_WARNING}")
         if route_name == "lore" and _lore_model_warning:
             st.warning(f"⚠️ {_lore_model_warning}")
@@ -332,17 +343,17 @@ with te_tab_qa:
                 st.stop()
             if retrieval.degraded or retrieval.warnings:
                 st.warning("⚠️ Recherche dégradée : " + " · ".join(retrieval.warnings))
-            if not _groq_key:
-                st.error("❌ GROQ_API_KEY manquante.")
+            if not _qa_key:
+                st.error(f"❌ {QA_API_KEY_ENV} manquante.")
                 st.stop()
             faiss_results = retrieval.hits
             with st.spinner("Génération de la réponse…"):
                 try:
                     response = answer(te_input, faiss_results, [], universe_name="Terran Empire — Star Trek Mirror Universe")
                 except Exception as exc:
-                    st.error(f"❌ {safe_provider_error('groq', exc)}")
+                    st.error(f"❌ {safe_provider_error(QA_PROVIDER, exc)}")
                     st.stop()
-            if GROQ_MODEL_WARNING:
+            if QA_PROVIDER == "groq" and GROQ_MODEL_WARNING:
                 st.warning(f"⚠️ {GROQ_MODEL_WARNING}")
             st.markdown("### Réponse")
             st.write(response)
@@ -369,7 +380,7 @@ with te_tab_lore:
         if not _te_available:
             st.error("❌ Index Empire Terran non disponible.")
         elif not _lore_api_key:
-            st.error(f"❌ {'ANTHROPIC_API_KEY' if _lore_provider == 'anthropic' else 'GROQ_API_KEY'} manquante.")
+            st.error(f"❌ {_lore_api_key_env} manquante.")
         else:
             with st.spinner("Récupération du contexte + génération…"):
                 result = generate_lore_for_universe(
@@ -504,7 +515,7 @@ with st.expander("⚙️ Mode manuel — accès direct aux pipelines"):
         if not _kg_ready:
             st.warning("⚠️ KG non construit.")
         elif not _lore_api_key:
-            st.error(f"❌ {'ANTHROPIC_API_KEY' if _lore_provider == 'anthropic' else 'GROQ_API_KEY'} manquante.")
+            st.error(f"❌ {_lore_api_key_env} manquante.")
         elif not _qa_available:
             st.error("❌ Index FAISS non disponible.")
         else:

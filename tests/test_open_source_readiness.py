@@ -45,6 +45,25 @@ class OpenSourceReadinessTests(unittest.TestCase):
         self.assertEqual(report["status"], "review_required")
         self.assertEqual(report["findings"][0]["code"], "tracked-data-review")
 
+    def test_audit_flags_explicit_deepseek_api_key_assignment(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text(
+                "DEEPSEEK_API_KEY=" + "deepseek_test_secret_value_123\n",
+                encoding="utf-8",
+            )
+            (root / ".env.example").write_text("DEEPSEEK_API_KEY=\n", encoding="utf-8")
+            (root / "LICENSE").write_text("placeholder\n", encoding="utf-8")
+
+            with patch(
+                "scripts.open_source_audit.git_ls_files",
+                return_value=["README.md", ".env.example", "LICENSE"],
+            ):
+                report = summarize(audit_tracked_files(root))
+
+        self.assertEqual(report["status"], "blocked")
+        self.assertEqual(report["findings"][0]["code"], "possible-secret")
+
 
 if __name__ == "__main__":
     unittest.main()

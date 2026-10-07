@@ -1,4 +1,4 @@
-"""Appel au LLM via Groq avec contexte RAG enrichi.
+"""Appel au fournisseur LLM configuré avec contexte RAG enrichi.
 
 Le LLM (Large Language Model) reçoit :
     - le contexte récupéré par le retrieval (chunks FAISS + entrées SQLite)
@@ -9,25 +9,19 @@ Il génère une réponse en se basant uniquement sur ce contexte.
 Pipeline :
     résultats retrieval
         ↓ build_prompt()   → assemble contexte + question en un seul texte
-        ↓ call_llm()       → envoie à l'API Groq, reçoit la réponse
+        ↓ call_llm()       → envoie au fournisseur configuré, reçoit la réponse
     réponse finale
 """
 
-import os                      # pour lire les variables d'environnement (GROQ_API_KEY)
 from typing import Optional
 
-from dotenv import load_dotenv  # lit le fichier .env et charge les variables en mémoire
-from groq import Groq           # client Python officiel pour l'API Groq
-from src.llm_provider import safe_provider_error
-from src.settings import GROQ_API_KEY_ENV, GROQ_MODEL, env_value, missing_key_message
-
-load_dotenv()  # charge .env au moment où ce fichier est importé (rend GROQ_API_KEY disponible via os.getenv)
+from src.llm_provider import LLMRequest, provider_from_name
+from src.settings import QA_PROVIDER
 
 # ---------------------------------------------------------------------------
 # Configuration du modèle
 # ---------------------------------------------------------------------------
 
-MODEL       = GROQ_MODEL              # modèle Groq : rapide, gratuit, bon pour Q&A
 MAX_TOKENS  = 1024                    # longueur maximale de la réponse (en tokens ≈ mots)
 TEMPERATURE = 0.2                     # 0 = très factuel/répétable, 1 = créatif/aléatoire
 
@@ -101,36 +95,31 @@ Answer:"""
 # Appel au LLM
 # ---------------------------------------------------------------------------
 
-def call_llm(prompt: str, api_key: Optional[str] = None) -> str:
-    """Envoie le prompt à l'API Groq et retourne le texte de la réponse.
+def call_llm(
+    prompt: str,
+    api_key: Optional[str] = None,
+    provider_name: str | None = None,
+) -> str:
+    """Envoie le prompt au fournisseur choisi et retourne sa réponse.
 
     Args:
         prompt  : prompt complet avec contexte + question
-        api_key : clé API Groq (si None, lue depuis la variable d'env GROQ_API_KEY)
+        api_key      : clé explicite, sinon le provider lit sa variable d'environnement
+        provider_name: fournisseur explicite, sinon QA_PROVIDER (DeepSeek par défaut)
 
     Returns:
         texte brut de la réponse du LLM
     """
-    key = api_key or env_value(GROQ_API_KEY_ENV)  # priorité à l'argument, sinon lit le .env
-    if not key:
-        raise ValueError(missing_key_message(GROQ_API_KEY_ENV, "Q&A Groq"))
-
-    client = Groq(api_key=key)  # initialise le client avec la clé API
-
-    # appel à l'API : on envoie un message "user" (comme dans une conversation chat)
-    try:
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {"role": "user", "content": prompt}  # role = qui parle, content = le texte
-            ],
+    selected_provider = (provider_name or QA_PROVIDER).strip().lower()
+    provider = provider_from_name(selected_provider, api_key=api_key)
+    response = provider.generate(
+        LLMRequest(
+            prompt=prompt,
             max_tokens=MAX_TOKENS,
             temperature=TEMPERATURE,
         )
-    except Exception as exc:
-        raise safe_provider_error("groq", exc) from None
-
-    return response.choices[0].message.content  # extrait le texte de la réponse (la première proposition)
+    )
+    return response.text
 
 
 # ---------------------------------------------------------------------------
@@ -146,7 +135,7 @@ def answer(
 ) -> str:
     """Construit le prompt et appelle le LLM. Retourne la réponse finale en texte."""
     prompt   = build_prompt(question, faiss_results, dict_results, universe_name=universe_name)  # assemble le contexte + question
-    response = call_llm(prompt, api_key=api_key)                    # envoie à Groq, reçoit la réponse
+    response = call_llm(prompt, api_key=api_key)
     return response
 
 

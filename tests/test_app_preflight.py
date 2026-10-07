@@ -7,6 +7,121 @@ import streamlit as st
 from src.retrieval_adapter import RetrievalStatus
 
 
+def test_deepseek_is_the_default_lore_provider():
+    with patch("src.embeddings.load_model", return_value=object()), patch(
+        "src.universe_registry.load_semantic_handle", return_value=object()
+    ), patch("socket.create_connection", side_effect=AssertionError("network disabled")):
+        at = AppTest.from_file("app.py").run(timeout=30)
+
+    selector = at.selectbox(key="lore_provider")
+    assert "DeepSeek" in selector.options
+    assert selector.value == "DeepSeek"
+
+
+def test_normal_qa_missing_key_names_deepseek_key():
+    st.cache_resource.clear()
+    classify = lambda *_args, **_kwargs: {
+        "route": "qa",
+        "label": "Q&A",
+        "method": "rules",
+        "reason": "test",
+    }
+    with patch("src.router.classify_request", classify), patch(
+        "src.embeddings.load_model", return_value=object()
+    ), patch("src.universe_registry.load_semantic_handle", return_value=object()), patch(
+        "socket.create_connection", side_effect=AssertionError("network disabled")
+    ), patch.dict(
+        os.environ,
+        {
+            "DEEPSEEK_API_KEY": "",
+            "GROQ_API_KEY": "",
+            "ANTHROPIC_API_KEY": "",
+            "OPENAI_API_KEY": "",
+        },
+    ):
+        at = AppTest.from_file("app.py").run(timeout=30)
+        at.selectbox(key="normal_universe").select("Tolkien / Elfique")
+        at.text_area(key="main_input").input("Who are the Noldor?")
+        at.button[0].click().run(timeout=30)
+
+    assert any("DEEPSEEK_API_KEY manquante" in error.value for error in at.error)
+    assert not at.exception
+
+
+def test_normal_lore_passes_deepseek_provider_explicitly():
+    st.cache_resource.clear()
+    captured = {}
+    classify = lambda *_args, **_kwargs: {
+        "route": "lore",
+        "label": "Lore",
+        "method": "rules",
+        "reason": "test",
+    }
+
+    def execute(_layers, _input, resources):
+        captured.update(resources)
+        return {"error": "test stop", "outputs": {}, "trace": [], "final_output": None}
+
+    with patch("src.router.classify_request", classify), patch(
+        "src.embeddings.load_model", return_value=object()
+    ), patch("src.universe_registry.load_semantic_handle", return_value=object()), patch(
+        "src.pipeline_executor.execute_pipeline", side_effect=execute
+    ), patch("socket.create_connection", side_effect=AssertionError("network disabled")), patch.dict(
+        os.environ, {"DEEPSEEK_API_KEY": "test-deepseek-key"}
+    ):
+        at = AppTest.from_file("app.py").run(timeout=30)
+        at.selectbox(key="normal_universe").select("Tolkien / Elfique")
+        at.text_area(key="main_input").input("Invent an elf settlement")
+        at.button[0].click().run(timeout=30)
+
+    assert captured["lore_provider"] == "deepseek"
+    assert not at.exception
+
+
+def test_terran_lore_passes_deepseek_provider_explicitly():
+    st.cache_resource.clear()
+    captured = {}
+
+    def generate(**kwargs):
+        captured.update(kwargs)
+        return {"success": False, "error": "test stop", "story": None, "chunks_used": 0}
+
+    with patch("src.embeddings.load_model", return_value=object()), patch(
+        "src.universe_registry.load_semantic_handle", return_value=object()
+    ), patch("src.lore_generator_generic.generate_lore_for_universe", side_effect=generate), patch(
+        "socket.create_connection", side_effect=AssertionError("network disabled")
+    ), patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-deepseek-key"}):
+        at = AppTest.from_file("app.py").run(timeout=30)
+        at.text_area(key="te_lore_input").input("Invent a Terran officer")
+        at.button(key="te_lore_submit").click().run(timeout=30)
+
+    assert captured["provider"] == "deepseek"
+    assert captured["api_key"] == "test-deepseek-key"
+    assert not at.exception
+
+
+def test_manual_lore_passes_deepseek_provider_explicitly():
+    st.cache_resource.clear()
+    captured = {}
+
+    def generate(**kwargs):
+        captured.update(kwargs)
+        return {"success": False, "error": "test stop", "story": None, "chunks_used": 0}
+
+    with patch("src.embeddings.load_model", return_value=object()), patch(
+        "src.universe_registry.load_semantic_handle", return_value=object()
+    ), patch("src.lore_generator_generic.generate_lore_for_universe", side_effect=generate), patch(
+        "socket.create_connection", side_effect=AssertionError("network disabled")
+    ), patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-deepseek-key"}):
+        at = AppTest.from_file("app.py").run(timeout=30)
+        at.text_area(key="manual_lore").input("Invent a hidden city")
+        at.button(key="manual_lore_btn").click().run(timeout=30)
+
+    assert captured["provider"] == "deepseek"
+    assert captured["api_key"] == "test-deepseek-key"
+    assert not at.exception
+
+
 def test_auto_generic_request_stops_before_router_or_provider():
     with patch("src.router.classify_request", side_effect=AssertionError("router must not run")) as classify:
         with patch("src.embeddings.load_model", return_value=object()), patch("src.universe_registry.load_semantic_handle", return_value=object()), patch("src.llm.answer") as answer, patch("anthropic.Anthropic") as anthropic, patch("socket.create_connection", side_effect=AssertionError("network disabled")):
@@ -66,7 +181,9 @@ def test_terran_direct_qa_uses_the_bound_semantic_handle():
         "src.universe_registry.load_semantic_handle", return_value=handle
     ), patch("src.retrieval_adapter.retrieve_evidence_result", side_effect=retrieve), patch(
         "src.llm.answer", return_value="answer"
-    ), patch("socket.create_connection", side_effect=AssertionError("network disabled")):
+    ) as answer, patch("socket.create_connection", side_effect=AssertionError("network disabled")), patch.dict(
+        os.environ, {"DEEPSEEK_API_KEY": "test-deepseek-key"}
+    ):
         at = AppTest.from_file("app.py").run(timeout=30)
         at.text_area(key="te_input").input("Who is Mirror Spock?")
         at.button(key="te_submit").click().run(timeout=30)
@@ -74,6 +191,7 @@ def test_terran_direct_qa_uses_the_bound_semantic_handle():
     assert captured["universe_id"] == "terran_empire"
     assert captured["model"] is model
     assert captured["semantic_handle"] is handle
+    answer.assert_called_once()
 
 
 def test_normal_terran_qa_passes_bound_resources_to_pipeline():
@@ -92,7 +210,7 @@ def test_normal_terran_qa_passes_bound_resources_to_pipeline():
     ), patch("src.universe_registry.load_semantic_handle", return_value=handle), patch(
         "src.pipeline_executor.execute_pipeline", side_effect=execute
     ), patch("socket.create_connection", side_effect=AssertionError("network disabled")), patch.dict(
-        os.environ, {"GROQ_API_KEY": "test-groq-key"}
+        os.environ, {"DEEPSEEK_API_KEY": "test-deepseek-key"}
     ):
         at = AppTest.from_file("app.py").run(timeout=30)
         at.selectbox(key="normal_universe").select("Empire Terran")
@@ -119,6 +237,7 @@ def test_normal_lore_provider_failure_shows_no_story_or_exception():
         os.environ, {"ANTHROPIC_API_KEY": "test-anthropic-key"}
     ):
         at = AppTest.from_file("app.py").run(timeout=30)
+        at.selectbox(key="lore_provider").select("Anthropic")
         at.selectbox(key="normal_universe").select("Tolkien / Elfique")
         at.text_area(key="main_input").input("Invent an elf settlement")
         at.button[0].click().run(timeout=30)

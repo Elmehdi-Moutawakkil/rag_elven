@@ -34,8 +34,9 @@ See [`docs/OPEN_SOURCE_READINESS.md`](docs/OPEN_SOURCE_READINESS.md).
 - Output validation against sources, KG continuity, constraints, and memory.
 - Validated memory primitives with draft, validated, rejected, history, and
   rollback semantics.
-- Provider-neutral LLM interface for future OpenAI, Anthropic, Groq, Ollama, or
-  LM Studio routing.
+- Provider-neutral LLM interface with current DeepSeek, OpenAI, Anthropic,
+  Groq, Ollama, and LM Studio adapters. DeepSeek is the default Q&A and lore
+  provider.
 - Multimodal document metadata foundations for image/audio support.
 - Controlled agent runner with inspectable plans and risky-action blocking.
 - Thin MCP tool wrappers over stable read/validation modules.
@@ -73,6 +74,10 @@ generation and Q&A:
 ```bash
 cp .env.example .env
 ```
+
+Set `DEEPSEEK_API_KEY` for the default Q&A and lore paths. `QA_PROVIDER` can
+explicitly select `deepseek`, `groq`, `openai`, or `anthropic`; no automatic
+fallback occurs. Each selection uses its corresponding API key variable.
 
 Never commit real API keys.
 

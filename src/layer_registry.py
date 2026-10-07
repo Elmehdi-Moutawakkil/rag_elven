@@ -20,7 +20,11 @@ from src.module_registry import ModuleDefinition, ModuleResult, ModuleStatus
 from src.settings import (
     ANTHROPIC_API_KEY_ENV,
     ANTHROPIC_LORE_MODEL,
+    DEEPSEEK_API_KEY_ENV,
+    GROQ_API_KEY_ENV,
     PROJECT_ROOT,
+    QA_API_KEY_ENV,
+    QA_PROVIDER,
     env_value,
     missing_key_message,
 )
@@ -123,10 +127,10 @@ LAYER_META: dict[str, LayerMeta] = {
     ),
     "L08": LayerMeta(
         id="L08", name="Story Generation", emoji="✨",
-        description="Envoie à Claude (Anthropic) le contexte et les contraintes canon pour générer une histoire ou un lore inédit cohérent avec l'univers sélectionné.",
+        description="Envoie au fournisseur de lore sélectionné le contexte et les contraintes canon pour générer une histoire cohérente avec l'univers sélectionné.",
         input_types=["text_constraints", "text"], output_type="json_story",
-        cost="claude", deterministic=False,
-        dependencies=["ANTHROPIC_API_KEY"],
+        cost="unknown", deterministic=False,
+        dependencies=["Clé API du fournisseur de lore sélectionné"],
         confidence="medium",
     ),
     "L09": LayerMeta(
@@ -166,10 +170,10 @@ LAYER_META: dict[str, LayerMeta] = {
     ),
     "L13": LayerMeta(
         id="L13", name="Answer LLM", emoji="💬",
-        description="Prend le contexte FAISS et les entrées de dictionnaire récupérés et les soumet à Groq (llama-3.1-8b) pour synthétiser une réponse finale en langage naturel.",
+        description="Prend le contexte récupéré et le soumet au fournisseur Q&A configuré pour synthétiser une réponse finale sourcée.",
         input_types=["json_chunks", "json_dict", "text"], output_type="text",
-        cost="groq", deterministic=False,
-        dependencies=["GROQ_API_KEY optional"],
+        cost="unknown", deterministic=False,
+        dependencies=[f"{QA_API_KEY_ENV} optional"],
         confidence="medium",
     ),
 }
@@ -322,15 +326,19 @@ def _run_L08(input: Any, context: dict) -> LayerResult:
 
     from src.llm_provider import generate_lore_text, safe_provider_error
 
-    provider_name = str(context["resources"].get("lore_provider", "anthropic")).strip().lower()
-    if provider_name not in {"anthropic", "groq"}:
+    provider_name = str(context["resources"].get("lore_provider", "deepseek")).strip().lower()
+    if provider_name not in {"anthropic", "deepseek", "groq"}:
         return LayerResult(
             output={"story": None, "warnings": []},
             output_type="json_story",
             label="Fournisseur lore non pris en charge",
             error="PROVIDER_UNSUPPORTED: fournisseur de lore non pris en charge.",
         )
-    api_key_env = ANTHROPIC_API_KEY_ENV if provider_name == "anthropic" else "GROQ_API_KEY"
+    api_key_env = {
+        "anthropic": ANTHROPIC_API_KEY_ENV,
+        "deepseek": DEEPSEEK_API_KEY_ENV,
+        "groq": GROQ_API_KEY_ENV,
+    }[provider_name]
     api_key = env_value(api_key_env)
     if not api_key:
         return LayerResult(
@@ -436,7 +444,7 @@ def _run_L13(input: Any, context: dict) -> LayerResult:
     universe = context.get("resources", {}).get("universe", "selected universe")
 
     response = answer(question, faiss_results, dict_results, universe_name=universe)
-    return LayerResult(output=response, output_type="text", label="Réponse Groq générée")
+    return LayerResult(output=response, output_type="text", label=f"Réponse {QA_PROVIDER.title()} générée")
 
 
 # ==============================================================================

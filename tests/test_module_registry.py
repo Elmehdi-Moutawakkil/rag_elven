@@ -1,6 +1,6 @@
 import unittest
 
-from src.layer_registry import LAYER_ORDER, MODULE_REGISTRY
+from src.layer_registry import LAYER_META, LAYER_ORDER, MODULE_REGISTRY
 from src.pipeline_executor import execute_pipeline
 
 
@@ -26,6 +26,15 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertEqual(module.status, "future")
             self.assertFalse(module.available)
             self.assertIsNone(module.run)
+
+    def test_l08_metadata_describes_configurable_lore_provider(self):
+        meta = LAYER_META["L08"]
+
+        self.assertNotIn("Anthropic", meta.description)
+        self.assertNotIn("Claude", meta.description)
+        self.assertEqual(meta.cost, "unknown")
+        self.assertNotIn("ANTHROPIC_API_KEY", meta.dependencies)
+        self.assertIn("fournisseur de lore sélectionné", meta.description.lower())
 
     def test_pipeline_reports_unavailable_future_module(self):
         result = execute_pipeline(["L10"], "show me an image")

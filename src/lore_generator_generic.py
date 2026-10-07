@@ -3,7 +3,7 @@
 Pipeline:
 1. search_faiss()     — retrieve relevant chunks from universe index
 2. KG canon check     — load hard rules if a KG exists for this universe
-3. Claude API         — generate story grounded in chunks + KG constraints
+3. Selected LLM API   — generate story grounded in chunks + KG constraints
 4. KG violation check — flag any canon violations in the output
 """
 
@@ -17,7 +17,12 @@ import faiss
 from src.knowledge_graph import KnowledgeGraph
 from src.retrieval_adapter import RetrievalStatus, retrieve_evidence_result
 from src.llm_provider import generate_lore_text, safe_provider_error
-from src.settings import ANTHROPIC_API_KEY_ENV, GROQ_API_KEY_ENV, missing_key_message
+from src.settings import (
+    ANTHROPIC_API_KEY_ENV,
+    DEEPSEEK_API_KEY_ENV,
+    GROQ_API_KEY_ENV,
+    missing_key_message,
+)
 from src.universe_registry import SemanticIndexHandle, get_universe_registry
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -70,9 +75,9 @@ def generate_lore_for_universe(
     semantic_handle: SemanticIndexHandle | None = None,
     k: int = 5,
     universe_id: str | None = None,
-    provider: str = "anthropic",
+    provider: str = "deepseek",
 ) -> dict:
-    """Generate lore for any universe using FAISS context + Claude.
+    """Generate lore for any universe using FAISS context + the selected provider.
 
     Args:
         user_request  : the user's lore generation request
@@ -99,7 +104,7 @@ def generate_lore_for_universe(
             semantic_handle=semantic_handle,
         )
         provider_name = provider.strip().lower()
-        if provider_name not in {"anthropic", "groq"}:
+        if provider_name not in {"anthropic", "deepseek", "groq"}:
             return {
                 "success": False,
                 "error": "PROVIDER_UNSUPPORTED: fournisseur de lore non pris en charge.",
@@ -121,7 +126,11 @@ def generate_lore_for_universe(
             return {
                 "success": False,
                 "error": missing_key_message(
-                    ANTHROPIC_API_KEY_ENV if provider_name == "anthropic" else GROQ_API_KEY_ENV,
+                    {
+                        "anthropic": ANTHROPIC_API_KEY_ENV,
+                        "deepseek": DEEPSEEK_API_KEY_ENV,
+                        "groq": GROQ_API_KEY_ENV,
+                    }[provider_name],
                     "generation de lore",
                 ),
                 "story": None,

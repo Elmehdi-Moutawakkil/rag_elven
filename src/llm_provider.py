@@ -10,6 +10,9 @@ from typing import Protocol
 from src.settings import (
     ANTHROPIC_API_KEY_ENV,
     ANTHROPIC_LORE_MODEL,
+    DEEPSEEK_API_KEY_ENV,
+    DEEPSEEK_LORE_MODEL,
+    DEEPSEEK_MODEL,
     GROQ_API_KEY_ENV,
     GROQ_LORE_MODEL,
     GROQ_MODEL,
@@ -83,7 +86,11 @@ class LLMProviderError(RuntimeError):
 def provider_error_message(provider: str, error: BaseException) -> str:
     """Translate an SDK failure without exposing a provider response body."""
     provider_name = provider.strip().lower()
-    provider_label = {"groq": "Groq", "anthropic": "Anthropic"}.get(provider_name, provider.title())
+    provider_label = {
+        "groq": "Groq",
+        "anthropic": "Anthropic",
+        "deepseek": "DeepSeek",
+    }.get(provider_name, provider.title())
     status_code = getattr(error, "status_code", None)
     error_text = str(error).casefold()
 
@@ -92,9 +99,16 @@ def provider_error_message(provider: str, error: BaseException) -> str:
         for marker in ("credit balance", "insufficient credit", "balance too low", "insufficient funds")
     ):
         return "Le crédit Anthropic est insuffisant pour générer du lore."
+    if provider_name == "deepseek" and any(
+        marker in error_text
+        for marker in ("insufficient balance", "insufficient credit", "balance too low", "insufficient funds")
+    ):
+        return "Le crédit DeepSeek est insuffisant pour générer du lore."
     if status_code == 404:
         if provider_name == "groq":
             return "Le modèle Groq configuré est introuvable. Vérifiez GROQ_MODEL."
+        if provider_name == "deepseek":
+            return "Le modèle DeepSeek configuré est introuvable. Vérifiez DEEPSEEK_MODEL."
         return f"Le modèle configuré pour {provider_label} est introuvable."
     if status_code in {401, 403}:
         return f"L'accès à {provider_label} a été refusé. Vérifiez la clé API configurée."
@@ -308,12 +322,55 @@ class OpenAIProvider:
         if request.system:
             messages.append({"role": "system", "content": request.system})
         messages.append({"role": "user", "content": request.prompt})
-        response = client.chat.completions.create(
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_tokens=request.max_tokens,
+                temperature=request.temperature,
+            )
+        except Exception as exc:
+            raise safe_provider_error(self.provider_name, exc) from None
+        usage = _usage_to_dict(getattr(response, "usage", None))
+        return LLMResponse(
+            text=response.choices[0].message.content or "",
+            provider=self.provider_name,
             model=model,
-            messages=messages,
-            max_tokens=request.max_tokens,
-            temperature=request.temperature,
+            usage=usage,
+            cost_estimate_usd=estimate_cost_usd(self.provider_name, model, usage),
         )
+
+
+class DeepSeekProvider:
+    """DeepSeek API adapter using its documented OpenAI-compatible client."""
+
+    provider_name = "deepseek"
+    base_url = "https://api.deepseek.com"
+
+    def __init__(self, api_key: str | None = None):
+        self.api_key = api_key
+
+    def generate(self, request: LLMRequest) -> LLMResponse:
+        key = env_value(DEEPSEEK_API_KEY_ENV) if self.api_key is None else self.api_key.strip()
+        if not key:
+            raise MissingLLMKeyError(missing_key_message(DEEPSEEK_API_KEY_ENV, "generation DeepSeek"))
+        import openai
+
+        model = request.model or DEEPSEEK_MODEL
+        client = openai.OpenAI(api_key=key, base_url=self.base_url)
+        messages = []
+        if request.system:
+            messages.append({"role": "system", "content": request.system})
+        messages.append({"role": "user", "content": request.prompt})
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_tokens=request.max_tokens,
+                temperature=request.temperature,
+            )
+        except Exception as exc:
+            raise safe_provider_error(self.provider_name, exc) from None
         usage = _usage_to_dict(getattr(response, "usage", None))
         return LLMResponse(
             text=response.choices[0].message.content or "",
@@ -360,17 +417,19 @@ class OpenAICompatibleProvider:
         )
 
 
-def provider_from_name(name: str) -> LLMProvider:
+def provider_from_name(name: str, api_key: str | None = None) -> LLMProvider:
     """Factory for supported providers."""
     normalized = name.lower().strip()
     if normalized == "groq":
-        return GroqProvider()
+        return GroqProvider(api_key=api_key)
     if normalized in {"anthropic", "claude"}:
-        return AnthropicProvider()
+        return AnthropicProvider(api_key=api_key)
     if normalized in {"openai", "chatgpt"}:
-        return OpenAIProvider()
+        return OpenAIProvider(api_key=api_key)
+    if normalized == "deepseek":
+        return DeepSeekProvider(api_key=api_key)
     if normalized in {"local", "lm_studio", "openai_compatible"}:
-        return OpenAICompatibleProvider()
+        return OpenAICompatibleProvider(api_key=api_key or "lm-studio")
     if normalized == "ollama":
         return OpenAICompatibleProvider(base_url=OLLAMA_BASE_URL, api_key="ollama", provider_name="ollama")
     if normalized == "static":
@@ -387,6 +446,9 @@ def generate_lore_text(prompt: str, provider_name: str, api_key: str | None) -> 
     elif normalized == "groq":
         provider = GroqProvider(api_key=api_key)
         model = GROQ_LORE_MODEL
+    elif normalized == "deepseek":
+        provider = DeepSeekProvider(api_key=api_key)
+        model = DEEPSEEK_LORE_MODEL
     else:
         raise LLMProviderError("PROVIDER_UNSUPPORTED: fournisseur de lore non pris en charge.")
 

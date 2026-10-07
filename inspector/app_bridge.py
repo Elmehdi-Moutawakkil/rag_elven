@@ -28,11 +28,12 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 from src.settings import (
     ANTHROPIC_API_KEY_ENV,
-    GROQ_API_KEY_ENV,
-    GROQ_MODEL,
+    QA_API_KEY_ENV,
+    QA_PROVIDER,
     env_value,
     missing_key_message,
 )
+from src.llm_provider import safe_provider_error
 
 
 # ---------------------------------------------------------------------------
@@ -49,6 +50,11 @@ def _missing_key_result(env_name: str, feature: str, started_at: float) -> dict:
         "duration_ms": int((time.time() - started_at) * 1000),
         "error": missing_key_message(env_name, feature),
     }
+
+
+def _safe_qa_error(error: BaseException) -> str:
+    """Return the public provider error contract without leaking SDK details."""
+    return str(safe_provider_error(QA_PROVIDER, error))
 
 
 def _get_embedding_model():
@@ -85,12 +91,12 @@ def _get_terran_index():
 # ---------------------------------------------------------------------------
 
 def call_qa_elvish(question: str) -> dict:
-    """Q&A Tolkien — FAISS + SQLite + Groq LLM."""
+    """Q&A Tolkien — FAISS + SQLite + configured LLM provider."""
     t0 = time.time()
     try:
-        groq_key = env_value(GROQ_API_KEY_ENV)
-        if not groq_key:
-            return _missing_key_result(GROQ_API_KEY_ENV, "Q&A Elfique", t0)
+        qa_key = env_value(QA_API_KEY_ENV)
+        if not qa_key:
+            return _missing_key_result(QA_API_KEY_ENV, "Q&A Elfique", t0)
 
         from src.retrieval import retrieve
         from src.llm import answer
@@ -103,7 +109,7 @@ def call_qa_elvish(question: str) -> dict:
             question,
             results["faiss"],
             results.get("dictionary", []),
-            api_key=groq_key,
+            api_key=qa_key,
         )
         return {
             "success": True,
@@ -112,7 +118,12 @@ def call_qa_elvish(question: str) -> dict:
             "error": None,
         }
     except Exception as e:
-        return {"success": False, "response": None, "duration_ms": int((time.time() - t0) * 1000), "error": str(e)}
+        return {
+            "success": False,
+            "response": None,
+            "duration_ms": int((time.time() - t0) * 1000),
+            "error": _safe_qa_error(e),
+        }
 
 
 def call_translate_quenya(sentence: str) -> dict:
@@ -177,15 +188,15 @@ def call_lore_tolkien(request: str) -> dict:
 
 
 def call_qa_terran(question: str) -> dict:
-    """Q&A Mirror Universe — FAISS + Groq LLM."""
+    """Q&A Mirror Universe — FAISS + configured LLM provider."""
     t0 = time.time()
     try:
-        groq_key = env_value(GROQ_API_KEY_ENV)
-        if not groq_key:
-            return _missing_key_result(GROQ_API_KEY_ENV, "Q&A Empire Terran", t0)
+        qa_key = env_value(QA_API_KEY_ENV)
+        if not qa_key:
+            return _missing_key_result(QA_API_KEY_ENV, "Q&A Empire Terran", t0)
 
         from src.retrieval import search_faiss
-        from groq import Groq
+        from src.llm import call_llm
 
         model = _get_embedding_model()
         index, metadata = _get_terran_index()
@@ -205,14 +216,7 @@ IMPORTANT: Answer in the same language as the question.
 Question: {question}
 Answer:"""
 
-        client = Groq(api_key=groq_key)
-        resp = client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=512,
-            temperature=0.2,
-        )
-        response = resp.choices[0].message.content
+        response = call_llm(prompt, api_key=qa_key)
         return {
             "success": True,
             "response": response,
@@ -220,7 +224,12 @@ Answer:"""
             "error": None,
         }
     except Exception as e:
-        return {"success": False, "response": None, "duration_ms": int((time.time() - t0) * 1000), "error": str(e)}
+        return {
+            "success": False,
+            "response": None,
+            "duration_ms": int((time.time() - t0) * 1000),
+            "error": _safe_qa_error(e),
+        }
 
 
 def call_lore_terran(request: str) -> dict:
